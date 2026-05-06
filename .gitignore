@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+.eggs/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+backend/data/nyayamitra.db
+
+# Generated
+*.pdf
+!nyayamitra/backend/nyayamitra/kg/templates/*.pdf
+!nyayamitra/backend/nyayamitra/kg/legal_templates/*.pdf
