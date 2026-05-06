@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+_env_path = Path(__file__).resolve().parents[2] / ".env"
+load_dotenv(_env_path, override=True)
 
 LLM_API_KEY = os.getenv("LLM_API_KEY", "")
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
