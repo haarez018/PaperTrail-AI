@@ -322,23 +322,23 @@ class IntakeAgent:
         # Apply LLM extractions to the case file
         self._apply_llm_result(result, message)
 
-        # Determine next question
-        needs_followup = result.get("needs_followup", True)
-        followup = result.get("followup_question_in_user_language")
-
-        if needs_followup and followup:
-            return self._case, followup
-
-        # If LLM says no followup needed, verify with deterministic check
+        # Truth check: ask the deterministic engine if we actually have
+        # missing fields, regardless of what the LLM thinks.
         det = DeterministicIntake(self._case)
         _, det_question = det.process_message(message)
-        if det_question:
-            # LLM thought we were done but deterministic disagrees — use LLM
-            # to generate a nicer version of the follow-up
-            return self._case, await self._polish_followup(det_question)
 
-        self._case.status = CaseStatus.PLANNING
-        return self._case, None
+        if det_question is None:
+            # Deterministic says intake is complete — trust it
+            self._case.status = CaseStatus.PLANNING
+            return self._case, None
+
+        # We do have missing fields.  Use the LLM's follow-up if it
+        # provided one, otherwise polish the deterministic question.
+        followup = result.get("followup_question_in_user_language")
+        if followup and result.get("needs_followup", True):
+            return self._case, followup
+
+        return self._case, await self._polish_followup(det_question)
 
     def _apply_llm_result(self, result: dict, original_message: str) -> None:
         """Apply LLM-extracted fields to the case file."""
