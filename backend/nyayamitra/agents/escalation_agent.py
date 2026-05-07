@@ -1,10 +1,18 @@
-"""Escalation Agent — generates RTI applications, grievance letters, and Lokayukta complaints."""
+"""Escalation Agent — generates RTI applications, grievance letters, and Lokayukta complaints.
+
+All legal citations, act references, section numbers, template structure,
+and submission addresses are HARDCODED. LLM is used ONLY for the grievance
+description paragraph — the part that describes the citizen's specific
+situation. Falls back to a generic paragraph if LLM is unavailable.
+"""
 
 from __future__ import annotations
 
 import base64
 import io
+import logging
 from datetime import datetime
+from typing import Any
 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
@@ -15,6 +23,8 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 from nyayamitra.kg.loader import get_procedure
 from nyayamitra.schemas.case_file import CaseFile
 from nyayamitra.schemas.escalation import EscalationLetter, EscalationType
+
+logger = logging.getLogger(__name__)
 
 
 # ---------- RTI templates ----------
@@ -263,3 +273,89 @@ def _generate_escalation_pdf(letter: EscalationLetter, procedure_name: str) -> s
     buffer.close()
 
     return base64.b64encode(pdf_bytes).decode("utf-8")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# LLM-enhanced grievance paragraph (surgical addition)
+# ═══════════════════════════════════════════════════════════════════════
+
+_DETERMINISTIC_GRIEVANCE = (
+    "My application has been pending beyond the stipulated time without "
+    "any valid reason or communication from the concerned office. Despite "
+    "submitting all required documents, no action has been taken."
+)
+
+
+async def _llm_grievance_paragraph(
+    procedure_name: str,
+    days_delayed: int,
+    case_file: CaseFile,
+    escalation_type: str,
+    llm_client: Any,
+) -> str:
+    """Use LLM to generate a situation-specific grievance paragraph."""
+    try:
+        from nyayamitra.llm.prompts import load_prompt
+        from nyayamitra.config import LLM_TEMPERATURE_ESCALATION
+
+        case_summary = (
+            f"Event: {case_file.life_event.type.value if case_file.life_event.type else 'unknown'}. "
+            f"Location: {case_file.life_event.location or 'unknown'}. "
+            f"Relationship: {case_file.user.relationship_to_subject.value if case_file.user.relationship_to_subject else 'unknown'}. "
+            f"Context: pension={case_file.context.had_pension}, property={case_file.context.had_property}, "
+            f"banks={case_file.context.had_bank_accounts}."
+        )
+
+        prompt_template = load_prompt("escalation_grievance.txt")
+        prompt = prompt_template.format(
+            procedure_name=procedure_name,
+            days_delayed=days_delayed,
+            case_summary=case_summary,
+            escalation_type=escalation_type,
+        )
+
+        resp = await llm_client.generate(
+            prompt=prompt,
+            temperature=LLM_TEMPERATURE_ESCALATION,
+            max_tokens=250,
+        )
+
+        text = resp.text.strip()
+        if text and resp.provider != "deterministic":
+            return text
+    except Exception as e:
+        logger.warning("LLM grievance generation failed: %s", e)
+
+    return _DETERMINISTIC_GRIEVANCE
+
+
+async def generate_escalation_async(
+    procedure_id: str,
+    case_file: CaseFile,
+    escalation_type: str = "rti",
+    days_delayed: int = 45,
+    llm_client: Any = None,
+) -> dict:
+    """Generate an escalation letter with LLM-polished grievance paragraph.
+
+    All legal citations and template structure stay deterministic.
+    LLM polishes ONLY the grievance description paragraph.
+    """
+    from nyayamitra.config import LLM_MODE
+
+    # Get the fully deterministic result first
+    result = generate_escalation(procedure_id, case_file, escalation_type, days_delayed)
+    if "error" in result:
+        return result
+
+    # If hybrid mode, enhance the grievance paragraph
+    if LLM_MODE == "hybrid" and llm_client is not None:
+        proc = get_procedure(procedure_id)
+        proc_name = proc.name_en if proc else procedure_id
+        result["grievance_paragraph"] = await _llm_grievance_paragraph(
+            proc_name, days_delayed, case_file, escalation_type, llm_client,
+        )
+    else:
+        result["grievance_paragraph"] = _DETERMINISTIC_GRIEVANCE
+
+    return result
