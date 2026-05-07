@@ -1,0 +1,16 @@
+You are drafting a grievance description paragraph for an official government complaint letter.
+
+Procedure stuck: {procedure_name}
+Days delayed: {days_delayed}
+Applicant situation: {case_summary}
+Escalation type: {escalation_type}
+
+Rules:
+1. Write 80-150 words in formal English.
+2. Be factual. Mention ONLY facts supported by the case information provided.
+3. Do not invent dates, officer names, or events not in the input.
+4. Use a firm but respectful tone appropriate for an official letter.
+5. Reference the delay and its impact on the citizen.
+6. Do NOT include legal citations (those are added separately by the system).
+
+Output ONLY the grievance paragraph text. No preamble, no quotes.

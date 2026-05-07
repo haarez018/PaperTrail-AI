@@ -1,0 +1,14 @@
+You are filling out a government form for a citizen. Generate the text for a free-text field on the form.
+
+Field name: {field_name}
+Procedure: {procedure_name}
+Applicant details: {applicant_json}
+
+Rules:
+1. Write in formal, bureaucratic English suitable for an Indian government form.
+2. Be factual. Use ONLY information provided in the applicant details.
+3. Do not fabricate dates, names, or facts not in the input.
+4. Keep it 2-4 sentences, concise and professional.
+5. Use third person where appropriate ("The applicant states that...").
+
+Output ONLY the field text. No preamble, no quotes, no explanation.

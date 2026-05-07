@@ -1,0 +1,11 @@
+Summarize this government bureaucracy case for a vector database. The summary will be used to find similar past cases.
+
+Case data: {case_json}
+
+Rules:
+1. Write 1-3 sentences.
+2. Include: event type, state, key context flags (pension/property/bank/insurance), number of procedures, estimated timeline.
+3. Do NOT include any personally identifying information (names, addresses, phone numbers).
+4. Use keywords that would match against future similar queries.
+
+Output ONLY the summary text. No preamble.
