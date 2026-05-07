@@ -1,1 +1,21 @@
-# SQLModel DB models — Phase 3
+"""SQLModel database models for persisting cases."""
+
+from __future__ import annotations
+
+import uuid
+from datetime import datetime
+
+from sqlmodel import Field, SQLModel
+
+
+class CaseRecord(SQLModel, table=True):
+    """Persisted case record."""
+
+    __tablename__ = "cases"
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()), primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.now)
+    updated_at: datetime = Field(default_factory=datetime.now)
+    case_data: str = "{}"  # JSON-serialized CaseFile
+    plan_data: str | None = None  # JSON-serialized ProcedurePlan
+    status: str = "intake"

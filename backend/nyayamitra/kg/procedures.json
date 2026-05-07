@@ -1,1 +1,599 @@
-[]
+[
+  {
+    "procedure_id": "tn_death_certificate",
+    "name_en": "Death Certificate",
+    "name_ta": "இறப்புச் சான்றிதழ்",
+    "issuing_authority": "Municipal Corporation / Town Panchayat (Registrar of Births and Deaths)",
+    "jurisdiction": "tn",
+    "applicable_when": "A person has died and the death needs to be officially registered",
+    "dependencies": [],
+    "blocks": ["tn_legal_heir_cert", "tn_succession_cert", "tn_aadhaar_deactivation", "tn_voter_roll_removal", "tn_ration_card_update", "tn_insurance_claim", "tn_it_final_return"],
+    "documents_required": [
+      {"name": "Hospital death summary / doctor's certificate", "mandatory": true, "where_to_get": "Hospital where death occurred"},
+      {"name": "Aadhaar card of the deceased", "mandatory": true},
+      {"name": "Aadhaar card of the informant (person reporting)", "mandatory": true},
+      {"name": "Proof of address of the deceased", "mandatory": false, "where_to_get": "Ration card / electricity bill / rental agreement"}
+    ],
+    "estimated_duration_days": {"min": 5, "max": 7},
+    "fee_inr": 0,
+    "form_template_id": "tn_death_cert_form_4",
+    "office_type": "municipal_corporation",
+    "online_option_url": "https://crsorgi.gov.in/",
+    "common_rejection_reasons": [
+      "Death reported after 21 days (late registration needs magistrate order)",
+      "Hospital certificate not attested",
+      "Address mismatch between Aadhaar and ration card"
+    ],
+    "legal_basis": "Registration of Births and Deaths Act, 1969 (Section 12, 13)",
+    "rti_template_id": "tn_death_cert_rti"
+  },
+  {
+    "procedure_id": "tn_legal_heir_cert",
+    "name_en": "Legal Heir Certificate",
+    "name_ta": "சட்டப்பூர்வ வாரிசு சான்றிதழ்",
+    "issuing_authority": "Tahsildar (Revenue Department)",
+    "jurisdiction": "tn",
+    "applicable_when": "To establish legal heirs of a deceased person for pension transfer, bank account claims, and property mutation",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": ["tn_pension_transfer", "tn_bank_kyc_update", "tn_property_mutation"],
+    "documents_required": [
+      {"name": "Death Certificate (original + 2 copies)", "mandatory": true, "where_to_get": "Municipal Corporation"},
+      {"name": "Aadhaar card of all legal heirs", "mandatory": true},
+      {"name": "Ration card showing family members", "mandatory": true},
+      {"name": "Self-declaration affidavit on Rs.20 stamp paper", "mandatory": true, "template_id": "tn_lhc_affidavit"},
+      {"name": "Two witness Aadhaar cards + signatures", "mandatory": true},
+      {"name": "Passport-size photos of all legal heirs (2 each)", "mandatory": true},
+      {"name": "Community certificate of the deceased (if applicable)", "mandatory": false, "where_to_get": "Tahsildar Office"}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 45},
+    "fee_inr": 60,
+    "form_template_id": "tn_lhc_form_v3",
+    "office_type": "tahsildar",
+    "online_option_url": "https://tnedistrict.tn.gov.in/",
+    "common_rejection_reasons": [
+      "Missing affidavit on stamp paper",
+      "Witness signatures incomplete or not matching Aadhaar",
+      "Death certificate not original or not attested",
+      "Ration card not updated to show all family members",
+      "Spelling mismatch between Aadhaar and ration card names"
+    ],
+    "legal_basis": "Tamil Nadu Legal Heir Certificate Rules, 1966; Tamil Nadu District Revenue Officers Manual",
+    "rti_template_id": "tn_lhc_rti_template"
+  },
+  {
+    "procedure_id": "tn_succession_cert",
+    "name_en": "Succession Certificate (for movable assets)",
+    "name_ta": "வாரிசு சான்றிதழ் (நகரும் சொத்துக்கள்)",
+    "issuing_authority": "District Civil Court (District Munsif Court)",
+    "jurisdiction": "tn",
+    "applicable_when": "To claim movable assets (bank deposits above Rs.1 lakh, shares, mutual funds, fixed deposits) of the deceased when there is no will",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate (original)", "mandatory": true, "where_to_get": "Municipal Corporation"},
+      {"name": "Legal Heir Certificate", "mandatory": false, "where_to_get": "Tahsildar Office"},
+      {"name": "List of all movable assets with approximate values", "mandatory": true},
+      {"name": "Bank account statements / passbooks of the deceased", "mandatory": true},
+      {"name": "Aadhaar and address proof of the petitioner", "mandatory": true},
+      {"name": "Affidavit stating no will exists", "mandatory": true, "template_id": "tn_succession_affidavit"},
+      {"name": "Court fee stamp (ad valorem — 3% of asset value)", "mandatory": true, "where_to_get": "Court stamp counter"}
+    ],
+    "estimated_duration_days": {"min": 60, "max": 90},
+    "fee_inr": 500,
+    "form_template_id": "tn_succession_petition",
+    "office_type": "civil_court",
+    "online_option_url": null,
+    "common_rejection_reasons": [
+      "Incomplete list of assets",
+      "Missing court fee stamps",
+      "Other legal heirs not made party to the petition",
+      "Objection raised by another legal heir"
+    ],
+    "legal_basis": "Indian Succession Act, 1925 (Sections 370-390)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_pension_transfer",
+    "name_en": "Pension Transfer to Widow / Legal Heir",
+    "name_ta": "ஓய்வூதிய மாற்றம் (விதவை / சட்ட வாரிசு)",
+    "issuing_authority": "Treasury Department / Pension Disbursing Authority",
+    "jurisdiction": "tn",
+    "applicable_when": "The deceased was receiving a government pension and the spouse or dependent family member is entitled to family pension",
+    "dependencies": ["tn_legal_heir_cert"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate (original)", "mandatory": true},
+      {"name": "Legal Heir Certificate", "mandatory": true, "where_to_get": "Tahsildar Office"},
+      {"name": "Pension Payment Order (PPO) of the deceased", "mandatory": true},
+      {"name": "Aadhaar card of the claimant (widow/heir)", "mandatory": true},
+      {"name": "Bank passbook of the claimant (for pension credit)", "mandatory": true},
+      {"name": "Form 14 (Family Pension application)", "mandatory": true, "template_id": "tn_form_14_pension"},
+      {"name": "Two passport-size photos of the claimant", "mandatory": true},
+      {"name": "Marriage certificate (if claiming as spouse)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 60},
+    "fee_inr": 0,
+    "form_template_id": "tn_form_14_pension",
+    "office_type": "treasury",
+    "online_option_url": "https://ifhrms.tn.gov.in/",
+    "common_rejection_reasons": [
+      "PPO number not matching records",
+      "Legal heir certificate not covering the claimant",
+      "Bank account not in the name of the claimant",
+      "Form 14 not countersigned by the last employer"
+    ],
+    "legal_basis": "CCS (Pension) Rules, 2021; Tamil Nadu Pension Rules",
+    "rti_template_id": "tn_pension_rti"
+  },
+  {
+    "procedure_id": "tn_bank_kyc_update",
+    "name_en": "Bank KYC Update / Account Transfer or Closure",
+    "name_ta": "வங்கி KYC புதுப்பித்தல் / கணக்கு மாற்றம்",
+    "issuing_authority": "Bank Branch Manager",
+    "jurisdiction": "central",
+    "applicable_when": "The deceased held bank accounts that need to be transferred to legal heirs or closed",
+    "dependencies": ["tn_legal_heir_cert"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate (original + copy)", "mandatory": true},
+      {"name": "Legal Heir Certificate or Succession Certificate", "mandatory": true},
+      {"name": "Aadhaar and PAN of all claimants", "mandatory": true},
+      {"name": "Bank passbook / account statement of the deceased", "mandatory": true},
+      {"name": "Indemnity bond (for claims without succession certificate)", "mandatory": false, "template_id": "bank_indemnity_bond"},
+      {"name": "Letter of administration (if amount > Rs.1 lakh and no will)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 15, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "bank_claim_form",
+    "office_type": "bank",
+    "online_option_url": null,
+    "common_rejection_reasons": [
+      "Legal heir certificate not listing all account holders",
+      "Joint account holder disputes",
+      "Nomination exists but claimant is different person",
+      "Locker contents need separate inventory process"
+    ],
+    "legal_basis": "Banking Regulation Act, 1949; RBI Master Circular on Customer Service (DBR.No.Leg.BC.21/09.07.006/2015-16)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_property_mutation",
+    "name_en": "Property Mutation (Patta Chitta Transfer)",
+    "name_ta": "சொத்து பெயர் மாற்றம் (பட்டா சிட்டா மாற்றம்)",
+    "issuing_authority": "Tahsildar (Revenue Department)",
+    "jurisdiction": "tn",
+    "applicable_when": "The deceased owned immovable property (land or house) whose patta (ownership record) needs to be transferred to legal heirs",
+    "dependencies": ["tn_legal_heir_cert"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "Legal Heir Certificate", "mandatory": true, "where_to_get": "Tahsildar Office"},
+      {"name": "Original patta of the property", "mandatory": true},
+      {"name": "Encumbrance Certificate (EC) for the last 15 years", "mandatory": true, "where_to_get": "Sub-Registrar Office"},
+      {"name": "Chitta / Adangal extract", "mandatory": true, "where_to_get": "Village Administrative Officer (VAO)"},
+      {"name": "Tax paid receipts for the property", "mandatory": true, "where_to_get": "Local body / Panchayat"},
+      {"name": "No-objection from all legal heirs (if transferring to one)", "mandatory": false, "template_id": "tn_noc_property"},
+      {"name": "Survey sketch of the property", "mandatory": false, "where_to_get": "Survey Department"}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 90},
+    "fee_inr": 100,
+    "form_template_id": "tn_patta_transfer_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://eservices.tn.gov.in/eservicesnew/land/chitta_eng.html",
+    "common_rejection_reasons": [
+      "Encumbrance certificate shows existing mortgage or lien",
+      "Property tax arrears not cleared",
+      "Dispute among legal heirs — NOC not provided",
+      "Survey number mismatch between patta and ground reality",
+      "Illegal construction or encroachment on the property"
+    ],
+    "legal_basis": "Tamil Nadu Survey and Boundaries Act, 1923; Tamil Nadu Land Reforms Act; Tamil Nadu Patta Transfer Rules",
+    "rti_template_id": "tn_property_rti"
+  },
+  {
+    "procedure_id": "tn_aadhaar_deactivation",
+    "name_en": "Aadhaar Deactivation of Deceased",
+    "name_ta": "இறந்தவரின் ஆதார் செயலிழப்பு",
+    "issuing_authority": "UIDAI (Unique Identification Authority of India)",
+    "jurisdiction": "central",
+    "applicable_when": "To deactivate the Aadhaar number of a deceased person to prevent identity misuse",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "Aadhaar card of the deceased", "mandatory": true},
+      {"name": "Aadhaar card of the applicant (family member)", "mandatory": true},
+      {"name": "Relationship proof with the deceased", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": null,
+    "office_type": "aadhaar_center",
+    "online_option_url": "https://myaadhaar.uidai.gov.in/",
+    "common_rejection_reasons": [
+      "Death certificate not uploaded in correct format",
+      "Aadhaar number not matching UIDAI records"
+    ],
+    "legal_basis": "Aadhaar (Targeted Delivery of Financial and Other Subsidies, Benefits and Services) Act, 2016",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_voter_roll_removal",
+    "name_en": "Voter Roll Removal of Deceased",
+    "name_ta": "இறந்தவரின் வாக்காளர் பட்டியல் நீக்கம்",
+    "issuing_authority": "Electoral Registration Officer (ERO) / Booth Level Officer (BLO)",
+    "jurisdiction": "central",
+    "applicable_when": "To remove the deceased person's name from the electoral roll",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "Voter ID card of the deceased (if available)", "mandatory": false},
+      {"name": "Form 7 (Application for deletion of name)", "mandatory": true, "template_id": "eci_form_7"}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "eci_form_7",
+    "office_type": "ero_office",
+    "online_option_url": "https://voters.eci.gov.in/",
+    "common_rejection_reasons": [
+      "Name not found in the electoral roll for the given constituency",
+      "Form 7 incomplete"
+    ],
+    "legal_basis": "Representation of the People Act, 1950 (Section 22); Registration of Electors Rules, 1960",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_ration_card_update",
+    "name_en": "Ration Card Update (Remove Deceased Member)",
+    "name_ta": "ரேஷன் அட்டை புதுப்பித்தல் (இறந்தவர் பெயர் நீக்கம்)",
+    "issuing_authority": "Taluk Supply Officer / District Supply Officer",
+    "jurisdiction": "tn",
+    "applicable_when": "To remove the deceased person's name from the family ration card and update the head of family if needed",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "Original ration card", "mandatory": true},
+      {"name": "Aadhaar card of the new head of family", "mandatory": true},
+      {"name": "Application form for ration card modification", "mandatory": true, "template_id": "tn_ration_modification"}
+    ],
+    "estimated_duration_days": {"min": 15, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "tn_ration_modification",
+    "office_type": "taluk_supply",
+    "online_option_url": "https://tnpds.gov.in/",
+    "common_rejection_reasons": [
+      "Original ration card not produced",
+      "New head of family Aadhaar not linked to ration card"
+    ],
+    "legal_basis": "Tamil Nadu Essential Commodities (Regulation of Distribution) Order; National Food Security Act, 2013",
+    "rti_template_id": "tn_ration_rti"
+  },
+  {
+    "procedure_id": "tn_insurance_claim",
+    "name_en": "Life Insurance Claim",
+    "name_ta": "ஆயுள் காப்பீட்டு உரிமை கோரல்",
+    "issuing_authority": "Insurance Company (LIC / Private Insurer)",
+    "jurisdiction": "central",
+    "applicable_when": "The deceased had a life insurance policy and the nominee or legal heir needs to claim the benefit",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate (original)", "mandatory": true},
+      {"name": "Original insurance policy document", "mandatory": true},
+      {"name": "Claim Form (Form 3783 for LIC / insurer-specific form)", "mandatory": true, "template_id": "insurance_claim_form"},
+      {"name": "Aadhaar and PAN of the nominee/claimant", "mandatory": true},
+      {"name": "Bank account details of the nominee (cancelled cheque)", "mandatory": true},
+      {"name": "FIR / post-mortem report (if death is not natural)", "mandatory": false},
+      {"name": "Hospital discharge summary (if death during treatment)", "mandatory": false},
+      {"name": "Legal Heir Certificate (if no nominee designated)", "mandatory": false, "where_to_get": "Tahsildar Office"}
+    ],
+    "estimated_duration_days": {"min": 15, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "insurance_claim_form",
+    "office_type": "insurance_office",
+    "online_option_url": "https://licindia.in/",
+    "common_rejection_reasons": [
+      "Policy lapsed due to non-payment of premiums",
+      "Claim within 2 years of policy (contestability period) triggers investigation",
+      "Nominee details mismatch",
+      "Cause of death excluded under policy terms"
+    ],
+    "legal_basis": "Insurance Act, 1938; IRDAI (Protection of Policyholders' Interests) Regulations, 2017",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_it_final_return",
+    "name_en": "Income Tax Final Return for Deceased",
+    "name_ta": "இறந்தவருக்கான இறுதி வருமான வரி தாக்கல்",
+    "issuing_authority": "Income Tax Department",
+    "jurisdiction": "central",
+    "applicable_when": "Filing the final income tax return for the deceased for the period from April 1 to the date of death, and claiming any refund",
+    "dependencies": ["tn_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "PAN card of the deceased", "mandatory": true},
+      {"name": "Form 26AS / AIS of the deceased (tax credit statement)", "mandatory": true, "where_to_get": "income tax e-filing portal"},
+      {"name": "Legal Heir Certificate", "mandatory": true},
+      {"name": "PAN card of the legal representative filing", "mandatory": true},
+      {"name": "Registration as legal representative on IT portal", "mandatory": true, "where_to_get": "https://www.incometax.gov.in/"}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 90},
+    "fee_inr": 0,
+    "form_template_id": null,
+    "office_type": "income_tax",
+    "online_option_url": "https://www.incometax.gov.in/",
+    "common_rejection_reasons": [
+      "Legal representative not registered on the IT portal",
+      "PAN of deceased not active or linked to wrong Aadhaar",
+      "TDS credits not matching Form 26AS"
+    ],
+    "legal_basis": "Income Tax Act, 1961 (Section 159 — Legal representative)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_marriage_registration",
+    "name_en": "Marriage Registration",
+    "name_ta": "திருமண பதிவு",
+    "issuing_authority": "Sub-Registrar (Registration Department) or Hindu Marriage Registrar",
+    "jurisdiction": "tn",
+    "applicable_when": "A couple has married and needs to officially register the marriage",
+    "dependencies": [],
+    "blocks": ["tn_name_change_aadhaar", "tn_name_change_pan"],
+    "documents_required": [
+      {"name": "Marriage invitation card or wedding photos", "mandatory": true},
+      {"name": "Aadhaar cards of bride and groom", "mandatory": true},
+      {"name": "Age proof (birth certificate / school certificate)", "mandatory": true},
+      {"name": "Address proof of both parties", "mandatory": true},
+      {"name": "Two passport-size photos of the couple (joint and individual)", "mandatory": true},
+      {"name": "Two witnesses with Aadhaar and photos", "mandatory": true},
+      {"name": "Priest/officiant certificate (for Hindu marriages)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 15},
+    "fee_inr": 100,
+    "form_template_id": "tn_marriage_reg_form",
+    "office_type": "sub_registrar",
+    "online_option_url": "https://tnreginet.gov.in/",
+    "common_rejection_reasons": [
+      "Marriage not registered within 90 days (late fee applies)",
+      "Age proof shows bride is under 18 or groom under 21",
+      "Witnesses not present in person at the registrar office",
+      "Address mismatch between documents"
+    ],
+    "legal_basis": "Hindu Marriage Act, 1955; Tamil Nadu Registration of Marriages Act, 2009; Special Marriage Act, 1954",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_name_change_aadhaar",
+    "name_en": "Name Change on Aadhaar (After Marriage)",
+    "name_ta": "ஆதாரில் பெயர் மாற்றம் (திருமணத்திற்குப் பிறகு)",
+    "issuing_authority": "UIDAI (via Aadhaar Enrolment Centre)",
+    "jurisdiction": "central",
+    "applicable_when": "After marriage, the person (usually the bride) wants to update their name on Aadhaar",
+    "dependencies": ["tn_marriage_registration"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Marriage certificate", "mandatory": true, "where_to_get": "Sub-Registrar Office"},
+      {"name": "Current Aadhaar card", "mandatory": true},
+      {"name": "Gazette notification of name change (if changing surname)", "mandatory": false},
+      {"name": "Aadhaar Update Form", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 30},
+    "fee_inr": 50,
+    "form_template_id": "aadhaar_update_form",
+    "office_type": "aadhaar_center",
+    "online_option_url": "https://myaadhaar.uidai.gov.in/",
+    "common_rejection_reasons": [
+      "Marriage certificate not reflecting the new name",
+      "Biometric mismatch during verification",
+      "Supporting documents not matching"
+    ],
+    "legal_basis": "Aadhaar Act, 2016; Aadhaar (Enrolment and Update) Regulations, 2016",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_name_change_pan",
+    "name_en": "Name Change on PAN Card (After Marriage)",
+    "name_ta": "PAN அட்டையில் பெயர் மாற்றம் (திருமணத்திற்குப் பிறகு)",
+    "issuing_authority": "Income Tax Department (via NSDL/UTIITSL)",
+    "jurisdiction": "central",
+    "applicable_when": "After marriage, the person wants to update their name on PAN card",
+    "dependencies": ["tn_marriage_registration"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Marriage certificate", "mandatory": true},
+      {"name": "Current PAN card", "mandatory": true},
+      {"name": "Updated Aadhaar card with new name (recommended)", "mandatory": false},
+      {"name": "Form 49A (Correction/Update)", "mandatory": true, "template_id": "pan_form_49a"},
+      {"name": "Gazette notification (if applicable)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 15, "max": 30},
+    "fee_inr": 107,
+    "form_template_id": "pan_form_49a",
+    "office_type": "pan_center",
+    "online_option_url": "https://www.onlineservices.nsdl.com/paam/endUserRegisterContact.html",
+    "common_rejection_reasons": [
+      "Photo or signature not clear in the application",
+      "Documents not self-attested",
+      "Aadhaar name and requested PAN name mismatch"
+    ],
+    "legal_basis": "Income Tax Act, 1961 (Section 139A); Income Tax Rules, 1962 (Rule 114)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_widow_pension_application",
+    "name_en": "Widow Pension Application",
+    "name_ta": "விதவை ஓய்வூதிய விண்ணப்பம்",
+    "issuing_authority": "District Social Welfare Officer / Tahsildar",
+    "jurisdiction": "tn",
+    "applicable_when": "A widow below the poverty line or without adequate income wants to apply for the state widow pension scheme",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate of husband", "mandatory": true},
+      {"name": "Aadhaar card of the applicant", "mandatory": true},
+      {"name": "Age proof of the applicant", "mandatory": true},
+      {"name": "Income certificate (annual income below Rs.72,000)", "mandatory": true, "where_to_get": "Tahsildar Office"},
+      {"name": "Ration card", "mandatory": true},
+      {"name": "Bank passbook (for pension credit)", "mandatory": true},
+      {"name": "Two passport-size photos", "mandatory": true},
+      {"name": "Community certificate", "mandatory": false, "where_to_get": "Tahsildar Office"},
+      {"name": "Marriage certificate or proof of marriage", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 60},
+    "fee_inr": 0,
+    "form_template_id": "tn_widow_pension_form",
+    "office_type": "social_welfare",
+    "online_option_url": "https://tnlalitha.tn.gov.in/",
+    "common_rejection_reasons": [
+      "Income exceeds the eligibility limit",
+      "Already receiving pension from another scheme",
+      "Age below 18 or above 60 (shifted to old age pension)",
+      "Bank account not linked to Aadhaar"
+    ],
+    "legal_basis": "Tamil Nadu Destitute Widow Pension Scheme (G.O.Ms.No.61, Social Welfare Department, 2012)",
+    "rti_template_id": "tn_widow_pension_rti"
+  },
+  {
+    "procedure_id": "tn_widow_pension_renewal",
+    "name_en": "Widow Pension Annual Renewal",
+    "name_ta": "விதவை ஓய்வூதிய ஆண்டு புதுப்பித்தல்",
+    "issuing_authority": "District Social Welfare Officer",
+    "jurisdiction": "tn",
+    "applicable_when": "Existing widow pension recipients need to renew their pension annually with a life certificate",
+    "dependencies": ["tn_widow_pension_application"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Life certificate / Jeevan Praman", "mandatory": true, "where_to_get": "Common Service Centre or online via jeevanpramaan.gov.in"},
+      {"name": "Aadhaar card", "mandatory": true},
+      {"name": "Bank passbook showing recent pension credits", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 1, "max": 7},
+    "fee_inr": 0,
+    "form_template_id": null,
+    "office_type": "social_welfare",
+    "online_option_url": "https://jeevanpramaan.gov.in/",
+    "common_rejection_reasons": [
+      "Life certificate not submitted before November 30 deadline",
+      "Biometric mismatch in Jeevan Praman",
+      "Remarriage not reported"
+    ],
+    "legal_basis": "Tamil Nadu Destitute Widow Pension Scheme; Jeevan Pramaan Scheme (Government of India)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_widow_pension_grievance",
+    "name_en": "Widow Pension Grievance / Appeal",
+    "name_ta": "விதவை ஓய்வூதிய குறை தீர்ப்பு",
+    "issuing_authority": "District Collector / Appellate Authority",
+    "jurisdiction": "tn",
+    "applicable_when": "Widow pension application was rejected or pension payments have stopped without explanation",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Copy of the original pension application", "mandatory": true},
+      {"name": "Rejection letter (if available)", "mandatory": false},
+      {"name": "All supporting documents submitted earlier", "mandatory": true},
+      {"name": "Grievance petition addressed to the District Collector", "mandatory": true, "template_id": "tn_pension_grievance_letter"},
+      {"name": "Proof of previous pension payments (if pension stopped)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 15, "max": 45},
+    "fee_inr": 0,
+    "form_template_id": "tn_pension_grievance_letter",
+    "office_type": "district_collector",
+    "online_option_url": "https://www.pgportal.gov.in/",
+    "common_rejection_reasons": [
+      "Grievance filed at wrong authority level",
+      "Original rejection reason not addressed in appeal"
+    ],
+    "legal_basis": "Tamil Nadu Right to Service Act, 2010; Administrative Tribunals Act, 1985",
+    "rti_template_id": "tn_pension_grievance_rti"
+  },
+  {
+    "procedure_id": "rti_filing",
+    "name_en": "RTI Application (Right to Information)",
+    "name_ta": "தகவல் அறியும் உரிமை (RTI) விண்ணப்பம்",
+    "issuing_authority": "Public Information Officer (PIO) of the concerned department",
+    "jurisdiction": "central",
+    "applicable_when": "When a citizen wants information about the status of their application, reasons for delay, or any government action",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "RTI application in prescribed format", "mandatory": true, "template_id": "rti_application_form"},
+      {"name": "Application fee (Rs.10 by postal order / demand draft / court fee stamp)", "mandatory": true},
+      {"name": "Proof of BPL status (if claiming fee exemption)", "mandatory": false},
+      {"name": "Copy of the original application/complaint reference (for tracking)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 30},
+    "fee_inr": 10,
+    "form_template_id": "rti_application_form",
+    "office_type": "any_government",
+    "online_option_url": "https://rtionline.gov.in/",
+    "common_rejection_reasons": [
+      "Information sought is exempted under Section 8",
+      "RTI sent to wrong PIO (should be transferred but sometimes rejected)",
+      "Application fee not attached or insufficient"
+    ],
+    "legal_basis": "Right to Information Act, 2005 (Sections 6, 7, 8)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_rts_complaint",
+    "name_en": "Tamil Nadu Right to Service Complaint",
+    "name_ta": "தமிழ்நாடு சேவை உரிமை புகார்",
+    "issuing_authority": "Appellate Authority under TN RTS Act / District Collector",
+    "jurisdiction": "tn",
+    "applicable_when": "When a notified government service is not delivered within the stipulated time limit",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Copy of the original service application with date stamp", "mandatory": true},
+      {"name": "Acknowledgement receipt from the government office", "mandatory": true},
+      {"name": "Complaint petition stating the delay and service details", "mandatory": true, "template_id": "tn_rts_complaint_form"},
+      {"name": "Identity proof (Aadhaar)", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "tn_rts_complaint_form",
+    "office_type": "district_collector",
+    "online_option_url": "https://tnpds.gov.in/",
+    "common_rejection_reasons": [
+      "Service not covered under the notified services list",
+      "Complaint filed before stipulated time limit has elapsed",
+      "Wrong appellate authority"
+    ],
+    "legal_basis": "Tamil Nadu Right to Service Act, 2010 (Sections 3, 4, 5)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_lokayukta_complaint",
+    "name_en": "Lokayukta Complaint (Anti-Corruption)",
+    "name_ta": "லோக்காயுக்தா புகார் (ஊழல் எதிர்ப்பு)",
+    "issuing_authority": "Tamil Nadu Lokayukta",
+    "jurisdiction": "tn",
+    "applicable_when": "When a government official has demanded a bribe, caused undue delay through corruption, or misused their position",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Written complaint with full details of the incident", "mandatory": true, "template_id": "tn_lokayukta_form"},
+      {"name": "Evidence of corruption (receipts, recordings, witnesses)", "mandatory": false},
+      {"name": "Copy of the application that was stalled / denied", "mandatory": true},
+      {"name": "Identity proof of the complainant", "mandatory": true},
+      {"name": "Details of the public servant (name, designation, office)", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 180},
+    "fee_inr": 0,
+    "form_template_id": "tn_lokayukta_form",
+    "office_type": "lokayukta",
+    "online_option_url": null,
+    "common_rejection_reasons": [
+      "Complaint is vague without specific allegations",
+      "Matter already sub-judice in court",
+      "Complaint against non-public servant"
+    ],
+    "legal_basis": "Tamil Nadu Lokayukta Act, 2018; Prevention of Corruption Act, 1988",
+    "rti_template_id": null
+  }
+]
