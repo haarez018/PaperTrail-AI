@@ -3,19 +3,22 @@
 from __future__ import annotations
 
 import json
+import logging
 from typing import AsyncGenerator
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
-from nyayamitra.agents.orchestrator import process_message
-from nyayamitra.config import DEMO_MODE
+from nyayamitra.agents.orchestrator import process_message, process_message_async
+from nyayamitra.config import DEMO_MODE, LLM_MODE
 from nyayamitra.db.models import CaseRecord
 from nyayamitra.db.session import get_session
 from nyayamitra.demo_cache import get_demo_response, match_demo_prompt
 from nyayamitra.schemas.case_file import CaseFile
 from nyayamitra.schemas.plan import ProcedurePlan
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -57,12 +60,30 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
     # Signal agent thinking
     yield {"event": "agent_thinking", "data": json.dumps({"agent": "orchestrator", "message": "Processing..."})}
 
-    # Run orchestrator
-    state = process_message(
-        user_message=request.message,
-        case_file=case_file,
-        existing_plan=existing_plan,
-    )
+    # Run orchestrator — use async path if hybrid mode
+    if LLM_MODE == "hybrid":
+        try:
+            from nyayamitra.llm.client import LLMClient
+            llm_client = LLMClient.from_config()
+            state = await process_message_async(
+                user_message=request.message,
+                case_file=case_file,
+                existing_plan=existing_plan,
+                llm_client=llm_client,
+            )
+        except Exception as e:
+            logger.warning("Async orchestrator failed, falling back to sync: %s", e)
+            state = process_message(
+                user_message=request.message,
+                case_file=case_file,
+                existing_plan=existing_plan,
+            )
+    else:
+        state = process_message(
+            user_message=request.message,
+            case_file=case_file,
+            existing_plan=existing_plan,
+        )
 
     updated_case = CaseFile(**state["case_file"])
 
