@@ -24,7 +24,16 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-ivory antialiased font-sans text-text-primary">
-        {children}
+        {/* Skip to main content link for keyboard users */}
+        <a
+          href="#main-content"
+          className="fixed left-2 top-2 z-[200] -translate-y-16 rounded-[var(--radius-md)] bg-saffron px-4 py-2 text-sm font-semibold text-white shadow-modal transition-transform focus:translate-y-0"
+        >
+          Skip to main content
+        </a>
+        <div id="main-content">
+          {children}
+        </div>
       </body>
     </html>
   );

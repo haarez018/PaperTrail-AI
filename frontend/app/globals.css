@@ -92,4 +92,22 @@
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: var(--color-text-muted);
   }
+
+  /* ── Focus-visible ring (keyboard-only) ── */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-saffron focus-visible:ring-offset-2;
+  }
+
+  /* ── Screen reader only ── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
