@@ -1,120 +1,160 @@
 import Link from "next/link";
+import {
+  Scale,
+  ClipboardList,
+  FileText,
+  AlertTriangle,
+  MapPin,
+  Brain,
+  Globe,
+  ArrowRight,
+} from "lucide-react";
+
+const features = [
+  {
+    title: "Identifies All Procedures",
+    desc: "Describe your situation in Tamil, Hindi, or English. Our AI identifies every government procedure across departments.",
+    icon: ClipboardList,
+  },
+  {
+    title: "Auto-Fills Your Forms",
+    desc: "Generates ready-to-submit PDF forms with your details pre-filled. Just print, sign, and submit.",
+    icon: FileText,
+  },
+  {
+    title: "Escalates When Stalled",
+    desc: "If any office delays your work, NyayaMitra auto-drafts an RTI application citing the exact legal provisions.",
+    icon: AlertTriangle,
+  },
+];
+
+const stats = [
+  { value: "20+", label: "Procedures Covered" },
+  { value: "3", label: "Languages Supported" },
+  { value: "6", label: "AI Agents Working For You" },
+];
+
+const agents = [
+  { name: "Intake", desc: "Understands your life event", icon: Brain },
+  { name: "Planner", desc: "Maps every step", icon: ClipboardList },
+  { name: "Document", desc: "Generates your forms", icon: FileText },
+  { name: "Navigation", desc: "Tells you where to go", icon: MapPin },
+  { name: "Escalation", desc: "Fights delays for you", icon: AlertTriangle },
+  { name: "i18n", desc: "Works in your language", icon: Globe },
+];
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col">
-      {/* Hero */}
-      <section className="flex flex-col items-center justify-center flex-1 p-8 text-center">
-        <div className="max-w-3xl space-y-8">
-          <div className="inline-block px-4 py-1.5 bg-nyaya-50 text-nyaya-700 rounded-full text-sm font-medium border border-nyaya-100">
+    <main className="flex min-h-screen flex-col bg-ivory">
+      {/* ── Hero ── */}
+      <section className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center sm:px-8">
+        <div className="max-w-3xl space-y-6">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-saffron/20 bg-saffron-light px-4 py-1.5 text-sm font-semibold text-saffron-dark">
+            <Scale size={14} />
             Multi-Agent AI System
-          </div>
+          </span>
 
-          <h1 className="text-6xl font-bold tracking-tight text-gray-900">
-            Nyaya
-            <span className="text-nyaya-600">Mitra</span>
+          <h1 className="font-display text-5xl tracking-tight text-navy sm:text-6xl">
+            Nyaya<span className="text-saffron">Mitra</span>
           </h1>
 
-          <p className="text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto">
+          <p className="mx-auto max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl">
             The agentic AI lawyer, accountant, and navigator for the{" "}
-            <span className="font-semibold text-gray-900">
-              700 million Indians
-            </span>{" "}
+            <span className="font-semibold text-navy">700 million Indians</span>{" "}
             who can&apos;t afford one.
           </p>
 
-          <p className="text-lg text-gray-500">
+          <p className="text-base text-text-muted sm:text-lg">
             Tell us what happened. We&apos;ll handle every procedure, form, and
             follow-up.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          <div className="flex justify-center pt-4">
             <Link
               href="/chat"
-              className="rounded-xl bg-nyaya-600 px-8 py-4 text-lg font-medium text-white shadow-lg shadow-nyaya-600/25 hover:bg-nyaya-700 hover:shadow-nyaya-700/25 transition-all"
+              className="group inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-saffron px-8 py-4 text-lg font-semibold text-white shadow-card transition-all duration-[var(--duration-base)] hover:bg-saffron-dark hover:shadow-card-hover active:scale-[0.98]"
             >
               Start a Case
+              <ArrowRight
+                size={20}
+                className="transition-transform group-hover:translate-x-1"
+              />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section className="bg-white border-t py-16 px-8">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">
+      {/* ── Features ── */}
+      <section className="border-t border-paper-dark bg-white px-4 py-16 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-12 text-center font-display text-3xl text-navy">
             What NyayaMitra does
           </h2>
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Identifies All Procedures",
-                desc: "Describe your situation in Tamil, Hindi, or English. Our AI identifies every government procedure across departments.",
-                icon: "M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01",
-              },
-              {
-                title: "Auto-Fills Your Forms",
-                desc: "Generates ready-to-submit PDF forms with your details pre-filled. Just print, sign, and submit.",
-                icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z",
-              },
-              {
-                title: "Escalates When Stalled",
-                desc: "If any office delays your work, NyayaMitra auto-drafts an RTI application citing the exact legal provisions.",
-                icon: "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z",
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="text-center space-y-3 p-6 rounded-2xl hover:bg-gray-50 transition-colors"
-              >
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-nyaya-100">
-                  <svg
-                    className="w-6 h-6 text-nyaya-600"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d={feature.icon}
-                    />
-                  </svg>
+          <div className="grid gap-8 md:grid-cols-3">
+            {features.map((f) => {
+              const Icon = f.icon;
+              return (
+                <div
+                  key={f.title}
+                  className="group space-y-3 rounded-[var(--radius-lg)] p-6 text-center transition-all duration-[var(--duration-base)] hover:bg-saffron-light/30 hover:shadow-card"
+                >
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[var(--radius-md)] bg-saffron-light">
+                    <Icon size={24} className="text-saffron-dark" />
+                  </div>
+                  <h3 className="font-display text-lg text-navy">{f.title}</h3>
+                  <p className="text-sm leading-relaxed text-text-secondary">
+                    {f.desc}
+                  </p>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {feature.title}
-                </h3>
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  {feature.desc}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section className="py-12 px-8 bg-nyaya-600 text-white">
-        <div className="max-w-4xl mx-auto grid grid-cols-3 gap-8 text-center">
-          <div>
-            <div className="text-4xl font-bold">20+</div>
-            <div className="text-nyaya-200 text-sm mt-1">Procedures Covered</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold">3</div>
-            <div className="text-nyaya-200 text-sm mt-1">Languages Supported</div>
-          </div>
-          <div>
-            <div className="text-4xl font-bold">6</div>
-            <div className="text-nyaya-200 text-sm mt-1">AI Agents Working For You</div>
+      {/* ── Agent Grid ── */}
+      <section className="border-t border-paper-dark bg-ivory px-4 py-16 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="mb-8 text-center font-display text-3xl text-navy">
+            6 AI Agents, One Mission
+          </h2>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-6">
+            {agents.map((a) => {
+              const Icon = a.icon;
+              return (
+                <div
+                  key={a.name}
+                  className="flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-paper-dark bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-card"
+                >
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-light">
+                    <Icon size={18} className="text-saffron-dark" />
+                  </div>
+                  <p className="text-sm font-semibold text-navy">{a.name}</p>
+                  <p className="text-[11px] leading-tight text-text-muted">
+                    {a.desc}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-6 px-8 text-center text-sm text-gray-400 bg-white border-t">
-        Built by Haarez | Chennai Institute of Technology | 2026
+      {/* ── Stats ── */}
+      <section className="bg-navy px-4 py-12 sm:px-8">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 text-center">
+          {stats.map((s) => (
+            <div key={s.label}>
+              <div className="font-display text-4xl text-white">{s.value}</div>
+              <div className="mt-1 text-sm text-white/60">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Footer ── */}
+      <footer className="border-t border-paper-dark bg-white px-8 py-6 text-center text-sm text-text-muted">
+        Built by Haarez · Chennai Institute of Technology · 2026
       </footer>
     </main>
   );
