@@ -1,7 +1,14 @@
 "use client";
 
-import { useRef, useState } from "react";
-import ChatInterface from "@/components/ChatInterface";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import {
+  ChatBubble,
+  TypingIndicator,
+  WelcomeScreen,
+  ChatHeader,
+  ChatInput,
+} from "@/components/chat";
 import ProcedureTimeline from "@/components/ProcedureTimeline";
 import ProcedureDetail from "@/components/ProcedureDetail";
 import { useAppStore } from "@/lib/store";
@@ -20,11 +27,20 @@ export default function ChatPage() {
     setPlan,
     setCaseData,
     setLoading,
+    setLanguage,
     setSelectedProcedure,
   } = useAppStore();
 
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom on new messages
+  useEffect(() => {
+    scrollRef.current?.scrollTo({
+      top: scrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [messages, isLoading]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -53,10 +69,11 @@ export default function ChatPage() {
           }
         }
       });
-    } catch (err) {
+    } catch {
       addMessage({
         role: "agent",
-        content: "Sorry, there was an error connecting to the server. Please make sure the backend is running.",
+        content:
+          "Sorry, there was an error connecting to the server. Please make sure the backend is running.",
         timestamp: Date.now(),
       });
     } finally {
@@ -64,68 +81,63 @@ export default function ChatPage() {
     }
   };
 
+  const handleSelectPrompt = (prompt: string) => {
+    setInput(prompt);
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Chat Panel */}
-      <div className={`flex flex-col ${plan ? "w-1/2" : "w-full"} max-w-3xl mx-auto transition-all duration-500`}>
-        {/* Header */}
-        <header className="flex items-center justify-between px-6 py-4 bg-white border-b">
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">
-              Nyaya<span className="text-nyaya-600">Mitra</span>
-            </h1>
-            <p className="text-sm text-gray-500">Your Bureaucracy Navigator</p>
-          </div>
-          <div className="flex gap-2">
-            {["en", "ta", "hi"].map((lang) => (
-              <button
-                key={lang}
-                onClick={() => useAppStore.getState().setLanguage(lang)}
-                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                  language === lang
-                    ? "bg-nyaya-600 text-white"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                {lang === "en" ? "EN" : lang === "ta" ? "தமிழ்" : "हिंदी"}
-              </button>
-            ))}
-          </div>
-        </header>
+    <div className="flex h-screen bg-ivory">
+      {/* ── Chat Panel ── */}
+      <div
+        className={`flex flex-col transition-all duration-500 ease-smooth ${
+          plan ? "w-1/2" : "w-full max-w-3xl mx-auto"
+        }`}
+      >
+        <ChatHeader
+          language={language}
+          onLanguageChange={setLanguage}
+          caseId={caseId}
+        />
 
-        {/* Messages */}
-        <ChatInterface messages={messages} isLoading={isLoading} />
+        {/* Messages Area */}
+        <div
+          ref={scrollRef}
+          className="flex flex-1 flex-col overflow-y-auto scrollbar-thin px-4 py-6 sm:px-6"
+        >
+          {messages.length === 0 ? (
+            <WelcomeScreen onSelectPrompt={handleSelectPrompt} />
+          ) : (
+            <div className="mx-auto max-w-2xl space-y-4">
+              <AnimatePresence mode="popLayout">
+                {messages.map((msg, i) => (
+                  <ChatBubble
+                    key={`${msg.timestamp}-${i}`}
+                    role={msg.role}
+                    content={msg.content}
+                    agent={msg.agent}
+                    timestamp={msg.timestamp}
+                    index={i}
+                  />
+                ))}
+              </AnimatePresence>
 
-        {/* Input */}
-        <div className="p-4 bg-white border-t">
-          <div className="flex gap-3">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder={
-                messages.length === 0
-                  ? "Tell me what happened... (e.g., 'My grandfather passed away in Chennai')"
-                  : "Type your response..."
-              }
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-nyaya-500 focus:border-transparent text-gray-900 placeholder-gray-400"
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSend}
-              disabled={isLoading || !input.trim()}
-              className="px-6 py-3 bg-nyaya-600 text-white rounded-lg font-medium hover:bg-nyaya-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? "..." : "Send"}
-            </button>
-          </div>
+              {isLoading && <TypingIndicator />}
+            </div>
+          )}
         </div>
+
+        <ChatInput
+          value={input}
+          onChange={setInput}
+          onSend={handleSend}
+          isLoading={isLoading}
+          isFirstMessage={messages.length === 0}
+        />
       </div>
 
-      {/* Timeline Panel — appears when plan is ready */}
+      {/* ── Timeline Panel — appears when plan is ready ── */}
       {plan && (
-        <div className="w-1/2 border-l bg-white overflow-y-auto">
+        <div className="w-1/2 overflow-y-auto border-l border-paper-dark bg-white scrollbar-thin">
           <ProcedureTimeline
             plan={plan}
             selectedProcedure={selectedProcedure}
