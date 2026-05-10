@@ -197,7 +197,7 @@ export default function ProcedureTimeline({
                       {proc.why_this_is_needed}
                     </p>
                   </div>
-                  <Badge status={status as any} className="shrink-0">
+                  <Badge status={status} className="shrink-0">
                     {proc.status.replace("_", " ")}
                   </Badge>
                 </div>

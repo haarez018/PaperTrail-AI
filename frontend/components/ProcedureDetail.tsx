@@ -17,7 +17,14 @@ import {
 } from "lucide-react";
 import { Button, Card, CardContent, LoadingSpinner } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { generateDocument, getNavigation, generateEscalation } from "@/lib/api";
+import {
+  generateDocument,
+  getNavigation,
+  generateEscalation,
+  DocumentResult,
+  NavigationResult,
+  EscalationResult,
+} from "@/lib/api";
 
 interface ProcedureDetailProps {
   procedureId: string;
@@ -39,9 +46,9 @@ export default function ProcedureDetail({
   onClose,
 }: ProcedureDetailProps) {
   const [activeTab, setActiveTab] = useState<Tab>("documents");
-  const [docResult, setDocResult] = useState<any>(null);
-  const [navResult, setNavResult] = useState<any>(null);
-  const [escResult, setEscResult] = useState<any>(null);
+  const [docResult, setDocResult] = useState<DocumentResult | null>(null);
+  const [navResult, setNavResult] = useState<NavigationResult | null>(null);
+  const [escResult, setEscResult] = useState<EscalationResult | null>(null);
   const [loading, setLoading] = useState(false);
 
   const procName = procedureId
@@ -206,7 +213,7 @@ export default function ProcedureDetail({
                     Documents Checklist
                   </h5>
                   <ul className="space-y-1.5">
-                    {docResult.checklist?.map((item: any, i: number) => (
+                    {docResult.checklist?.map((item, i: number) => (
                       <li key={i} className="flex items-start gap-2 text-sm">
                         <input
                           type="checkbox"
@@ -287,7 +294,7 @@ export default function ProcedureDetail({
                     Pro Tips (if they push back)
                   </h5>
                   <div className="space-y-3">
-                    {navResult.if_they_ask_X_say_Y.map((tip: any, i: number) => (
+                    {navResult.if_they_ask_X_say_Y.map((tip, i: number) => (
                       <div key={i} className="text-sm">
                         <p className="text-text-secondary">
                           <strong className="text-navy">If asked:</strong> &ldquo;{tip.if_asked}&rdquo;

@@ -1,11 +1,12 @@
 import { create } from "zustand";
-import { ChatMessage, ProcedurePlan } from "./api";
+import { ChatMessage, ProcedurePlan, CaseData } from "./api";
 
+/** Global application state for the NyayaMitra chat interface. */
 interface AppState {
   caseId: string | null;
   messages: ChatMessage[];
   plan: ProcedurePlan | null;
-  caseData: any | null;
+  caseData: CaseData | null;
   isLoading: boolean;
   language: string;
   selectedProcedure: string | null;
@@ -13,7 +14,7 @@ interface AppState {
   setCaseId: (id: string) => void;
   addMessage: (msg: ChatMessage) => void;
   setPlan: (plan: ProcedurePlan) => void;
-  setCaseData: (data: any) => void;
+  setCaseData: (data: CaseData) => void;
   setLoading: (loading: boolean) => void;
   setLanguage: (lang: string) => void;
   setSelectedProcedure: (id: string | null) => void;

@@ -21,10 +21,11 @@ import {
   LoadingSpinner,
   CardSkeleton,
 } from "@/components/ui";
-import { getCase } from "@/lib/api";
+import { getCase, CaseData, Procedure, ProcedureStatus } from "@/lib/api";
 
+/** Dashboard view for a specific case — shows stats, progress, and procedure list. */
 export default function CasePage({ params }: { params: { id: string } }) {
-  const [caseData, setCaseData] = useState<any>(null);
+  const [caseData, setCaseData] = useState<CaseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -144,7 +145,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
                 <CardContent>
                   <ProgressBar
                     value={Math.round(
-                      (caseData.plan.procedures.filter((p: any) => p.status === "done").length /
+                      (caseData.plan.procedures.filter((p: Procedure) => p.status === "done").length /
                         caseData.plan.procedures.length) *
                         100
                     )}
@@ -161,7 +162,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
                   <h2 className="font-display text-lg text-navy">Procedures</h2>
                 </CardHeader>
                 <CardContent className="divide-y divide-paper-dark">
-                  {caseData.plan.procedures.map((proc: any) => (
+                  {caseData.plan.procedures.map((proc: Procedure) => (
                     <div
                       key={proc.procedure_id}
                       className="flex items-center justify-between py-3 first:pt-0 last:pb-0"
@@ -177,7 +178,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
                           {proc.why_this_is_needed}
                         </p>
                       </div>
-                      <Badge status={proc.status as any} className="shrink-0">
+                      <Badge status={proc.status as ProcedureStatus} className="shrink-0">
                         {proc.status.replace("_", " ")}
                       </Badge>
                     </div>

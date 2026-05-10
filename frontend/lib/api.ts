@@ -1,4 +1,7 @@
+/** Backend API base URL, configurable via environment variable. */
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+/* ── Shared Types ── */
 
 export interface ChatMessage {
   role: "user" | "agent";
@@ -7,13 +10,15 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export type ProcedureStatus = "pending" | "in_progress" | "done" | "blocked" | "escalated";
+
 export interface Procedure {
   procedure_id: string;
   order: number;
   depends_on_procedure_ids: string[];
   why_this_is_needed: string;
   estimated_start_after_days: number;
-  status: string;
+  status: ProcedureStatus;
 }
 
 export interface ProcedurePlan {
@@ -25,16 +30,67 @@ export interface ProcedurePlan {
   without_nyayamitra_baseline_cost_inr: number;
 }
 
-export interface SSEEvent {
-  event: string;
-  data: any;
+export interface CaseData {
+  case_id: string;
+  plan?: ProcedurePlan;
+  language?: string;
 }
 
+/** Shape of a single SSE frame from the /api/chat stream. */
+export interface SSEEvent {
+  event: string;
+  data: Record<string, unknown>;
+}
+
+/** Document generation result from the Document Agent. */
+export interface DocumentResult {
+  procedure_name: string;
+  pdf_base64: string;
+  pdf_size_bytes: number;
+  fee_inr: number;
+  checklist?: ChecklistItem[];
+}
+
+export interface ChecklistItem {
+  name: string;
+  mandatory: boolean;
+  where_to_get?: string;
+}
+
+/** Navigation info for a given procedure. */
+export interface NavigationResult {
+  office?: {
+    name: string;
+    address: string;
+    counter: string;
+    hours: string;
+  };
+  average_wait_minutes: number;
+  best_time_to_visit: string;
+  what_to_say: string;
+  if_they_ask_X_say_Y: { if_asked: string; say: string }[];
+}
+
+/** Escalation (RTI) letter result. */
+export interface EscalationResult {
+  pdf_base64: string;
+  letter?: {
+    legal_citations: string[];
+    expected_response_days: number;
+    fee_inr: number;
+    submission_methods: string[];
+  };
+}
+
+/* ── API Functions ── */
+
+/** Check backend health status. */
 export async function healthCheck(): Promise<{ status: string }> {
   const res = await fetch(`${API_URL}/health`);
   return res.json();
 }
 
+/** Stream a chat message to the backend and process SSE events. */
 export async function sendMessage(
   message: string,
   caseId: string | null,
@@ -76,35 +132,39 @@ export async function sendMessage(
         try {
           onEvent({ event: currentEvent, data: JSON.parse(currentData) });
         } catch {
-          onEvent({ event: currentEvent, data: currentData });
+          onEvent({ event: currentEvent, data: { raw: currentData } });
         }
       }
     }
   }
 }
 
-export async function getCase(caseId: string): Promise<any> {
+/** Fetch full case data by ID. */
+export async function getCase(caseId: string): Promise<CaseData> {
   const res = await fetch(`${API_URL}/api/case/${caseId}`);
   return res.json();
 }
 
-export async function generateDocument(procedureId: string, caseId?: string): Promise<any> {
+/** Generate a pre-filled PDF form for a procedure. */
+export async function generateDocument(procedureId: string, caseId?: string): Promise<DocumentResult> {
   const url = new URL(`${API_URL}/api/documents/${procedureId}`);
   if (caseId) url.searchParams.set("case_id", caseId);
   const res = await fetch(url.toString(), { method: "POST" });
   return res.json();
 }
 
-export async function getNavigation(procedureId: string, pincode: string = "600015"): Promise<any> {
+/** Get navigation details for a procedure's office. */
+export async function getNavigation(procedureId: string, pincode: string = "600015"): Promise<NavigationResult> {
   const res = await fetch(`${API_URL}/api/navigation/${procedureId}?pincode=${pincode}`);
   return res.json();
 }
 
+/** Generate an escalation (RTI) letter for a stalled procedure. */
 export async function generateEscalation(
   procedureId: string,
   escalationType: string = "rti",
   caseId?: string
-): Promise<any> {
+): Promise<EscalationResult> {
   const url = new URL(`${API_URL}/api/escalation/${procedureId}`);
   if (caseId) url.searchParams.set("case_id", caseId);
   url.searchParams.set("escalation_type", escalationType);

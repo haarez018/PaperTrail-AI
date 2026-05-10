@@ -11,9 +11,11 @@ import {
 } from "@/components/chat";
 import ProcedureTimeline from "@/components/ProcedureTimeline";
 import ProcedureDetail from "@/components/ProcedureDetail";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
-import { sendMessage, SSEEvent } from "@/lib/api";
+import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
 
+/** Main chat interface — message stream with optional procedure timeline side panel. */
 export default function ChatPage() {
   const {
     caseId,
@@ -55,17 +57,17 @@ export default function ChatPage() {
         if (event.event === "agent_response") {
           addMessage({
             role: "agent",
-            content: event.data.content,
-            agent: event.data.agent,
+            content: event.data.content as string,
+            agent: event.data.agent as string | undefined,
             timestamp: Date.now(),
           });
         } else if (event.event === "plan_ready") {
-          setPlan(event.data.plan);
+          setPlan(event.data.plan as ProcedurePlan);
         } else if (event.event === "case_state_update") {
-          setCaseData(event.data.case);
+          setCaseData(event.data.case as CaseData);
         } else if (event.event === "done") {
           if (event.data.case_id) {
-            setCaseId(event.data.case_id);
+            setCaseId(event.data.case_id as string);
           }
         }
       });
@@ -138,17 +140,21 @@ export default function ChatPage() {
       {/* ── Timeline Panel — appears when plan is ready ── */}
       {plan && (
         <div className="w-1/2 overflow-y-auto border-l border-paper-dark bg-surface scrollbar-thin">
-          <ProcedureTimeline
-            plan={plan}
-            selectedProcedure={selectedProcedure}
-            onSelect={setSelectedProcedure}
-          />
-          {selectedProcedure && (
-            <ProcedureDetail
-              procedureId={selectedProcedure}
-              caseId={caseId}
-              onClose={() => setSelectedProcedure(null)}
+          <ErrorBoundary section="Timeline">
+            <ProcedureTimeline
+              plan={plan}
+              selectedProcedure={selectedProcedure}
+              onSelect={setSelectedProcedure}
             />
+          </ErrorBoundary>
+          {selectedProcedure && (
+            <ErrorBoundary section="Procedure Details">
+              <ProcedureDetail
+                procedureId={selectedProcedure}
+                caseId={caseId}
+                onClose={() => setSelectedProcedure(null)}
+              />
+            </ErrorBoundary>
           )}
         </div>
       )}
