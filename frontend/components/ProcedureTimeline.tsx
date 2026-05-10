@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Check,
@@ -10,8 +11,11 @@ import {
   ArrowRight,
   CalendarDays,
   IndianRupee,
+  BarChart2,
+  List,
 } from "lucide-react";
 import { Card, CardContent, Badge, ProgressBar } from "@/components/ui";
+import { ComparisonView } from "@/components/ComparisonView";
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
 
@@ -74,6 +78,7 @@ export default function ProcedureTimeline({
   onSelect,
 }: ProcedureTimelineProps) {
   const progress = computeProgress(plan.procedures);
+  const [view, setView] = useState<"timeline" | "compare">("timeline");
 
   return (
     <div className="p-6">
@@ -84,7 +89,36 @@ export default function ProcedureTimeline({
         transition={{ duration: 0.4 }}
         className="mb-8 space-y-4"
       >
-        <h2 className="font-display text-2xl text-navy">Your Procedure Plan</h2>
+        {/* Title + view toggle */}
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-2xl text-navy">Your Procedure Plan</h2>
+          <div className="flex items-center gap-1 rounded-[var(--radius-sm)] border border-paper-dark p-0.5">
+            <button
+              onClick={() => setView("timeline")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium transition-all",
+                view === "timeline"
+                  ? "bg-saffron text-white"
+                  : "text-text-muted hover:text-text-primary"
+              )}
+              title="Procedure timeline"
+            >
+              <List size={12} /> Plan
+            </button>
+            <button
+              onClick={() => setView("compare")}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium transition-all",
+                view === "compare"
+                  ? "bg-saffron text-white"
+                  : "text-text-muted hover:text-text-primary"
+              )}
+              title="Compare with vs without NyayaMitra"
+            >
+              <BarChart2 size={12} /> Compare
+            </button>
+          </div>
+        </div>
 
         <ProgressBar value={progress} label="Overall Progress" />
 
@@ -131,7 +165,13 @@ export default function ProcedureTimeline({
         </div>
       </motion.div>
 
+      {/* ── Compare View ── */}
+      {view === "compare" && (
+        <ComparisonView plan={plan} />
+      )}
+
       {/* ── Timeline ── */}
+      {view === "timeline" && (
       <ol className="relative space-y-0" aria-label="Procedure timeline">
         {plan.procedures.map((proc, idx) => {
           const status = (proc.status as ProcStatus) || "pending";
@@ -234,6 +274,7 @@ export default function ProcedureTimeline({
           );
         })}
       </ol>
+      )}
     </div>
   );
 }
