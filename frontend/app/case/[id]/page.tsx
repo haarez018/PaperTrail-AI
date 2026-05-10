@@ -48,7 +48,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
   return (
     <main className="min-h-screen bg-ivory">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-paper-dark bg-white/90 backdrop-blur-sm">
+      <header className="sticky top-0 z-30 border-b border-paper-dark bg-surface/90 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center gap-4 px-4 py-3 sm:px-6">
           <Link
             href="/chat"

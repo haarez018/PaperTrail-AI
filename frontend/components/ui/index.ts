@@ -39,3 +39,6 @@ export type { ToastProps, ToastContainerProps, ToastVariant } from "./Toast";
 
 export { Skeleton, CardSkeleton } from "./Skeleton";
 export type { SkeletonProps } from "./Skeleton";
+
+export { ThemeToggle } from "./ThemeToggle";
+export type { Theme } from "./ThemeToggle";

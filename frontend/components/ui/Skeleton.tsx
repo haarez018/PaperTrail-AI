@@ -27,7 +27,7 @@ export function CardSkeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "space-y-4 rounded-[var(--radius-lg)] border border-paper-dark bg-white p-6 shadow-card",
+        "space-y-4 rounded-[var(--radius-lg)] border border-paper-dark bg-surface p-6 shadow-card",
         className
       )}
     >

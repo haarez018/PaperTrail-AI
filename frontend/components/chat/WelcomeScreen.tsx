@@ -50,7 +50,7 @@ export function WelcomeScreen({ onSelectPrompt }: WelcomeScreenProps) {
           <button
             key={prompt}
             onClick={() => onSelectPrompt(prompt)}
-            className="group flex items-start gap-2.5 rounded-[var(--radius-md)] border border-paper-dark bg-white px-4 py-3 text-left text-sm text-text-secondary shadow-sm transition-all duration-[var(--duration-fast)] hover:border-saffron/40 hover:bg-saffron-light/40 hover:text-text-primary hover:shadow-card"
+            className="group flex items-start gap-2.5 rounded-[var(--radius-md)] border border-paper-dark bg-surface px-4 py-3 text-left text-sm text-text-secondary shadow-sm transition-all duration-[var(--duration-fast)] hover:border-saffron/40 hover:bg-saffron-light/40 hover:text-text-primary hover:shadow-card"
           >
             <MessageCircle
               size={14}

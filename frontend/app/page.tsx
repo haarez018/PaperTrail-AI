@@ -85,7 +85,7 @@ export default function Home() {
       </section>
 
       {/* ── Features ── */}
-      <section className="border-t border-paper-dark bg-white px-4 py-16 sm:px-8">
+      <section className="border-t border-paper-dark bg-surface px-4 py-16 sm:px-8">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-12 text-center font-display text-3xl text-navy">
             What NyayaMitra does
@@ -124,7 +124,7 @@ export default function Home() {
               return (
                 <div
                   key={a.name}
-                  className="flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-paper-dark bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-card"
+                  className="flex flex-col items-center gap-2 rounded-[var(--radius-md)] border border-paper-dark bg-surface p-4 text-center shadow-sm transition-shadow hover:shadow-card"
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-light">
                     <Icon size={18} className="text-saffron-dark" />
@@ -153,7 +153,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="border-t border-paper-dark bg-white px-8 py-6 text-center text-sm text-text-muted">
+      <footer className="border-t border-paper-dark bg-surface px-8 py-6 text-center text-sm text-text-muted">
         Built by Haarez · Chennai Institute of Technology · 2026
       </footer>
     </main>

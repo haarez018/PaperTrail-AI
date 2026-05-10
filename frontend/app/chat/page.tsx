@@ -137,7 +137,7 @@ export default function ChatPage() {
 
       {/* ── Timeline Panel — appears when plan is ready ── */}
       {plan && (
-        <div className="w-1/2 overflow-y-auto border-l border-paper-dark bg-white scrollbar-thin">
+        <div className="w-1/2 overflow-y-auto border-l border-paper-dark bg-surface scrollbar-thin">
           <ProcedureTimeline
             plan={plan}
             selectedProcedure={selectedProcedure}

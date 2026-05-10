@@ -182,7 +182,7 @@ export default function ProcedureTimeline({
                   "flex-1 rounded-[var(--radius-md)] border p-3 transition-all duration-[var(--duration-fast)]",
                   isSelected
                     ? "border-saffron bg-saffron-light/30 shadow-card"
-                    : "border-paper-dark bg-white group-hover:border-saffron/40 group-hover:shadow-card"
+                    : "border-paper-dark bg-surface group-hover:border-saffron/40 group-hover:shadow-card"
                 )}
               >
                 <div className="flex items-start justify-between gap-2">

@@ -13,6 +13,7 @@
     --color-ivory:          #FEFCF6;
     --color-paper:          #F5F0E8;
     --color-paper-dark:     #E8E0D0;
+    --color-surface:        #FFFFFF;
 
     /* ── Semantic Colors ── */
     --color-success:        #2E7D32;
@@ -46,6 +47,60 @@
     --duration-base:  250ms;
     --duration-slow:  400ms;
     --duration-reveal: 600ms;
+  }
+
+  /* ── Dark Mode ── */
+  .dark {
+    --color-saffron:        #F0913A;
+    --color-saffron-light:  rgba(232,117,26,0.15);
+    --color-saffron-dark:   #F5A54E;
+    --color-navy:           #E8E4DF;
+    --color-navy-light:     #C8C2BA;
+    --color-ivory:          #121212;
+    --color-paper:          #1E1E1E;
+    --color-paper-dark:     #2A2A2A;
+    --color-surface:        #1A1A1A;
+
+    --color-success:        #4CAF50;
+    --color-warning:        #FF9800;
+    --color-danger:         #EF5350;
+    --color-info:           #42A5F5;
+    --color-pending:        #90A4AE;
+
+    --color-text-primary:   #E8E4DF;
+    --color-text-secondary: #B0AAA2;
+    --color-text-muted:     #706A62;
+
+    --shadow-card:          0 2px 12px rgba(0,0,0,0.30);
+    --shadow-card-hover:    0 4px 20px rgba(0,0,0,0.45);
+    --shadow-modal:         0 8px 40px rgba(0,0,0,0.60);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      --color-saffron:        #F0913A;
+      --color-saffron-light:  rgba(232,117,26,0.15);
+      --color-saffron-dark:   #F5A54E;
+      --color-navy:           #E8E4DF;
+      --color-navy-light:     #C8C2BA;
+      --color-ivory:          #121212;
+      --color-paper:          #1E1E1E;
+      --color-paper-dark:     #2A2A2A;
+
+      --color-success:        #4CAF50;
+      --color-warning:        #FF9800;
+      --color-danger:         #EF5350;
+      --color-info:           #42A5F5;
+      --color-pending:        #90A4AE;
+
+      --color-text-primary:   #E8E4DF;
+      --color-text-secondary: #B0AAA2;
+      --color-text-muted:     #706A62;
+
+      --shadow-card:          0 2px 12px rgba(0,0,0,0.30);
+      --shadow-card-hover:    0 4px 20px rgba(0,0,0,0.45);
+      --shadow-modal:         0 8px 40px rgba(0,0,0,0.60);
+    }
   }
 
   /* ── Base Styles ── */

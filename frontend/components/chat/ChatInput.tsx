@@ -39,7 +39,7 @@ export function ChatInput({
   };
 
   return (
-    <div className="border-t border-paper-dark bg-white px-4 py-3 sm:px-6">
+    <div className="border-t border-paper-dark bg-surface px-4 py-3 sm:px-6">
       <div className="flex items-end gap-3">
         <textarea
           ref={textareaRef}
@@ -56,7 +56,7 @@ export function ChatInput({
           className={cn(
             "flex-1 resize-none rounded-[var(--radius-md)] border border-paper-dark bg-ivory px-4 py-2.5 text-sm text-text-primary placeholder:text-text-muted",
             "transition-all duration-[var(--duration-fast)]",
-            "focus:border-saffron focus:bg-white focus:outline-none focus:ring-2 focus:ring-saffron/20",
+            "focus:border-saffron focus:bg-surface focus:outline-none focus:ring-2 focus:ring-saffron/20",
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
         />

@@ -52,7 +52,7 @@ export default function DesignSystemPage() {
     <div className="min-h-screen bg-ivory">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      <header className="border-b border-paper-dark bg-white/80 backdrop-blur-sm sticky top-0 z-40">
+      <header className="border-b border-paper-dark bg-surface/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
           <h1 className="font-display text-2xl sm:text-3xl text-navy">NyayaMitra Design System</h1>
           <p className="mt-1 text-sm text-text-secondary">Phase 1 — Component Library Showcase</p>

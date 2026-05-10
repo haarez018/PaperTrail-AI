@@ -8,7 +8,7 @@ export function TypingIndicator() {
   return (
     <div className="flex gap-3">
       <Avatar type="agent" size="sm" className="mt-1" />
-      <div className="rounded-2xl rounded-bl-md border border-paper-dark bg-white px-4 py-3 shadow-card">
+      <div className="rounded-2xl rounded-bl-md border border-paper-dark bg-surface px-4 py-3 shadow-card">
         <div className="flex items-center gap-1.5">
           {[0, 1, 2].map((i) => (
             <motion.span

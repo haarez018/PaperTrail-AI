@@ -47,7 +47,7 @@ export function ChatBubble({ role, content, agent, index = 0 }: ChatBubbleProps)
           "max-w-[75%] rounded-2xl px-4 py-3",
           isUser
             ? "bg-navy text-white rounded-br-md"
-            : "bg-white border border-paper-dark text-text-primary shadow-card rounded-bl-md"
+            : "bg-surface border border-paper-dark text-text-primary shadow-card rounded-bl-md"
         )}
       >
         {!isUser && agent && (

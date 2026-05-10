@@ -38,7 +38,7 @@ export function LanguageToggle({
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-1 rounded-[var(--radius-md)] border border-paper-dark bg-white p-1",
+        "inline-flex items-center gap-1 rounded-[var(--radius-md)] border border-paper-dark bg-surface p-1",
         className
       )}
       role="radiogroup"
