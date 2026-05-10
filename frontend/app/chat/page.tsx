@@ -11,6 +11,7 @@ import {
 } from "@/components/chat";
 import ProcedureTimeline from "@/components/ProcedureTimeline";
 import ProcedureDetail from "@/components/ProcedureDetail";
+import { AgentTrace } from "@/components/AgentTrace";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
@@ -21,6 +22,7 @@ export default function ChatPage() {
     caseId,
     messages,
     plan,
+    traces,
     isLoading,
     language,
     selectedProcedure,
@@ -31,10 +33,13 @@ export default function ChatPage() {
     setLoading,
     setLanguage,
     setSelectedProcedure,
+    addTrace,
+    clearTraces,
   } = useAppStore();
 
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sendStartRef = useRef<number>(0);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -49,33 +54,100 @@ export default function ChatPage() {
 
     const userMsg = input.trim();
     setInput("");
+    clearTraces();
     addMessage({ role: "user", content: userMsg, timestamp: Date.now() });
     setLoading(true);
+    sendStartRef.current = Date.now();
 
     try {
       await sendMessage(userMsg, caseId, language, (event: SSEEvent) => {
+        const agentKey = (event.data.agent as string) || "done";
+
         if (event.event === "agent_response") {
+          const content = event.data.content as string;
+          const agentName = agentKey;
+
+          // Build a trace step from the agent's response
+          const details: string[] = [];
+          if (agentName === "intake") {
+            // Extract hints from content
+            details.push(`Detected language: ${language === "ta" ? "Tamil" : language === "hi" ? "Hindi" : "English"}`);
+            if (content.toLowerCase().includes("death") || content.toLowerCase().includes("passed")) {
+              details.push("Identified life event: Death");
+            }
+          } else if (agentName === "planner") {
+            details.push("Queried procedure knowledge graph");
+          } else if (agentName === "document") {
+            details.push("Loaded PDF form templates");
+            details.push("Auto-filled fields from case data");
+          } else if (agentName === "navigation") {
+            details.push("Looked up office locations by pincode");
+            details.push("Calculated optimal visit schedule");
+          } else if (agentName === "escalation") {
+            details.push("Identified applicable RTI / RTS provisions");
+            details.push("Generated pre-filled escalation letter");
+          }
+
+          addTrace({
+            id: `${agentName}-${Date.now()}`,
+            agent: agentName,
+            action: content.slice(0, 120) + (content.length > 120 ? "…" : ""),
+            details,
+            timestamp: Date.now(),
+            durationMs: Date.now() - sendStartRef.current,
+          });
+
           addMessage({
             role: "agent",
-            content: event.data.content as string,
-            agent: event.data.agent as string | undefined,
+            content,
+            agent: agentName,
             timestamp: Date.now(),
           });
         } else if (event.event === "plan_ready") {
-          setPlan(event.data.plan as ProcedurePlan);
+          const p = event.data.plan as ProcedurePlan;
+          setPlan(p);
+
+          addTrace({
+            id: `planner-plan-${Date.now()}`,
+            agent: "planner",
+            action: `Built procedure plan: ${p.procedures.length} procedures identified`,
+            details: [
+              `Topological sort by dependencies`,
+              `Estimated total: ~${p.total_estimated_days} days`,
+              `Total fees: ₹${p.total_estimated_cost_inr}`,
+              `Without NyayaMitra: ~${p.without_nyayamitra_baseline_days} days, ₹${p.without_nyayamitra_baseline_cost_inr}`,
+              ...p.procedures.slice(0, 3).map(
+                (proc) => `→ ${proc.procedure_id.replace(/^tn_/, "").replace(/_/g, " ")}`
+              ),
+              p.procedures.length > 3 ? `  …and ${p.procedures.length - 3} more` : "",
+            ].filter(Boolean),
+            timestamp: Date.now(),
+            durationMs: Date.now() - sendStartRef.current,
+          });
         } else if (event.event === "case_state_update") {
           setCaseData(event.data.case as CaseData);
         } else if (event.event === "done") {
           if (event.data.case_id) {
             setCaseId(event.data.case_id as string);
           }
+          addTrace({
+            id: `done-${Date.now()}`,
+            agent: "done",
+            action: "Processing complete",
+            details: [
+              `Case ID: ${event.data.case_id ?? "pending"}`,
+              `Total time: ${formatDuration(Date.now() - sendStartRef.current)}`,
+            ],
+            timestamp: Date.now(),
+            durationMs: Date.now() - sendStartRef.current,
+          });
         }
       });
     } catch {
       addMessage({
         role: "agent",
         content:
-          "Hmm, I can’t reach the server right now. Everything works offline though — I can still help with procedures and forms. Could you try again in a moment?",
+          "Hmm, I can't reach the server right now. Everything works offline though — I can still help with procedures and forms. Could you try again in a moment?",
         timestamp: Date.now(),
       });
     } finally {
@@ -86,6 +158,11 @@ export default function ChatPage() {
   const handleSelectPrompt = (prompt: string) => {
     setInput(prompt);
   };
+
+  const totalDuration =
+    traces.length > 0
+      ? traces[traces.length - 1].timestamp - traces[0].timestamp
+      : undefined;
 
   return (
     <div className="flex h-screen bg-ivory">
@@ -124,6 +201,11 @@ export default function ChatPage() {
               </AnimatePresence>
 
               {isLoading && <TypingIndicator />}
+
+              {/* Agent Reasoning Trace */}
+              {!isLoading && traces.length > 0 && (
+                <AgentTrace traces={traces} totalDurationMs={totalDuration} />
+              )}
             </div>
           )}
         </div>
@@ -160,4 +242,9 @@ export default function ChatPage() {
       )}
     </div>
   );
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
 }

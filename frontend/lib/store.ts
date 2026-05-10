@@ -1,6 +1,16 @@
 import { create } from "zustand";
 import { ChatMessage, ProcedurePlan, CaseData } from "./api";
 
+/** One step in the agent reasoning trace. */
+export interface TraceStep {
+  id: string;
+  agent: string;
+  action: string;
+  details: string[];
+  timestamp: number;
+  durationMs?: number;
+}
+
 /** Global application state for the NyayaMitra chat interface. */
 interface AppState {
   caseId: string | null;
@@ -10,6 +20,7 @@ interface AppState {
   isLoading: boolean;
   language: string;
   selectedProcedure: string | null;
+  traces: TraceStep[];
 
   setCaseId: (id: string) => void;
   addMessage: (msg: ChatMessage) => void;
@@ -18,6 +29,8 @@ interface AppState {
   setLoading: (loading: boolean) => void;
   setLanguage: (lang: string) => void;
   setSelectedProcedure: (id: string | null) => void;
+  addTrace: (step: TraceStep) => void;
+  clearTraces: () => void;
   reset: () => void;
 }
 
@@ -29,6 +42,7 @@ export const useAppStore = create<AppState>((set) => ({
   isLoading: false,
   language: "en",
   selectedProcedure: null,
+  traces: [],
 
   setCaseId: (id) => set({ caseId: id }),
   addMessage: (msg) =>
@@ -38,6 +52,9 @@ export const useAppStore = create<AppState>((set) => ({
   setLoading: (loading) => set({ isLoading: loading }),
   setLanguage: (lang) => set({ language: lang }),
   setSelectedProcedure: (id) => set({ selectedProcedure: id }),
+  addTrace: (step) =>
+    set((state) => ({ traces: [...state.traces, step] })),
+  clearTraces: () => set({ traces: [] }),
   reset: () =>
     set({
       caseId: null,
@@ -46,5 +63,6 @@ export const useAppStore = create<AppState>((set) => ({
       caseData: null,
       isLoading: false,
       selectedProcedure: null,
+      traces: [],
     }),
 }));
