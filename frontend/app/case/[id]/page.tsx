@@ -35,7 +35,7 @@ export default function CasePage({ params }: { params: { id: string } }) {
       const data = await getCase(params.id);
       setCaseData(data);
     } catch {
-      setError("Could not load case data. Make sure the backend is running.");
+      setError("Hmm, I can't reach the server right now. Your case data might still be loading — let me try again.");
     } finally {
       setLoading(false);
     }

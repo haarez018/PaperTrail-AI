@@ -49,13 +49,16 @@ export default function ProcedureDetail({
     .replace(/_/g, " ")
     .replace(/\b\w/g, (l) => l.toUpperCase());
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleGenerateDoc = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await generateDocument(procedureId, caseId || undefined);
       setDocResult(result);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      setError("That took longer than expected. Let me try again.");
     } finally {
       setLoading(false);
     }
@@ -63,11 +66,12 @@ export default function ProcedureDetail({
 
   const handleGetNavigation = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await getNavigation(procedureId);
       setNavResult(result);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      setError("I'm having trouble finding office details right now.");
     } finally {
       setLoading(false);
     }
@@ -75,11 +79,12 @@ export default function ProcedureDetail({
 
   const handleEscalate = async () => {
     setLoading(true);
+    setError(null);
     try {
       const result = await generateEscalation(procedureId, "rti", caseId || undefined);
       setEscResult(result);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      setError("Couldn't generate the escalation letter. Let me try again.");
     } finally {
       setLoading(false);
     }
@@ -125,7 +130,7 @@ export default function ProcedureDetail({
               "inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3.5 py-2 text-sm font-medium transition-all duration-[var(--duration-fast)]",
               activeTab === key
                 ? "bg-saffron text-white shadow-sm"
-                : "border border-paper-dark bg-white text-text-secondary hover:border-saffron/40 hover:text-saffron-dark"
+                : "border border-paper-dark bg-surface text-text-secondary hover:border-saffron/40 hover:text-saffron-dark"
             )}
           >
             <Icon size={14} />
@@ -139,6 +144,30 @@ export default function ProcedureDetail({
         <div className="flex items-center justify-center py-10">
           <LoadingSpinner size="lg" label="Loading..." />
         </div>
+      )}
+
+      {/* ── Error State ── */}
+      {error && !loading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="animate-wobble rounded-[var(--radius-md)] border border-danger/20 bg-red-50/50 px-4 py-6 text-center"
+        >
+          <AlertTriangle size={24} className="mx-auto text-danger/60" />
+          <p className="mt-2 text-sm text-text-secondary">{error}</p>
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-3"
+            onClick={() => {
+              if (activeTab === "documents") handleGenerateDoc();
+              else if (activeTab === "navigate") handleGetNavigation();
+              else handleEscalate();
+            }}
+          >
+            Try Again
+          </Button>
+        </motion.div>
       )}
 
       <AnimatePresence mode="wait">
@@ -338,6 +367,54 @@ export default function ProcedureDetail({
                 </ul>
               </CardContent>
             </Card>
+          </motion.div>
+        )}
+        {/* ── Empty States ── */}
+        {!loading && !error && activeTab === "documents" && !docResult && (
+          <motion.div
+            key="empty-doc"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-8 text-center"
+          >
+            <FileText size={28} className="mx-auto text-text-muted/40" />
+            <p className="mt-2 text-sm text-text-secondary">
+              Once your plan is ready, we&apos;ll auto-generate your forms.
+            </p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={handleGenerateDoc}>
+              Generate Now
+            </Button>
+          </motion.div>
+        )}
+
+        {!loading && !error && activeTab === "navigate" && !navResult && (
+          <motion.div
+            key="empty-nav"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-8 text-center"
+          >
+            <MapPin size={28} className="mx-auto text-text-muted/40" />
+            <p className="mt-2 text-sm text-text-secondary">
+              We&apos;re finding the nearest office and best time to visit.
+            </p>
+            <Button variant="outline" size="sm" className="mt-3" onClick={handleGetNavigation}>
+              Find Office
+            </Button>
+          </motion.div>
+        )}
+
+        {!loading && !error && activeTab === "escalate" && !escResult && (
+          <motion.div
+            key="empty-esc"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="py-8 text-center"
+          >
+            <AlertTriangle size={28} className="mx-auto text-text-muted/40" />
+            <p className="mt-2 text-sm text-text-secondary">
+              Everything is on track. We&apos;ll alert you if anything stalls.
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

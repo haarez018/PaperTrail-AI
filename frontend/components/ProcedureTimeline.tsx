@@ -163,8 +163,11 @@ export default function ProcedureTimeline({
               {/* Status dot */}
               <span
                 className={cn(
-                  "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow-sm text-xs font-bold",
-                  cfg.dotClass
+                  "relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full shadow-sm text-xs font-bold transition-shadow duration-[var(--duration-base)]",
+                  cfg.dotClass,
+                  status === "in_progress" && "animate-glow-pulse",
+                  status === "done" && "animate-stamp",
+                  "group-hover:shadow-card-hover"
                 )}
               >
                 {status === "done" || status === "blocked" || status === "escalated" ? (

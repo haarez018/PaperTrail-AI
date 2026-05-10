@@ -166,3 +166,70 @@
     border-width: 0;
   }
 }
+
+@layer utilities {
+  /* ── Microinteraction keyframes ── */
+
+  /* Send button fly-up animation */
+  @keyframes fly-up {
+    0%   { transform: translateY(0) scale(1); opacity: 1; }
+    50%  { transform: translateY(-8px) scale(0.9); opacity: 0.6; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .animate-fly-up {
+    animation: fly-up 300ms var(--ease-bounce);
+  }
+
+  /* Stamp animation for completed procedures */
+  @keyframes stamp {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.25); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); }
+  }
+  .animate-stamp {
+    animation: stamp 400ms var(--ease-bounce);
+  }
+
+  /* Gentle wobble for errors */
+  @keyframes wobble {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-4px); }
+    40%  { transform: translateX(3px); }
+    60%  { transform: translateX(-2px); }
+    80%  { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+  }
+  .animate-wobble {
+    animation: wobble 500ms var(--ease-smooth);
+  }
+
+  /* Glow pulse for new/active timeline nodes */
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,117,26,0.3); }
+    50%      { box-shadow: 0 0 0 8px rgba(232,117,26,0); }
+  }
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  /* Fade-scale entrance for badges */
+  @keyframes badge-enter {
+    0%   { transform: scale(0.7); opacity: 0; }
+    60%  { transform: scale(1.08); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-badge-enter {
+    animation: badge-enter 300ms var(--ease-bounce);
+  }
+
+  /* Copy confirmation tick */
+  @keyframes copy-tick {
+    0%   { transform: scale(0); opacity: 0; }
+    50%  { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .animate-copy-tick {
+    animation: copy-tick 250ms var(--ease-bounce);
+  }
+}

@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/cn";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-[var(--duration-fast)]",
+  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide animate-badge-enter",
   {
     variants: {
       status: {
@@ -26,7 +26,7 @@ export interface BadgeProps
   extends React.HTMLAttributes<HTMLSpanElement>,
     VariantProps<typeof badgeVariants> {}
 
-/** Status badge for procedures — pending/active/done/blocked/escalated. */
+/** Status badge with bounce-in entrance animation. */
 export function Badge({ className, status, ...props }: BadgeProps) {
   return (
     <span className={cn(badgeVariants({ status }), className)} {...props} />

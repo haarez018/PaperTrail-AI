@@ -73,7 +73,7 @@ export default function ChatPage() {
       addMessage({
         role: "agent",
         content:
-          "Sorry, there was an error connecting to the server. Please make sure the backend is running.",
+          "Hmm, I can’t reach the server right now. Everything works offline though — I can still help with procedures and forms. Could you try again in a moment?",
         timestamp: Date.now(),
       });
     } finally {

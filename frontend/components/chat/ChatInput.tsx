@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -13,7 +13,7 @@ interface ChatInputProps {
   isFirstMessage: boolean;
 }
 
-/** Chat text input with auto-resize and send button. */
+/** Chat text input with auto-resize, send animation, and keyboard handling. */
 export function ChatInput({
   value,
   onChange,
@@ -22,6 +22,7 @@ export function ChatInput({
   isFirstMessage,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [animating, setAnimating] = useState(false);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -34,8 +35,15 @@ export function ChatInput({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onSend();
+      handleSend();
     }
+  };
+
+  const handleSend = () => {
+    if (!value.trim() || isLoading) return;
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 300);
+    onSend();
   };
 
   return (
@@ -63,11 +71,18 @@ export function ChatInput({
         <Button
           variant="primary"
           size="icon"
-          onClick={onSend}
+          onClick={handleSend}
           disabled={isLoading || !value.trim()}
           aria-label="Send message"
+          className="relative overflow-hidden"
         >
-          <Send size={18} />
+          <Send
+            size={18}
+            className={cn(
+              "transition-transform",
+              animating && "animate-fly-up"
+            )}
+          />
         </Button>
       </div>
       <p className="mt-1.5 text-center text-[11px] text-text-muted">

@@ -35,8 +35,8 @@ export function WelcomeScreen({ onSelectPrompt }: WelcomeScreenProps) {
       >
         <h2 className="font-display text-2xl text-navy">How can I help you today?</h2>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-text-secondary">
-          Tell me about your situation and I&apos;ll identify every government procedure
-          you need, generate the forms, and guide you step by step.
+          Tell us what happened. We&apos;ll figure out the rest &mdash; every procedure,
+          every form, every follow-up.
         </p>
       </motion.div>
 

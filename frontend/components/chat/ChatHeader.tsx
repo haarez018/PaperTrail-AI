@@ -1,8 +1,10 @@
 "use client";
 
-import { Scale } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Scale, Copy, Check } from "lucide-react";
 import { LanguageToggle, ThemeToggle } from "@/components/ui";
 import type { SupportedLanguage } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
 interface ChatHeaderProps {
   language: string;
@@ -10,8 +12,29 @@ interface ChatHeaderProps {
   caseId: string | null;
 }
 
-/** Sticky header with NyayaMitra branding and language toggle. */
+/** Sticky header with NyayaMitra branding, case ID copy, and toggles. */
 export function ChatHeader({ language, onLanguageChange, caseId }: ChatHeaderProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyId = useCallback(async () => {
+    if (!caseId) return;
+    try {
+      await navigator.clipboard.writeText(caseId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Fallback for older browsers
+      const el = document.createElement("textarea");
+      el.value = caseId;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand("copy");
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [caseId]);
+
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-paper-dark bg-surface/90 px-4 py-3 backdrop-blur-sm sm:px-6">
       <div className="flex items-center gap-3">
@@ -24,7 +47,22 @@ export function ChatHeader({ language, onLanguageChange, caseId }: ChatHeaderPro
           </h1>
           <p className="text-xs text-text-muted">
             {caseId ? (
-              <span className="font-mono">{caseId}</span>
+              <button
+                onClick={handleCopyId}
+                className={cn(
+                  "group inline-flex items-center gap-1 font-mono transition-colors duration-[var(--duration-fast)]",
+                  "hover:text-saffron active:text-saffron-dark"
+                )}
+                title="Click to copy Case ID"
+                aria-label={`Copy case ID ${caseId}`}
+              >
+                {caseId}
+                {copied ? (
+                  <Check size={11} className="text-success animate-copy-tick" />
+                ) : (
+                  <Copy size={11} className="opacity-0 transition-opacity group-hover:opacity-100" />
+                )}
+              </button>
             ) : (
               "Your Bureaucracy Navigator"
             )}
