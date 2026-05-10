@@ -216,6 +216,7 @@ export default function ChatPage() {
           onSend={handleSend}
           isLoading={isLoading}
           isFirstMessage={messages.length === 0}
+          language={language}
         />
       </div>
 

@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui";
+import { VoiceInput } from "./VoiceInput";
 import { cn } from "@/lib/cn";
 
 interface ChatInputProps {
@@ -11,15 +12,18 @@ interface ChatInputProps {
   onSend: () => void;
   isLoading: boolean;
   isFirstMessage: boolean;
+  /** Current language from LanguageToggle — controls voice recognition locale. */
+  language?: string;
 }
 
-/** Chat text input with auto-resize, send animation, and keyboard handling. */
+/** Chat text input with auto-resize, voice input, and send animation. */
 export function ChatInput({
   value,
   onChange,
   onSend,
   isLoading,
   isFirstMessage,
+  language = "en",
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [animating, setAnimating] = useState(false);
@@ -46,9 +50,22 @@ export function ChatInput({
     onSend();
   };
 
+  const handleTranscript = (text: string) => {
+    onChange(value ? `${value} ${text}` : text);
+    // Focus the textarea so user can review and edit
+    textareaRef.current?.focus();
+  };
+
   return (
     <div className="border-t border-paper-dark bg-surface px-4 py-3 sm:px-6">
-      <div className="flex items-end gap-3">
+      <div className="flex items-end gap-2">
+        {/* Voice input mic */}
+        <VoiceInput
+          language={language}
+          onTranscript={handleTranscript}
+          disabled={isLoading}
+        />
+
         <textarea
           ref={textareaRef}
           value={value}
@@ -56,8 +73,8 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           placeholder={
             isFirstMessage
-              ? "Tell me what happened... (e.g., 'My grandfather passed away in Chennai')"
-              : "Type your response..."
+              ? "Tell me what happened… or tap the mic to speak"
+              : "Type your response…"
           }
           rows={1}
           disabled={isLoading}
@@ -68,6 +85,7 @@ export function ChatInput({
             "disabled:cursor-not-allowed disabled:opacity-50"
           )}
         />
+
         <Button
           variant="primary"
           size="icon"
@@ -86,7 +104,7 @@ export function ChatInput({
         </Button>
       </div>
       <p className="mt-1.5 text-center text-[11px] text-text-muted">
-        Press Enter to send · Shift+Enter for new line
+        Press Enter to send · Shift+Enter for new line · Mic for voice
       </p>
     </div>
   );
