@@ -12,6 +12,8 @@ import {
 import ProcedureTimeline from "@/components/ProcedureTimeline";
 import ProcedureDetail from "@/components/ProcedureDetail";
 import { AgentTrace } from "@/components/AgentTrace";
+import { Onboarding } from "@/components/Onboarding";
+import { ShortcutsModal } from "@/components/ShortcutsModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
@@ -40,6 +42,46 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendStartRef = useRef<number>(0);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  const LANGUAGES = ["en", "ta", "hi"];
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const ctrl = e.ctrlKey || e.metaKey;
+      if (ctrl && e.key === "k") {
+        e.preventDefault();
+        // Focus the textarea — find it via DOM since ChatInput owns the ref
+        const textarea = document.querySelector<HTMLTextAreaElement>(
+          "textarea[placeholder]"
+        );
+        textarea?.focus();
+      }
+      if (ctrl && e.key === "d") {
+        e.preventDefault();
+        // Toggle theme by cycling ThemeToggle manually
+        const stored =
+          localStorage.getItem("nyayamitra-theme") ?? "system";
+        const next =
+          stored === "light" ? "dark" : stored === "dark" ? "system" : "light";
+        localStorage.setItem("nyayamitra-theme", next);
+        const root = document.documentElement;
+        root.classList.remove("light", "dark");
+        if (next === "dark") root.classList.add("dark");
+        else if (next === "light") root.classList.add("light");
+      }
+      if (ctrl && e.key === "e") {
+        e.preventDefault();
+        const current = LANGUAGES.indexOf(language);
+        const next = LANGUAGES[(current + 1) % LANGUAGES.length];
+        setLanguage(next);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [language]);
 
   // Auto-scroll to bottom on new messages
   useEffect(() => {
@@ -166,6 +208,8 @@ export default function ChatPage() {
 
   return (
     <div className="flex h-screen bg-ivory">
+      <Onboarding />
+      <ShortcutsModal />
       {/* ── Chat Panel ── */}
       <div
         className={`flex flex-col transition-all duration-500 ease-smooth ${

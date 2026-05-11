@@ -71,6 +71,65 @@ async def list_cases():
         return {"cases": cases}
 
 
+@router.get("/api/stats")
+async def get_stats():
+    """Return aggregated stats for the performance dashboard."""
+    from sqlmodel import select, func as sqlfunc
+    from datetime import datetime as dt
+
+    with get_session() as session:
+        records = session.exec(select(CaseRecord)).all()
+
+    total_cases = len(records)
+    completed = sum(1 for r in records if r.status == "completed")
+    active = sum(1 for r in records if r.status == "active")
+
+    # Procedure stats
+    all_procs: list[dict] = []
+    proc_counts: dict[str, int] = {}
+    language_counts: dict[str, int] = {"en": 0, "ta": 0, "hi": 0}
+
+    for r in records:
+        plan = json.loads(r.plan_data) if r.plan_data else {}
+        for p in plan.get("procedures", []):
+            all_procs.append(p)
+            pid = p.get("procedure_id", "unknown")
+            proc_counts[pid] = proc_counts.get(pid, 0) + 1
+
+        case = json.loads(r.case_data) if r.case_data else {}
+        lang = case.get("language", "en")
+        if lang in language_counts:
+            language_counts[lang] += 1
+        else:
+            language_counts["en"] += 1
+
+    avg_procedures = round(len(all_procs) / total_cases, 1) if total_cases else 0
+
+    top_procedures = sorted(
+        [{"procedure_id": k, "count": v} for k, v in proc_counts.items()],
+        key=lambda x: x["count"],
+        reverse=True,
+    )[:8]
+
+    # Format for chart
+    language_chart = [
+        {"language": "English", "cases": language_counts.get("en", 0)},
+        {"language": "Tamil", "cases": language_counts.get("ta", 0)},
+        {"language": "Hindi", "cases": language_counts.get("hi", 0)},
+    ]
+
+    return {
+        "total_cases": total_cases,
+        "completed_cases": completed,
+        "active_cases": active,
+        "avg_procedures_per_case": avg_procedures,
+        "total_procedures_generated": len(all_procs),
+        "language_distribution": language_chart,
+        "top_procedures": top_procedures,
+        "uptime_since": records[0].created_at.isoformat() if records else None,
+    }
+
+
 @router.get("/api/procedures")
 async def list_procedures():
     """Return all procedures from the knowledge graph for the explorer."""
