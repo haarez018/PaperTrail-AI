@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PageTransition } from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "NyayaMitra — Your Bureaucracy Navigator",
@@ -32,7 +33,7 @@ export default function RootLayout({
           Skip to main content
         </a>
         <div id="main-content">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </div>
       </body>
     </html>
