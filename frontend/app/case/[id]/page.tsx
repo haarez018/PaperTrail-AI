@@ -23,6 +23,7 @@ import {
 } from "@/components/ui";
 import { getCase, CaseData, Procedure, ProcedureStatus } from "@/lib/api";
 import { ExportKitButton } from "@/components/ExportKitButton";
+import { DeadlineTracker } from "@/components/DeadlineTracker";
 
 /** Dashboard view for a specific case — shows stats, progress, and procedure list. */
 export default function CasePage({ params }: { params: { id: string } }) {
@@ -154,6 +155,11 @@ export default function CasePage({ params }: { params: { id: string } }) {
                   />
                 </CardContent>
               </Card>
+            )}
+
+            {/* Deadline Tracker */}
+            {caseData.plan?.procedures && (
+              <DeadlineTracker procedures={caseData.plan.procedures} />
             )}
 
             {/* Procedure List */}
