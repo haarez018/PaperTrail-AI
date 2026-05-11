@@ -21,6 +21,7 @@ import { ComparisonView } from "@/components/ComparisonView";
 import { ShareCard } from "@/components/ShareCard";
 import { ProcedureGraph } from "@/components/ProcedureGraph";
 import { ProcedureListView } from "@/components/ProcedureListView";
+import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
 
@@ -299,6 +300,15 @@ export default function ProcedureTimeline({
         })}
       </ol>
       )}
+
+      {/* ── Plan-level feedback ── */}
+      <div className="mt-6">
+        <FeedbackPrompt
+          context="this plan"
+          caseId={caseId}
+          procedureId={null}
+        />
+      </div>
     </div>
   );
 }

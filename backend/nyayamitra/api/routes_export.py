@@ -1,14 +1,15 @@
-"""Export endpoints — print-ready document kit, case list, and procedure explorer."""
+"""Export endpoints — print-ready document kit, case list, procedure explorer, and feedback."""
 
 from __future__ import annotations
 
 import json
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
-from nyayamitra.db.models import CaseRecord
+from nyayamitra.db.models import CaseRecord, FeedbackRecord
 from nyayamitra.db.session import get_session
 from nyayamitra.kg.loader import get_all_procedures
 from nyayamitra.schemas.case_file import CaseFile
@@ -16,6 +17,14 @@ from nyayamitra.tools.kit_generator import generate_kit
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+class FeedbackRequest(BaseModel):
+    case_id: Optional[str] = None
+    procedure_id: Optional[str] = None
+    rating: int  # 1 = thumbs up, -1 = thumbs down
+    comment: Optional[str] = None
+    language: str = "en"
 
 
 @router.post("/api/case/{case_id}/export-kit")
@@ -143,3 +152,60 @@ async def list_procedures():
     except Exception as exc:
         logger.exception("Failed to load procedures")
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.post("/api/feedback")
+async def submit_feedback(req: FeedbackRequest):
+    """Submit thumbs-up/down rating with optional comment for a procedure or plan."""
+    if req.rating not in (1, -1):
+        raise HTTPException(status_code=422, detail="rating must be 1 or -1")
+
+    record = FeedbackRecord(
+        case_id=req.case_id,
+        procedure_id=req.procedure_id,
+        rating=req.rating,
+        comment=req.comment,
+        language=req.language,
+    )
+
+    try:
+        with get_session() as session:
+            session.add(record)
+            session.commit()
+            session.refresh(record)
+        return {"feedback_id": record.id, "status": "recorded"}
+    except Exception as exc:
+        logger.exception("Failed to save feedback")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/api/feedback/summary")
+async def feedback_summary():
+    """Aggregate feedback stats — thumbs up/down counts per procedure."""
+    from sqlmodel import select
+
+    with get_session() as session:
+        records = session.exec(select(FeedbackRecord)).all()
+
+    total = len(records)
+    positive = sum(1 for r in records if r.rating == 1)
+    negative = total - positive
+
+    # Per-procedure breakdown
+    by_proc: dict[str, dict] = {}
+    for r in records:
+        key = r.procedure_id or "__plan__"
+        if key not in by_proc:
+            by_proc[key] = {"up": 0, "down": 0}
+        if r.rating == 1:
+            by_proc[key]["up"] += 1
+        else:
+            by_proc[key]["down"] += 1
+
+    return {
+        "total": total,
+        "positive": positive,
+        "negative": negative,
+        "satisfaction_pct": round(positive / total * 100) if total else None,
+        "by_procedure": by_proc,
+    }
