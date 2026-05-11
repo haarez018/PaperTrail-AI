@@ -45,26 +45,38 @@ function ShortcutKey({
   );
 }
 
+interface ShortcutsModalProps {
+  /** When provided, component becomes fully controlled. */
+  open?: boolean;
+  onClose?: () => void;
+}
+
 /**
  * Global keyboard shortcuts reference modal.
- * Opens via Ctrl+/ shortcut or programmatically.
+ * Supports both uncontrolled (self-manages Ctrl+/) and
+ * controlled (open/onClose props from parent) modes.
  */
-export function ShortcutsModal() {
-  const [open, setOpen] = useState(false);
+export function ShortcutsModal({ open: controlledOpen, onClose }: ShortcutsModalProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const close = isControlled ? (onClose ?? (() => {})) : () => setInternalOpen(false);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const ctrlOrCmd = e.ctrlKey || e.metaKey;
-      if (ctrlOrCmd && e.key === "/") {
+      if (!isControlled && ctrlOrCmd && e.key === "/") {
         e.preventDefault();
-        setOpen((v) => !v);
+        setInternalOpen((v) => !v);
         return;
       }
       if (e.key === "Escape" && open) {
-        setOpen(false);
+        close();
       }
     },
-    [open]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [open, isControlled]
   );
 
   useEffect(() => {
@@ -82,7 +94,7 @@ export function ShortcutsModal() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[90] bg-navy/50 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            onClick={() => close()}
           />
 
           <motion.div
@@ -106,7 +118,7 @@ export function ShortcutsModal() {
                 <h2 className="font-display text-base text-navy">Keyboard Shortcuts</h2>
               </div>
               <button
-                onClick={() => setOpen(false)}
+                onClick={() => close()}
                 className="rounded-full p-1 text-text-muted hover:bg-paper hover:text-navy transition-colors"
                 aria-label="Close"
               >

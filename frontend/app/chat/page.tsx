@@ -14,6 +14,7 @@ import ProcedureDetail from "@/components/ProcedureDetail";
 import { AgentTrace } from "@/components/AgentTrace";
 import { Onboarding } from "@/components/Onboarding";
 import { ShortcutsModal } from "@/components/ShortcutsModal";
+import { CommandPalette } from "@/components/CommandPalette";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
@@ -40,6 +41,8 @@ export default function ChatPage() {
   } = useAppStore();
 
   const [input, setInput] = useState("");
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendStartRef = useRef<number>(0);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -52,15 +55,14 @@ export default function ChatPage() {
       const ctrl = e.ctrlKey || e.metaKey;
       if (ctrl && e.key === "k") {
         e.preventDefault();
-        // Focus the textarea — find it via DOM since ChatInput owns the ref
-        const textarea = document.querySelector<HTMLTextAreaElement>(
-          "textarea[placeholder]"
-        );
-        textarea?.focus();
+        setPaletteOpen((v) => !v);
+      }
+      if (ctrl && e.key === "/") {
+        e.preventDefault();
+        setShortcutsOpen((v) => !v);
       }
       if (ctrl && e.key === "d") {
         e.preventDefault();
-        // Toggle theme by cycling ThemeToggle manually
         const stored =
           localStorage.getItem("nyayamitra-theme") ?? "system";
         const next =
@@ -209,7 +211,16 @@ export default function ChatPage() {
   return (
     <div className="flex h-screen bg-ivory">
       <Onboarding />
-      <ShortcutsModal />
+      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        plan={plan}
+        caseId={caseId}
+        onNewCase={() => setPaletteOpen(false)}
+        onSetLanguage={(lang) => { setLanguage(lang); }}
+        onShowShortcuts={() => { setShortcutsOpen(true); }}
+      />
       {/* ── Chat Panel ── */}
       <div
         className={`flex flex-col transition-all duration-500 ease-smooth ${
