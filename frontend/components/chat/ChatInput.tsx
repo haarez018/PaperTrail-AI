@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from "react";
 import { Send } from "lucide-react";
 import { Button } from "@/components/ui";
 import { VoiceInput } from "./VoiceInput";
+import { DocumentScanner } from "./DocumentScanner";
 import { cn } from "@/lib/cn";
 
 interface ChatInputProps {
@@ -56,6 +57,11 @@ export function ChatInput({
     textareaRef.current?.focus();
   };
 
+  const handleScannedDocument = (summary: string) => {
+    onChange(value ? `${value}\n${summary}` : summary);
+    textareaRef.current?.focus();
+  };
+
   return (
     <div className="border-t border-paper-dark bg-surface px-4 py-3 sm:px-6">
       <div className="flex items-end gap-2">
@@ -63,6 +69,12 @@ export function ChatInput({
         <VoiceInput
           language={language}
           onTranscript={handleTranscript}
+          disabled={isLoading}
+        />
+
+        {/* Document scanner */}
+        <DocumentScanner
+          onFieldsConfirmed={handleScannedDocument}
           disabled={isLoading}
         />
 
@@ -104,7 +116,7 @@ export function ChatInput({
         </Button>
       </div>
       <p className="mt-1.5 text-center text-[11px] text-text-muted">
-        Press Enter to send · Shift+Enter for new line · Mic for voice
+        Enter to send · Shift+Enter for new line · Mic to speak · Camera to scan docs
       </p>
     </div>
   );

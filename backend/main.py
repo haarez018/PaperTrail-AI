@@ -7,6 +7,7 @@ from nyayamitra.api.routes_case import router as case_router
 from nyayamitra.api.routes_chat import router as chat_router
 from nyayamitra.api.routes_documents import router as documents_router
 from nyayamitra.api.routes_export import router as export_router
+from nyayamitra.api.routes_ocr import router as ocr_router
 from nyayamitra.config import FRONTEND_URL
 from nyayamitra.db.session import init_db
 
@@ -37,6 +38,7 @@ app.include_router(chat_router)
 app.include_router(case_router)
 app.include_router(documents_router)
 app.include_router(export_router)
+app.include_router(ocr_router)
 
 
 @app.get("/health")

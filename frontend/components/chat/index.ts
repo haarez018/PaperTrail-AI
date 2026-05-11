@@ -6,3 +6,5 @@ export { WelcomeScreen } from "./WelcomeScreen";
 export { ChatHeader } from "./ChatHeader";
 export { ChatInput } from "./ChatInput";
 export { VoiceInput } from "./VoiceInput";
+export { DocumentScanner } from "./DocumentScanner";
+export { ExtractedFields } from "./ExtractedFields";
