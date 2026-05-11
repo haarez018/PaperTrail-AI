@@ -22,6 +22,7 @@ import {
   CardSkeleton,
 } from "@/components/ui";
 import { getCase, CaseData, Procedure, ProcedureStatus } from "@/lib/api";
+import { ExportKitButton } from "@/components/ExportKitButton";
 
 /** Dashboard view for a specific case — shows stats, progress, and procedure list. */
 export default function CasePage({ params }: { params: { id: string } }) {
@@ -187,13 +188,14 @@ export default function CasePage({ params }: { params: { id: string } }) {
               </Card>
             )}
 
-            {/* Quick action */}
-            <div className="text-center">
+            {/* Quick actions */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               <Link href="/chat">
                 <Button variant="primary">
                   <Scale size={16} /> Continue in Chat
                 </Button>
               </Link>
+              <ExportKitButton caseId={params.id} />
             </div>
           </>
         )}
