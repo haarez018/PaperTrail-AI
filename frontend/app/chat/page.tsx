@@ -15,6 +15,8 @@ import { AgentTrace } from "@/components/AgentTrace";
 import { Onboarding } from "@/components/Onboarding";
 import { ShortcutsModal } from "@/components/ShortcutsModal";
 import { CommandPalette } from "@/components/CommandPalette";
+import { SmartSuggestions } from "@/components/SmartSuggestions";
+import { getSuggestions, Suggestion } from "@/lib/suggestions";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
@@ -43,6 +45,7 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [lastAgent, setLastAgent] = useState<string | undefined>();
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendStartRef = useRef<number>(0);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -110,6 +113,7 @@ export default function ChatPage() {
         if (event.event === "agent_response") {
           const content = event.data.content as string;
           const agentName = agentKey;
+          setLastAgent(agentName);
 
           // Build a trace step from the agent's response
           const details: string[] = [];
@@ -265,6 +269,24 @@ export default function ChatPage() {
           )}
         </div>
 
+        <SmartSuggestions
+          suggestions={getSuggestions({
+            lastAgent,
+            hasPlan: !!plan,
+            procedureCount: plan?.procedures.length,
+            language,
+          })}
+          visible={!isLoading && messages.length > 0}
+          onSelect={(s: Suggestion) => {
+            if (s.type === "prompt") {
+              setInput(s.prompt);
+            } else if (s.id === "sp-kit") {
+              document.querySelector<HTMLButtonElement>("[data-export-kit]")?.click();
+            } else if (s.id === "sp-graph") {
+              document.querySelector<HTMLButtonElement>("[data-view-graph]")?.click();
+            }
+          }}
+        />
         <ChatInput
           value={input}
           onChange={setInput}
