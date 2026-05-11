@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Scale, Copy, Check } from "lucide-react";
+import Link from "next/link";
+import { Scale, Copy, Check, FolderOpen } from "lucide-react";
 import { LanguageToggle, ThemeToggle } from "@/components/ui";
 import type { SupportedLanguage } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -71,6 +72,14 @@ export function ChatHeader({ language, onLanguageChange, caseId }: ChatHeaderPro
       </div>
 
       <div className="flex items-center gap-2">
+        <Link
+          href="/cases"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-text-muted hover:bg-paper hover:text-navy transition-colors"
+          title="View all cases"
+        >
+          <FolderOpen size={14} />
+          <span className="hidden sm:inline">Cases</span>
+        </Link>
         <LanguageToggle
           value={language as SupportedLanguage}
           onChange={(lang) => onLanguageChange(lang)}
