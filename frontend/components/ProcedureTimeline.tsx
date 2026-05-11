@@ -13,10 +13,14 @@ import {
   IndianRupee,
   BarChart2,
   List,
+  GitBranch,
+  AlignLeft,
 } from "lucide-react";
 import { Card, CardContent, Badge, ProgressBar } from "@/components/ui";
 import { ComparisonView } from "@/components/ComparisonView";
 import { ShareCard } from "@/components/ShareCard";
+import { ProcedureGraph } from "@/components/ProcedureGraph";
+import { ProcedureListView } from "@/components/ProcedureListView";
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
 
@@ -81,7 +85,7 @@ export default function ProcedureTimeline({
   caseId,
 }: ProcedureTimelineProps) {
   const progress = computeProgress(plan.procedures);
-  const [view, setView] = useState<"timeline" | "compare">("timeline");
+  const [view, setView] = useState<"timeline" | "graph" | "list" | "compare">("timeline");
 
   return (
     <div className="p-6">
@@ -98,31 +102,27 @@ export default function ProcedureTimeline({
           <div className="flex items-center gap-2">
             <ShareCard plan={plan} caseId={caseId ?? null} />
             <div className="flex items-center gap-1 rounded-[var(--radius-sm)] border border-paper-dark p-0.5">
-            <button
-              onClick={() => setView("timeline")}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium transition-all",
-                view === "timeline"
-                  ? "bg-saffron text-white"
-                  : "text-text-muted hover:text-text-primary"
-              )}
-              title="Procedure timeline"
-            >
-              <List size={12} /> Plan
-            </button>
-            <button
-              onClick={() => setView("compare")}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium transition-all",
-                view === "compare"
-                  ? "bg-saffron text-white"
-                  : "text-text-muted hover:text-text-primary"
-              )}
-              title="Compare with vs without NyayaMitra"
-            >
-              <BarChart2 size={12} /> Compare
-            </button>
-          </div>
+              {([
+                { key: "timeline", icon: List, label: "Plan" },
+                { key: "graph",    icon: GitBranch, label: "Graph" },
+                { key: "list",     icon: AlignLeft, label: "List" },
+                { key: "compare",  icon: BarChart2, label: "Compare" },
+              ] as const).map(({ key, icon: Icon, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setView(key)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-[4px] px-2.5 py-1.5 text-xs font-medium transition-all",
+                    view === key
+                      ? "bg-saffron text-white"
+                      : "text-text-muted hover:text-text-primary"
+                  )}
+                  title={label}
+                >
+                  <Icon size={12} /> {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -174,6 +174,24 @@ export default function ProcedureTimeline({
       {/* ── Compare View ── */}
       {view === "compare" && (
         <ComparisonView plan={plan} />
+      )}
+
+      {/* ── Graph View ── */}
+      {view === "graph" && (
+        <ProcedureGraph
+          procedures={plan.procedures}
+          onSelect={onSelect}
+          selectedProcedure={selectedProcedure}
+        />
+      )}
+
+      {/* ── List View ── */}
+      {view === "list" && (
+        <ProcedureListView
+          procedures={plan.procedures}
+          selectedProcedure={selectedProcedure}
+          onSelect={onSelect}
+        />
       )}
 
       {/* ── Timeline ── */}
