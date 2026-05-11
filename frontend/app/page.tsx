@@ -155,6 +155,10 @@ export default function Home() {
       {/* ── Footer ── */}
       <footer className="border-t border-paper-dark bg-surface px-8 py-6 text-center text-sm text-text-muted">
         Built by Haarez · Chennai Institute of Technology · 2026
+        {" · "}
+        <Link href="/procedures" className="hover:text-saffron transition-colors">
+          Procedure Explorer
+        </Link>
       </footer>
     </main>
   );

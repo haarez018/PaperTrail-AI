@@ -1,4 +1,4 @@
-"""Export endpoints — print-ready document kit and case list."""
+"""Export endpoints — print-ready document kit, case list, and procedure explorer."""
 
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from fastapi.responses import JSONResponse
 
 from nyayamitra.db.models import CaseRecord
 from nyayamitra.db.session import get_session
+from nyayamitra.kg.loader import get_all_procedures
 from nyayamitra.schemas.case_file import CaseFile
 from nyayamitra.tools.kit_generator import generate_kit
 
@@ -68,3 +69,18 @@ async def list_cases():
             })
 
         return {"cases": cases}
+
+
+@router.get("/api/procedures")
+async def list_procedures():
+    """Return all procedures from the knowledge graph for the explorer."""
+    try:
+        procedures_dict = get_all_procedures()
+        proc_list = list(procedures_dict.values())
+        return {
+            "procedures": [p.model_dump() for p in proc_list],
+            "count": len(proc_list),
+        }
+    except Exception as exc:
+        logger.exception("Failed to load procedures")
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
