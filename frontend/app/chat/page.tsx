@@ -228,6 +228,7 @@ export default function ChatPage() {
               plan={plan}
               selectedProcedure={selectedProcedure}
               onSelect={setSelectedProcedure}
+              caseId={caseId}
             />
           </ErrorBoundary>
           {selectedProcedure && (

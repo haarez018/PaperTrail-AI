@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent, Badge, ProgressBar } from "@/components/ui";
 import { ComparisonView } from "@/components/ComparisonView";
+import { ShareCard } from "@/components/ShareCard";
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
 
@@ -23,6 +24,7 @@ interface ProcedureTimelineProps {
   plan: ProcedurePlan;
   selectedProcedure: string | null;
   onSelect: (id: string) => void;
+  caseId?: string | null;
 }
 
 /* ── Status config ── */
@@ -76,6 +78,7 @@ export default function ProcedureTimeline({
   plan,
   selectedProcedure,
   onSelect,
+  caseId,
 }: ProcedureTimelineProps) {
   const progress = computeProgress(plan.procedures);
   const [view, setView] = useState<"timeline" | "compare">("timeline");
@@ -90,9 +93,11 @@ export default function ProcedureTimeline({
         className="mb-8 space-y-4"
       >
         {/* Title + view toggle */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <h2 className="font-display text-2xl text-navy">Your Procedure Plan</h2>
-          <div className="flex items-center gap-1 rounded-[var(--radius-sm)] border border-paper-dark p-0.5">
+          <div className="flex items-center gap-2">
+            <ShareCard plan={plan} caseId={caseId ?? null} />
+            <div className="flex items-center gap-1 rounded-[var(--radius-sm)] border border-paper-dark p-0.5">
             <button
               onClick={() => setView("timeline")}
               className={cn(
@@ -117,6 +122,7 @@ export default function ProcedureTimeline({
             >
               <BarChart2 size={12} /> Compare
             </button>
+          </div>
           </div>
         </div>
 
