@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Avatar } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { AnnotatedText } from "@/components/Term";
 
 export interface ChatBubbleProps {
   role: "user" | "agent";
@@ -55,10 +56,21 @@ export function ChatBubble({ role, content, agent, index = 0 }: ChatBubbleProps)
             {agentLabels[agent] || agent}
           </div>
         )}
-        <div
-          className="text-sm leading-relaxed"
-          dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
-        />
+        {isUser ? (
+          <div
+            className="text-sm leading-relaxed"
+            dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
+          />
+        ) : (
+          <div className="text-sm leading-relaxed">
+            {content.split("\n").map((line, i) => (
+              <span key={i}>
+                {i > 0 && <br />}
+                <AnnotatedText text={line} />
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );

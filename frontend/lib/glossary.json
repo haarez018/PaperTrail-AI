@@ -1,0 +1,77 @@
+{
+  "RTI": {
+    "full": "Right to Information",
+    "definition": "A law (RTI Act 2005) that lets any Indian citizen request information from any government body within 30 days.",
+    "tamil": "தகவல் அறியும் உரிமை சட்டம்"
+  },
+  "RTS": {
+    "full": "Right to Services",
+    "definition": "Tamil Nadu Right to Services Act 2010 — government offices must deliver notified services within fixed time limits or face penalty.",
+    "tamil": "சேவை பெறும் உரிமை சட்டம்"
+  },
+  "Death Certificate": {
+    "full": "Death Certificate",
+    "definition": "Mandatory legal document issued by a Registrar of Births and Deaths confirming a person's death. Required for almost all post-death procedures.",
+    "tamil": "இறப்பு சான்றிதழ்"
+  },
+  "Legal Heir Certificate": {
+    "full": "Legal Heir Certificate",
+    "definition": "A certificate issued by a Tahsildar identifying the rightful heirs of a deceased person. Required to claim pension, bank accounts, and property.",
+    "tamil": "சட்டப்பூர்வ வாரிசு சான்றிதழ்"
+  },
+  "Tahsildar": {
+    "full": "Tahsildar",
+    "definition": "A revenue officer at the taluk level who handles land records, income certificates, community certificates, and legal heir certificates.",
+    "tamil": "தாசில்தார்"
+  },
+  "Mutation": {
+    "full": "Property Mutation",
+    "definition": "The process of updating land revenue records to reflect the new owner's name after a transfer, inheritance, or purchase.",
+    "tamil": "சொத்து பரிமாற்ற பதிவு"
+  },
+  "Encumbrance Certificate": {
+    "full": "Encumbrance Certificate (EC)",
+    "definition": "A document from the Sub-Registrar's office listing all registered transactions (loans, mortgages) on a property over a period.",
+    "tamil": "சுமை சான்றிதழ்"
+  },
+  "Patta": {
+    "full": "Patta (Chitta)",
+    "definition": "A land ownership document maintained by the Revenue Department showing who legally owns a piece of land in Tamil Nadu.",
+    "tamil": "பட்டா / சிட்டா"
+  },
+  "Aadhaar": {
+    "full": "Aadhaar",
+    "definition": "12-digit unique identity number issued by UIDAI to every Indian resident, used for KYC verification across government services.",
+    "tamil": "ஆதார்"
+  },
+  "PAN": {
+    "full": "Permanent Account Number",
+    "definition": "10-character alphanumeric identifier issued by the Income Tax Department for tax-related transactions and bank accounts.",
+    "tamil": "நிரந்தர கணக்கு எண்"
+  },
+  "Pension Transfer": {
+    "full": "Family Pension Transfer",
+    "definition": "The process by which a deceased government employee's pension benefits are transferred to the surviving spouse or dependants.",
+    "tamil": "குடும்ப ஓய்வூதிய மாற்றம்"
+  },
+  "Succession Certificate": {
+    "full": "Succession Certificate",
+    "definition": "A court-issued certificate authorising the holder to collect debts and securities owed to a deceased person. Issued by a Civil Court.",
+    "tamil": "வாரிசு சான்றிதழ்"
+  },
+  "Sub-Registrar": {
+    "full": "Sub-Registrar",
+    "definition": "A government official responsible for registering property transactions, wills, and other legal documents within a sub-district.",
+    "tamil": "துணை பதிவாளர்"
+  },
+  "TNEB": {
+    "full": "Tamil Nadu Electricity Board",
+    "definition": "State electricity utility that handles power connections, billing, and name transfer of electricity accounts.",
+    "tamil": "தமிழ்நாடு மின்சார வாரியம்"
+  },
+  "DRO": {
+    "full": "District Revenue Officer",
+    "definition": "Senior revenue official overseeing land records, certificates, and property-related disputes at the district level.",
+    "tamil": "மாவட்ட வருவாய் அலுவலர்"
+  }
+}
