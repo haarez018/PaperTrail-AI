@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import { Scale, Copy, Check, FolderOpen } from "lucide-react";
+import { Scale, Copy, Check, FolderOpen, Star } from "lucide-react";
 import { LanguageToggle, ThemeToggle } from "@/components/ui";
 import type { SupportedLanguage } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -72,6 +72,14 @@ export function ChatHeader({ language, onLanguageChange, caseId }: ChatHeaderPro
       </div>
 
       <div className="flex items-center gap-2">
+        <Link
+          href="/stories"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-text-muted hover:bg-paper hover:text-navy transition-colors"
+          title="Success stories"
+        >
+          <Star size={14} />
+          <span className="hidden sm:inline">Stories</span>
+        </Link>
         <Link
           href="/cases"
           className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-text-muted hover:bg-paper hover:text-navy transition-colors"

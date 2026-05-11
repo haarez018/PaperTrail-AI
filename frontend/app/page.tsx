@@ -8,7 +8,13 @@ import {
   Brain,
   Globe,
   ArrowRight,
+  Users,
 } from "lucide-react";
+import { StoriesCarousel } from "@/components/StoriesCarousel";
+import storiesData from "@/lib/seed_stories.json";
+import type { Story } from "@/components/StoryCard";
+
+const stories = storiesData as Story[];
 
 const features = [
   {
@@ -140,6 +146,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Success Stories ── */}
+      <section className="border-t border-paper-dark bg-ivory px-4 py-16 sm:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-8 flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-3xl text-navy">Real stories</h2>
+              <p className="mt-1 text-sm text-text-secondary">
+                Citizens who navigated the system — anonymised for privacy
+              </p>
+            </div>
+            <Link
+              href="/stories"
+              className="inline-flex items-center gap-1.5 rounded-full border border-saffron/30 bg-saffron-light px-4 py-2 text-sm font-semibold text-saffron-dark hover:bg-saffron hover:text-white transition-colors"
+            >
+              <Users size={14} /> All stories
+            </Link>
+          </div>
+          <StoriesCarousel stories={stories.slice(0, 4)} />
+        </div>
+      </section>
+
       {/* ── Stats ── */}
       <section className="bg-navy px-4 py-12 sm:px-8">
         <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 text-center">
@@ -158,6 +185,10 @@ export default function Home() {
         {" · "}
         <Link href="/procedures" className="hover:text-saffron transition-colors">
           Procedure Explorer
+        </Link>
+        {" · "}
+        <Link href="/stories" className="hover:text-saffron transition-colors">
+          Stories
         </Link>
       </footer>
     </main>
