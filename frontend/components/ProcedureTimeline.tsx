@@ -19,9 +19,17 @@ import {
 import { Card, CardContent, Badge, ProgressBar } from "@/components/ui";
 import { ComparisonView } from "@/components/ComparisonView";
 import { ShareCard } from "@/components/ShareCard";
-import { ProcedureGraph } from "@/components/ProcedureGraph";
-import { ProcedureListView } from "@/components/ProcedureListView";
+import dynamic from "next/dynamic";
 import { FeedbackPrompt } from "@/components/FeedbackPrompt";
+
+const ProcedureGraph = dynamic(
+  () => import("@/components/ProcedureGraph").then((m) => m.ProcedureGraph),
+  { ssr: false, loading: () => <div className="h-[420px] animate-pulse rounded-[var(--radius-md)] bg-paper-dark" /> }
+);
+const ProcedureListView = dynamic(
+  () => import("@/components/ProcedureListView").then((m) => m.ProcedureListView),
+  { ssr: false }
+);
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
 

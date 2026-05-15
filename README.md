@@ -1,101 +1,183 @@
-<h1 align="center">
-  <br>
-  NyayaMitra
-  <br>
-</h1>
+# NyayaMitra — नयामित्र — நீதிமித்ரா
 
-<p align="center">
-  <strong>The agentic AI lawyer, accountant, and navigator for the 700 million Indians who can't afford one.</strong>
-</p>
+> **Agentic AI that navigates Indian government bureaucracy so citizens don't have to.**
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-blue?logo=python" alt="Python" />
-  <img src="https://img.shields.io/badge/FastAPI-0.115+-green?logo=fastapi" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/LangGraph-0.4+-orange" alt="LangGraph" />
-  <img src="https://img.shields.io/badge/Ollama-llama3.2-purple?logo=ollama" alt="Ollama" />
-  <img src="https://img.shields.io/badge/Next.js-14-black?logo=next.js" alt="Next.js" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-blue?logo=tailwindcss" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/Framer_Motion-11-pink?logo=framer" alt="Framer Motion" />
-</p>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110-green.svg)](https://fastapi.tiangolo.com/)
+[![Ollama](https://img.shields.io/badge/LLM-Ollama-orange.svg)](https://ollama.ai/)
 
 ---
 
 ## The Problem
 
-Every Indian family loses weeks, months, and thousands of rupees navigating government offices they don't understand. The current system: ask a relative, get conflicting advice, visit an office, get rejected, pay a tout. **NyayaMitra replaces tout + lawyer + accountant with one conversation.**
+When someone dies in India, their family must navigate **11+ government procedures** across 6 departments — death certificate, legal heir certificate, pension transfer, property mutation, bank KYC updates, and more. Each requires different forms, different offices, different documents. Most families lose **3–6 months** and pay **₹10,000–₹25,000** to middlemen just to figure it out.
+
+**700 million Indians face this. Almost none can afford a lawyer.**
+
+---
 
 ## The Solution
 
-Tell NyayaMitra what happened in Tamil, Hindi, or English. Six AI agents identify every procedure, generate pre-filled forms, guide you to the right office, and auto-draft RTI applications if anything stalls.
+NyayaMitra is a **multi-agent AI system** that:
+
+1. **Understands** your situation in Tamil, Hindi, or English
+2. **Identifies** every government procedure you need — automatically sorted by dependency order
+3. **Generates** pre-filled PDF forms ready to print and submit
+4. **Navigates** — tells you exactly which office, which counter, what to carry
+5. **Escalates** — if any office delays beyond the legal limit, drafts a pre-filled RTI application citing the exact law section
+
+**Works offline. Zero API cost. No data leaves your machine.**
+
+---
+
+## Demo
+
+```
+"My grandfather passed away last week in Chennai.
+ He had a government pension and one house."
+```
+
+↓ 90 seconds later ↓
+
+```
+✓ 11 procedures identified
+✓ Topological order computed (Death Certificate → Legal Heir → Pension Transfer → ...)
+✓ All forms pre-filled
+✓ Office locations mapped
+✓ Statutory deadlines set
+✓ RTI draft ready if needed
+```
+
+---
 
 ## Architecture
 
-NyayaMitra uses a **hybrid deterministic + LLM** architecture. The knowledge graph, procedure rules, form templates, and office data are all deterministic — sourced from government gazettes. The LLM (Ollama/llama3.2) handles only natural language tasks: understanding the user's situation, translating responses, and drafting escalation letters. This means the system is accurate even when the LLM is offline.
-
 ```
-                        ┌──────────────────────┐
-                        │   ORCHESTRATOR       │
-                        │   (LangGraph FSM)    │
-                        └──────────┬───────────┘
-                                   │
-        ┌──────────────┬───────────┼───────────┬──────────────┐
-        v              v           v           v              v
-   INTAKE        PROCEDURE    DOCUMENT    NAVIGATOR    ESCALATION
-    AGENT          AGENT        AGENT       AGENT        AGENT
-                                                              │
-                                                         i18n AGENT
+┌─────────────────────────────────────────────────┐
+│                   Frontend                       │
+│   Next.js 14 · Framer Motion · D3.js · Zustand  │
+│   10 routes · Voice Input · Command Palette      │
+└────────────────────┬────────────────────────────┘
+                     │ SSE stream
+┌────────────────────▼────────────────────────────┐
+│                  FastAPI Backend                  │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐  │
+│  │  Intake  │→ │ Planner  │→ │   Document   │  │
+│  │  Agent   │  │  Agent   │  │    Agent     │  │
+│  └──────────┘  └──────────┘  └──────────────┘  │
+│                      │                           │
+│  ┌──────────┐  ┌─────▼────┐  ┌──────────────┐  │
+│  │Escalation│  │Navigation│  │   i18n Agent │  │
+│  │  Agent   │  │  Agent   │  │  (ta/hi/en)  │  │
+│  └──────────┘  └──────────┘  └──────────────┘  │
+│                                                  │
+│  Knowledge Graph (NetworkX · 20 procedures · TN) │
+│  SQLite (SQLModel) · ReportLab · Ollama LLM      │
+└─────────────────────────────────────────────────┘
 ```
 
-| Agent | Role | Deterministic or LLM |
-|-------|------|---------------------|
-| Intake | Understands the life event | LLM for language, KG for classification |
-| Planner | Maps every required procedure | Fully deterministic (KG traversal) |
-| Document | Generates pre-filled PDF forms | Deterministic templates |
-| Navigator | Office location, timings, what to say | Deterministic data + LLM for phrasing |
-| Escalation | Drafts RTI / grievance letters | LLM for drafting, deterministic for legal citations |
-| i18n | Translates to Tamil / Hindi | LLM |
+**Key design decisions:**
+- **Deterministic-first**: All agents work without LLM calls — the KG handles logic, Ollama only polishes language. No LLM = still fully functional.
+- **SSE streaming**: Agents stream responses as they work, so the UI updates in real time — no spinner waiting for a monolithic response.
+- **Local LLM**: Ollama runs `llama3.2:latest` locally. Zero API cost, zero data sent to any cloud.
 
-## Key Features
+---
 
-- **Multi-language chat** — Tamil, Hindi, and English with real-time toggle
-- **Procedure timeline** — Visual progress tracker with dependency arrows and day estimates
-- **Auto-generated PDF forms** — Pre-filled with user details, ready to print and submit
-- **Office navigation** — Counter numbers, timings, wait estimates, and what to say
-- **RTI escalation** — One-click legally valid RTI applications when offices stall
-- **Dark mode** — Full dark theme with CSS variable token swapping
-- **Responsive design** — Works on desktop (1440px) and mobile (390px)
-- **Skeleton loading states** — No blank screens, ever
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| 🗣️ **Voice Input** | Speak in Tamil, Hindi, or English — Web Speech API with locale detection |
+| 📸 **Document Scanner** | Point camera at Aadhaar/documents → fields auto-extracted via vision model |
+| 📊 **D3 Dependency Graph** | Interactive force-directed graph of procedure dependencies — drag, hover, click |
+| ⌨️ **Command Palette** | Ctrl+K power search across all pages, procedures, and actions |
+| 💡 **Smart Suggestions** | Context-aware chips after each agent response — next steps, not just answers |
+| 📖 **Contextual Glossary** | Hover any bureaucratic term (RTI, Tahsildar, Patta...) to see plain-English + Tamil definition |
+| 🌙 **Dark Mode** | Full dark/light/system theme with CSS custom properties — no flash on load |
+| 📄 **PDF Viewer** | Preview generated forms in-app before downloading |
+| 📦 **Document Kit** | One-click export of all forms + checklist + office schedule as a single PDF |
+| ⚡ **RTI Generation** | Auto-drafted Right to Information application with exact legal citations |
+| ⏰ **Deadline Tracker** | Statutory deadlines with overdue alerts and browser notifications |
+| 🏆 **Success Stories** | Anonymised real cases with before/after time and cost metrics |
+| 📈 **Stats Dashboard** | Live metrics: case counts, procedure distribution, language breakdown |
+| 🗂️ **Multi-Case** | Save and resume multiple cases simultaneously |
+| 🔗 **WhatsApp Share** | Share your procedure plan with family via Web Share API |
+| 🎓 **Onboarding** | 5-step tutorial on first visit; never shown again |
+| ⌨️ **Keyboard Shortcuts** | Ctrl+K palette, Ctrl+/ shortcuts, Ctrl+D dark mode, Ctrl+E language cycle |
+
+---
+
+## Tech Stack
+
+**Frontend**
+- Next.js 14 (App Router) + TypeScript
+- Tailwind CSS + CVA (class-variance-authority)
+- Framer Motion (animations + page transitions)
+- D3.js (procedure dependency graph — lazy loaded)
+- Zustand (global state)
+
+**Backend**
+- FastAPI + Python 3.11
+- SQLModel + SQLite (case + feedback persistence)
+- NetworkX (knowledge graph traversal)
+- ReportLab (PDF generation)
+- Ollama (local LLM: llama3.2:latest + llava for vision)
+
+**Design System**
+- "Government meets Humanity" — saffron + navy + ivory palette
+- DM Serif Display (headings) + Source Sans 3 (body)
+- Noto Sans Tamil + Noto Sans Devanagari (multilingual)
+
+---
 
 ## Quick Start
 
+**Prerequisites:** Python 3.11+, Node.js 20+, [Ollama](https://ollama.ai/) installed
+
 ```bash
 # 1. Clone
-git clone https://github.com/haarez/nyayamitra.git
+git clone https://github.com/haarez/nyayamitra
 cd nyayamitra
 
 # 2. Backend
 cd backend
 python -m venv .venv
 .venv\Scripts\activate          # Windows
-pip install -e ".[dev]"
-uvicorn main:app --reload       # Starts on :8000
+# source .venv/bin/activate     # Mac/Linux
+pip install -e .
+uvicorn nyayamitra.main:app --reload
 
-# 3. LLM (new terminal)
-ollama pull llama3.2:latest     # 2GB download, runs locally
+# 3. Pull LLM (optional — works in deterministic mode without it)
+ollama pull llama3.2
 
 # 4. Frontend (new terminal)
-cd frontend
+cd ../frontend
 npm install
-npm run dev                     # Starts on :3000
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and tell NyayaMitra what happened.
+Open **[http://localhost:3000](http://localhost:3000)**.
 
-## Design Decisions
+### Docker (one command)
+```bash
+docker-compose up --build
+```
 
-**Why deterministic + LLM hybrid, not pure LLM?**
+---
 
-Pure LLM systems hallucinate government procedures. A chatbot that tells you the wrong office, wrong form, or wrong legal provision is worse than no help at all. NyayaMitra's knowledge graph contains 20+ Tamil Nadu procedures sourced from government gazettes — every fee, every document requirement, every legal citation is verified. The LLM only handles what it's good at: understanding natural language and generating human-readable text. If the LLM goes down, the system still works — it just can't translate or draft letters.
+## Environment Variables
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LLM_MODE` | `hybrid` | `hybrid` uses Ollama; `deterministic_only` skips LLM entirely |
+| `DEMO_MODE` | `false` | `true` serves pre-cached demo responses (stage-reliable) |
+| `OLLAMA_BASE_URL` | `http://localhost:11434` | Ollama server URL |
+| `DATABASE_URL` | `sqlite:///./data/nyayamitra.db` | SQLite path |
+
+---
 
 ## Project Structure
 
@@ -103,40 +185,80 @@ Pure LLM systems hallucinate government procedures. A chatbot that tells you the
 nyayamitra/
 ├── backend/
 │   ├── nyayamitra/
-│   │   ├── agents/         # 6 specialized agents
-│   │   ├── knowledge/      # Procedure knowledge graph
-│   │   ├── llm/            # Ollama LLM provider layer
-│   │   └── schemas/        # Pydantic models
-│   ├── data/               # Procedure YAML definitions
-│   ├── tests/              # 47 tests
-│   └── main.py             # FastAPI app
+│   │   ├── agents/          # 6 AI agents (intake, planner, document, navigation, escalation, i18n)
+│   │   ├── api/             # FastAPI routes (chat SSE, cases, procedures, feedback, export, OCR)
+│   │   ├── db/              # SQLModel models (CaseRecord, FeedbackRecord)
+│   │   ├── kg/              # Knowledge graph (NetworkX + 20 Tamil Nadu procedures)
+│   │   ├── llm/             # LLM abstraction (OllamaProvider + DeterministicProvider)
+│   │   ├── schemas/         # Pydantic models (CaseFile, ProcedurePlan)
+│   │   └── tools/           # Kit generator, vision/OCR tools, KG query tools
+│   └── tests/               # 75+ pytest tests
 ├── frontend/
-│   ├── app/                # Next.js pages (chat, case, design-system)
-│   ├── components/
-│   │   ├── chat/           # ChatBubble, ChatInput, WelcomeScreen
-│   │   └── ui/             # 15 design system components
-│   └── lib/                # API client, Zustand store, i18n
-└── docs/                   # Architecture diagrams
+│   ├── app/                 # 10 Next.js routes (/, /chat, /case/[id], /cases, /procedures, /stats, /stories, /design-system)
+│   ├── components/          # 40+ React components
+│   └── lib/                 # Store, API client, glossary, suggestions, commands, shortcuts
+├── docker-compose.yml
+└── LICENSE
 ```
-
-## Roadmap
-
-- [x] Phase 0-7 — Core backend (KG, agents, orchestrator, API)
-- [x] Phase 8 — LLM migration (Ollama/llama3.2, deterministic fallback)
-- [x] Phase 1-10 — Frontend upgrade (design system, chat, timeline, a11y, i18n)
-- [x] Phase 11 — Dark mode (CSS variable token architecture)
-- [x] Phase 12 — Microinteractions (animations, empty/error states)
-- [x] Phase 13 — Code quality (zero `any` types, error boundaries, JSDoc)
-- [x] Phase 14 — README & portfolio
-- [ ] WhatsApp bot integration
-- [ ] Voice interface (Tamil/Hindi speech-to-text)
-- [ ] Expand to all Indian states (currently Tamil Nadu only)
-- [ ] Community-sourced procedure updates
-
-## Author
-
-**Haarez** — B.Tech Software Engineering, Chennai Institute of Technology (Batch 2024-2028)
 
 ---
 
-*"Today, this process takes a Chennai family 6 months and 15,000 rupees in agent fees. With NyayaMitra: 3 weeks and zero rupees."*
+## API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/chat` | SSE stream — send message, receive agent events |
+| `GET` | `/api/case/{id}` | Get case state |
+| `GET` | `/api/cases` | List all saved cases |
+| `POST` | `/api/case/{id}/export-kit` | Generate PDF document kit (base64) |
+| `GET` | `/api/navigation/{id}` | Office navigation details for a case |
+| `GET` | `/api/escalation/{id}` | RTI escalation letter for a case |
+| `GET` | `/api/procedures` | All 20 KG procedures |
+| `GET` | `/api/stats` | Aggregated usage metrics |
+| `POST` | `/api/feedback` | Submit rating (1/-1) with optional comment |
+| `GET` | `/api/feedback/summary` | Satisfaction metrics by procedure |
+| `POST` | `/api/ocr` | Extract fields from document image (base64) |
+
+---
+
+## Running Tests
+
+```bash
+cd backend
+pytest                                        # all 75+ tests
+pytest tests/test_kg.py -v                   # knowledge graph unit tests
+pytest tests/test_api_endpoints.py -v        # API integration tests
+pytest tests/test_llm_client.py -v           # LLM abstraction tests
+```
+
+---
+
+## Roadmap
+
+- [ ] Karnataka + Maharashtra procedure knowledge graphs
+- [ ] Telugu and Kannada language support
+- [ ] WhatsApp bot integration (Twilio)
+- [ ] SMS fallback for feature phones
+- [ ] Offline PWA mode
+- [ ] Community-contributed procedure database
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](.github/CONTRIBUTING.md). The highest-leverage contribution is adding more procedures to `backend/nyayamitra/kg/procedures.json`.
+
+---
+
+## Author
+
+**Mohammed Haarez** — 2nd year B.Tech, Chennai Institute of Technology
+
+Built solo for a hackathon in 2026.
+
+[GitHub](https://github.com/haarez) · [LinkedIn](https://linkedin.com/in/haarez)
+
+---
+
+*NyayaMitra means "Friend of Justice" in Sanskrit.*  
+*नयामित्र · நீதிமித்ரா*

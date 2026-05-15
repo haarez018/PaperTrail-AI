@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Download, FileText, CheckCircle, AlertCircle, Loader2, Eye } from "lucide-react";
 import { Button } from "@/components/ui";
 import { Tooltip } from "@/components/ui";
-import { PdfViewer } from "@/components/PdfViewer";
+import dynamic from "next/dynamic";
+
+const PdfViewer = dynamic(
+  () => import("@/components/PdfViewer").then((m) => m.PdfViewer),
+  { ssr: false }
+);
 import { cn } from "@/lib/cn";
 
 interface ExportKitButtonProps {

@@ -5,7 +5,30 @@ import { PageTransition } from "@/components/PageTransition";
 export const metadata: Metadata = {
   title: "NyayaMitra — Your Bureaucracy Navigator",
   description:
-    "An agentic AI system that handles Indian government bureaucracy for the 700M citizens who can't afford a lawyer.",
+    "Agentic AI that navigates Indian government bureaucracy for the 700M citizens who can't afford a lawyer. Multi-agent, multilingual, offline-first, zero cost.",
+  keywords: [
+    "Indian bureaucracy", "government forms", "Tamil Nadu", "RTI",
+    "legal aid", "civic tech", "AI agent", "multilingual",
+  ],
+  authors: [{ name: "Mohammed Haarez", url: "https://github.com/haarez" }],
+  openGraph: {
+    title: "NyayaMitra — Your Bureaucracy Navigator",
+    description: "Multi-agent AI that handles every government procedure, form, and follow-up for Indian citizens.",
+    url: "https://nyayamitra.app",
+    siteName: "NyayaMitra",
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "NyayaMitra — Your Bureaucracy Navigator",
+    description: "Multi-agent AI that navigates Indian government bureaucracy. Free, open-source, works offline.",
+  },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+  },
+  metadataBase: new URL("https://nyayamitra.app"),
 };
 
 export default function RootLayout({

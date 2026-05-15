@@ -10,7 +10,11 @@ import {
   ArrowRight,
   Users,
 } from "lucide-react";
-import { StoriesCarousel } from "@/components/StoriesCarousel";
+import dynamic from "next/dynamic";
+const StoriesCarousel = dynamic(
+  () => import("@/components/StoriesCarousel").then((m) => m.StoriesCarousel),
+  { ssr: false, loading: () => <div className="h-48 animate-pulse rounded-[var(--radius-lg)] bg-paper-dark" /> }
+);
 import storiesData from "@/lib/seed_stories.json";
 import type { Story } from "@/components/StoryCard";
 

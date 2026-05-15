@@ -64,6 +64,10 @@ export function ProcedureGraph({ procedures, onSelect, selectedProcedure }: Proc
     const container = containerRef.current;
     if (!svg || !container || procedures.length === 0) return;
 
+    // Read theme-aware text color from CSS custom properties
+    const labelColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--color-text-primary").trim() || "#1B2A4A";
+
     const W = container.clientWidth || 600;
     const H = Math.max(420, container.clientHeight || 420);
 
@@ -170,7 +174,7 @@ export function ProcedureGraph({ procedures, onSelect, selectedProcedure }: Proc
     nodeEls.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", (d) => rScale(d.days) + 14)
-      .attr("fill", "#1B2A4A")
+      .attr("fill", labelColor)
       .attr("font-size", "9")
       .attr("font-weight", "500")
       .text((d) => d.name.length > 16 ? d.name.slice(0, 14) + "…" : d.name);
