@@ -156,7 +156,7 @@ export default function StatsPage() {
           </Link>
           <Scale size={18} className="text-saffron" />
           <div>
-            <h1 className="font-display text-lg text-navy">NyayaMitra · Performance Dashboard</h1>
+            <h1 className="font-display text-lg text-navy">PaperTrail AI · Performance Dashboard</h1>
             <p className="text-xs text-text-muted">
               Live metrics from local SQLite database
             </p>

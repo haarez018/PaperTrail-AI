@@ -13,7 +13,7 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   useEffect(() => {
     setMounted(true);
-    const stored = localStorage.getItem("nyayamitra-theme") as Theme | null;
+    const stored = localStorage.getItem("papertrail-theme") as Theme | null;
     if (stored) {
       setTheme(stored);
       applyTheme(stored);
@@ -34,7 +34,7 @@ export function ThemeToggle({ className }: { className?: string }) {
     const next: Theme = theme === "light" ? "dark" : theme === "dark" ? "system" : "light";
     setTheme(next);
     applyTheme(next);
-    localStorage.setItem("nyayamitra-theme", next);
+    localStorage.setItem("papertrail-theme", next);
   };
 
   // Prevent hydration mismatch — render a neutral icon until mounted

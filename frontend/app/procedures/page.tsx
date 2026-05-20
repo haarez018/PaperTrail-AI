@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
+import { useDebounce } from "@/lib/hooks/useDebounce";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -57,6 +58,7 @@ export default function ProceduresPage() {
   const [procedures, setProcedures] = useState<KGProcedure[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 250);
   const [lifeEventFilter, setLifeEventFilter] = useState("all");
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export default function ProceduresPage() {
   }, []);
 
   const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim();
+    const q = debouncedQuery.toLowerCase().trim();
     return procedures.filter((p) => {
       const matchesSearch =
         !q ||
@@ -89,7 +91,7 @@ export default function ProceduresPage() {
       const matchesEvent = matchesLifeEvent(p, lifeEventFilter);
       return matchesSearch && matchesEvent;
     });
-  }, [procedures, query, lifeEventFilter]);
+  }, [procedures, debouncedQuery, lifeEventFilter]);
 
   return (
     <main className="min-h-screen bg-ivory">

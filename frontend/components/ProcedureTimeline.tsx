@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Check,
@@ -19,8 +19,8 @@ import {
 import { Card, CardContent, Badge, ProgressBar } from "@/components/ui";
 import { ComparisonView } from "@/components/ComparisonView";
 import { ShareCard } from "@/components/ShareCard";
+import { DeadlineTracker } from "@/components/DeadlineTracker";
 import dynamic from "next/dynamic";
-import { FeedbackPrompt } from "@/components/FeedbackPrompt";
 
 const ProcedureGraph = dynamic(
   () => import("@/components/ProcedureGraph").then((m) => m.ProcedureGraph),
@@ -93,7 +93,12 @@ export default function ProcedureTimeline({
   onSelect,
   caseId,
 }: ProcedureTimelineProps) {
-  const progress = computeProgress(plan.procedures);
+  // Memoize computed values so they don't re-run on every render
+  const progress = useMemo(() => computeProgress(plan.procedures), [plan.procedures]);
+  const sortedProcedures = useMemo(
+    () => [...plan.procedures].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    [plan.procedures],
+  );
   const [view, setView] = useState<"timeline" | "graph" | "list" | "compare">("timeline");
 
   return (
@@ -138,11 +143,11 @@ export default function ProcedureTimeline({
         <ProgressBar value={progress} label="Overall Progress" />
 
         <div className="grid grid-cols-2 gap-3">
-          {/* With NyayaMitra */}
+          {/* With PaperTrail AI */}
           <Card className="border-saffron/20 bg-saffron-light/50">
             <CardContent className="p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-saffron-dark">
-                With NyayaMitra
+                With PaperTrail AI
               </p>
               <div className="mt-1 flex items-baseline gap-1">
                 <CalendarDays size={14} className="text-saffron-dark" />
@@ -206,11 +211,11 @@ export default function ProcedureTimeline({
       {/* ── Timeline ── */}
       {view === "timeline" && (
       <ol className="relative space-y-0" aria-label="Procedure timeline">
-        {plan.procedures.map((proc, idx) => {
+        {sortedProcedures.map((proc, idx) => {
           const status = (proc.status as ProcStatus) || "pending";
           const cfg = statusConfig[status];
           const Icon = cfg.icon;
-          const isLast = idx === plan.procedures.length - 1;
+          const isLast = idx === sortedProcedures.length - 1;
           const isSelected = selectedProcedure === proc.procedure_id;
 
           return (
@@ -309,14 +314,11 @@ export default function ProcedureTimeline({
       </ol>
       )}
 
-      {/* ── Plan-level feedback ── */}
+      {/* ── Deadline Tracker ── */}
       <div className="mt-6">
-        <FeedbackPrompt
-          context="this plan"
-          caseId={caseId}
-          procedureId={null}
-        />
+        <DeadlineTracker procedures={plan.procedures} />
       </div>
+
     </div>
   );
 }

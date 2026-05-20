@@ -38,7 +38,7 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
-/** NyayaMitra button — saffron primary, navy secondary, ghost variant. */
+/** PaperTrail AI button — saffron primary, navy secondary, ghost variant. */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => (
     <button

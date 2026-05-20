@@ -85,7 +85,7 @@ export function Onboarding() {
                   <Scale size={16} className="text-saffron-dark" />
                 </div>
                 <span className="text-xs font-semibold text-text-muted uppercase tracking-wide">
-                  NyayaMitra Tour · {step + 1}/{TUTORIAL_STEPS.length}
+                  PaperTrail AI Tour · {step + 1}/{TUTORIAL_STEPS.length}
                 </span>
               </div>
               <button

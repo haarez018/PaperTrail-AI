@@ -24,7 +24,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     id: "voice",
     title: "Or just speak",
     description:
-      "Tap the mic button to speak instead of typing. NyayaMitra understands Tamil, Hindi, and Indian English.",
+      "Tap the mic button to speak instead of typing. PaperTrail AI understands Tamil, Hindi, and Indian English.",
     target: null,
     position: "center",
   },
@@ -32,7 +32,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     id: "plan",
     title: "We build your complete plan",
     description:
-      "In 90 seconds, NyayaMitra identifies every procedure you need — automatically sorted by dependency order.",
+      "In 90 seconds, PaperTrail AI identifies every procedure you need — automatically sorted by dependency order.",
     target: null,
     position: "center",
   },
@@ -48,7 +48,7 @@ export const TUTORIAL_STEPS: TutorialStep[] = [
     id: "escalation",
     title: "If anything stalls — we fight back",
     description:
-      "If any office delays beyond the legal limit, NyayaMitra drafts a pre-filled RTI application citing the exact law section.",
+      "If any office delays beyond the legal limit, PaperTrail AI drafts a pre-filled RTI application citing the exact law section.",
     target: null,
     position: "center",
   },

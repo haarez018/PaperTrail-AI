@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PrefetchRoutes } from "@/components/PrefetchRoutes";
 import {
   Scale,
   ClipboardList,
@@ -33,7 +34,7 @@ const features = [
   },
   {
     title: "Escalates When Stalled",
-    desc: "If any office delays your work, NyayaMitra auto-drafts an RTI application citing the exact legal provisions.",
+    desc: "If any office delays your work, PaperTrail AI auto-drafts an RTI application citing the exact legal provisions.",
     icon: AlertTriangle,
   },
 ];
@@ -56,6 +57,8 @@ const agents = [
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col bg-ivory">
+      {/* Eagerly prefetch /chat so navigation is instant */}
+      <PrefetchRoutes routes={["/chat"]} />
       {/* ── Hero ── */}
       <section className="flex flex-1 flex-col items-center justify-center px-4 py-20 text-center sm:px-8">
         <div className="max-w-3xl space-y-6">
@@ -65,7 +68,7 @@ export default function Home() {
           </span>
 
           <h1 className="font-display text-5xl tracking-tight text-navy sm:text-6xl">
-            Nyaya<span className="text-saffron">Mitra</span>
+            PaperTrail<span className="text-saffron"> AI</span>
           </h1>
 
           <p className="mx-auto max-w-2xl text-lg leading-relaxed text-text-secondary sm:text-xl">
@@ -98,7 +101,7 @@ export default function Home() {
       <section className="border-t border-paper-dark bg-surface px-4 py-16 sm:px-8">
         <div className="mx-auto max-w-5xl">
           <h2 className="mb-12 text-center font-display text-3xl text-navy">
-            What NyayaMitra does
+            What PaperTrail AI does
           </h2>
           <div className="grid gap-8 md:grid-cols-3">
             {features.map((f) => {
@@ -185,8 +188,6 @@ export default function Home() {
 
       {/* ── Footer ── */}
       <footer className="border-t border-paper-dark bg-surface px-8 py-6 text-center text-sm text-text-muted">
-        Built by Haarez · Chennai Institute of Technology · 2026
-        {" · "}
         <Link href="/procedures" className="hover:text-saffron transition-colors">
           Procedure Explorer
         </Link>
@@ -194,6 +195,8 @@ export default function Home() {
         <Link href="/stories" className="hover:text-saffron transition-colors">
           Stories
         </Link>
+        {" · "}
+        <span className="text-text-muted">PaperTrail AI is free · Government fees only</span>
       </footer>
     </main>
   );

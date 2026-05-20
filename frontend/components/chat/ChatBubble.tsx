@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Avatar } from "@/components/ui";
 import { cn } from "@/lib/cn";
@@ -12,6 +13,8 @@ export interface ChatBubbleProps {
   timestamp?: number;
   /** Index used to stagger entrance animation. */
   index?: number;
+  /** If true, applies character-by-character typing animation. */
+  isLatest?: boolean;
 }
 
 function formatMarkdown(text: string): string {
@@ -27,12 +30,32 @@ const agentLabels: Record<string, string> = {
   document: "Document Agent",
   navigation: "Navigation Agent",
   escalation: "Escalation Agent",
-  done: "NyayaMitra",
+  done: "PaperTrail AI",
 };
 
 /** Single chat message bubble with avatar. */
-export function ChatBubble({ role, content, agent, index = 0 }: ChatBubbleProps) {
+export function ChatBubble({ role, content, agent, index = 0, isLatest = false }: ChatBubbleProps) {
   const isUser = role === "user";
+
+  // Typing animation — character by character, latest agent message only
+  const [displayedText, setDisplayedText] = useState(
+    isLatest && !isUser ? "" : content
+  );
+
+  useEffect(() => {
+    if (!isLatest || isUser) {
+      setDisplayedText(content);
+      return;
+    }
+    setDisplayedText("");
+    let i = 0;
+    const interval = setInterval(() => {
+      i++;
+      setDisplayedText(content.slice(0, i));
+      if (i >= content.length) clearInterval(interval);
+    }, 12);
+    return () => clearInterval(interval);
+  }, [content, isLatest, isUser]);
 
   return (
     <motion.div
@@ -40,6 +63,8 @@ export function ChatBubble({ role, content, agent, index = 0 }: ChatBubbleProps)
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.05, 0.3), duration: 0.25 }}
       className={cn("flex gap-3", isUser ? "flex-row-reverse" : "flex-row")}
+      role="article"
+      aria-label={isUser ? "Your message" : `${agent ? (agentLabels[agent] || agent) : "Agent"} response`}
     >
       <Avatar type={isUser ? "user" : "agent"} size="sm" className="mt-1" />
 
@@ -59,11 +84,11 @@ export function ChatBubble({ role, content, agent, index = 0 }: ChatBubbleProps)
         {isUser ? (
           <div
             className="text-sm leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: formatMarkdown(content) }}
+            dangerouslySetInnerHTML={{ __html: formatMarkdown(displayedText) }}
           />
         ) : (
           <div className="text-sm leading-relaxed">
-            {content.split("\n").map((line, i) => (
+            {displayedText.split("\n").map((line, i) => (
               <span key={i}>
                 {i > 0 && <br />}
                 <AnnotatedText text={line} />

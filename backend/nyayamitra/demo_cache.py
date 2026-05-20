@@ -85,7 +85,7 @@ def _build_death_response(plan) -> str:
         "",
         f"I've identified **{len(plan.procedures)} procedures** your family needs to complete.",
         "",
-        f"With NyayaMitra: **~{plan.total_estimated_days} days, Rs.{plan.total_estimated_cost_inr}**",
+        f"With PaperTrail AI: **~{plan.total_estimated_days} days, Rs.{plan.total_estimated_cost_inr} in govt. fees**",
         f"Without help: ~{plan.without_nyayamitra_baseline_days} days, Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent fees",
         "",
         "Here's your step-by-step plan:",

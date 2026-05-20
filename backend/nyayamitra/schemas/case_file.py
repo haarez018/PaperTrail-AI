@@ -1,10 +1,19 @@
 from __future__ import annotations
 
-import uuid
+import random
+import string
 from datetime import datetime
 from enum import Enum
 
 from pydantic import BaseModel, Field
+
+
+def _generate_case_id() -> str:
+    """Generate a human-readable case ID like PT-2026-A3F7."""
+    year = datetime.now().year
+    chars = string.ascii_uppercase + string.digits
+    suffix = "".join(random.choices(chars, k=4))
+    return f"PT-{year}-{suffix}"
 
 
 class Language(str, Enum):
@@ -72,7 +81,7 @@ class UploadedDocument(BaseModel):
 
 
 class CaseFile(BaseModel):
-    case_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    case_id: str = Field(default_factory=_generate_case_id)
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     language: Language = Language.ENGLISH
     user: UserInfo = Field(default_factory=UserInfo)

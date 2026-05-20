@@ -48,7 +48,7 @@ export default function StoriesPage() {
               People who navigated the system
             </h1>
             <p className="mt-3 text-base text-text-secondary max-w-xl mx-auto">
-              Every story below is a real case handled through NyayaMitra — names anonymised to protect privacy.
+              Every story below is a real case handled through PaperTrail AI — names anonymised to protect privacy.
             </p>
             <div className="mt-6">
               <Link

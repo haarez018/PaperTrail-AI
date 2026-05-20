@@ -36,7 +36,7 @@ interface WithItem {
 }
 
 /**
- * Side-by-side "With vs Without NyayaMitra" comparison panel.
+ * Side-by-side "With vs Without PaperTrail AI" comparison panel.
  * Animates in from opposite sides to meet in the centre.
  */
 export function ComparisonView({ plan }: ComparisonViewProps) {
@@ -81,7 +81,7 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
 
       {/* Comparison grid */}
       <div className="grid grid-cols-2 gap-4">
-        {/* Without NyayaMitra */}
+        {/* Without PaperTrail AI */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -90,7 +90,7 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
         >
           <div className="mb-4 flex items-center gap-2">
             <HelpCircle size={18} className="text-danger" />
-            <h3 className="font-display text-base text-danger">Without NyayaMitra</h3>
+            <h3 className="font-display text-base text-danger">Without PaperTrail AI</h3>
           </div>
 
           {/* Stats */}
@@ -130,7 +130,7 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
           </ul>
         </motion.div>
 
-        {/* With NyayaMitra */}
+        {/* With PaperTrail AI */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
@@ -142,7 +142,7 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
         >
           <div className="mb-4 flex items-center gap-2">
             <Scale size={18} className="text-saffron-dark" />
-            <h3 className="font-display text-base text-saffron-dark">With NyayaMitra</h3>
+            <h3 className="font-display text-base text-saffron-dark">With PaperTrail AI</h3>
           </div>
 
           {/* Stats */}
@@ -200,7 +200,10 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
         <span className="font-semibold text-saffron">
           {plan.without_nyayamitra_baseline_days - plan.total_estimated_days} days
         </span>
-        {" "}with NyayaMitra
+        {" "}with PaperTrail AI
+        <p className="mt-1 text-[11px] text-white/60">
+          PaperTrail AI is free · You only pay government fees
+        </p>
       </motion.div>
     </div>
   );

@@ -57,6 +57,14 @@ export function ProcedureGraph({ procedures, onSelect, selectedProcedure }: Proc
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; proc: Procedure } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const simRef = useRef<d3.Simulation<SimNode, SimLink> | null>(null);
 
   const runSim = useCallback(() => {
@@ -282,6 +290,16 @@ export function ProcedureGraph({ procedures, onSelect, selectedProcedure }: Proc
     const cleanup = runSim();
     return () => { cleanup?.(); };
   }, [runSim]);
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 rounded-[var(--radius-lg)] border border-paper-dark bg-paper/50 px-6 py-12 text-center">
+        <span className="text-3xl">🖥️</span>
+        <p className="text-sm font-medium text-navy">Graph view works best on desktop</p>
+        <p className="text-xs text-text-muted">Switch to List view to browse procedures on mobile</p>
+      </div>
+    );
+  }
 
   return (
     <div ref={containerRef} className="relative w-full select-none">

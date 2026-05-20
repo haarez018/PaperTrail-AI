@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import time
 from pathlib import Path
 from typing import Any
 
@@ -121,12 +122,28 @@ def extract_context(text: str) -> CaseContext:
 
 
 def _count_banks(text: str) -> int:
-    """Count bank accounts mentioned."""
-    match = re.search(r"(\d+)\s*bank\s*account", text)
+    """Count bank accounts mentioned — tolerates common misspellings and bare numbers.
+
+    Handles: "1 bank account", "1 bannk account", "two bank accounts",
+             "bank hai" (Hindi), "bank irukku" (Tamil), "one", "2", etc.
+    """
+    # Digit + bank-like word + optional "account(s)"
+    match = re.search(r"(\d+)\s*ban+k+", text)
     if match:
         return int(match.group(1))
-    if "bank account" in text or "bank" in text:
-        return 1
+
+    # Any bank-like keyword present → look for nearby digit or word-number
+    _WORD_NUMS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+                  "oru": 1, "rendu": 2, "ek": 1, "do": 2, "teen": 3}
+    if re.search(r"ban+k+", text):
+        num_match = re.search(r"\b(\d+)\b", text)
+        if num_match:
+            return int(num_match.group(1))
+        for word, val in _WORD_NUMS.items():
+            if re.search(rf"\b{word}\b", text):
+                return val
+        return 1  # "have a bank account" without specifying count
+
     return 0
 
 
@@ -147,25 +164,111 @@ def extract_location(text: str) -> str | None:
 
 
 # ═══════════════════════════════════════════════════════════════════════
-# DeterministicIntake — the original class, untouched logic
+# Multilingual question dictionaries — language is SACRED, never override
+# ═══════════════════════════════════════════════════════════════════════
+
+_Q: dict[str, dict[str, str]] = {
+    "unknown_event": {
+        "en": (
+            "I'm here to help you navigate government procedures. "
+            "Could you tell me what happened? For example: a death in the family, "
+            "a marriage, a pension issue, or something else?"
+        ),
+        "ta": (
+            "அரசு நடைமுறைகளில் உங்களுக்கு உதவ நான் இங்கே இருக்கிறேன். "
+            "என்ன நடந்தது என்று சொல்ல முடியுமா? உதாரணமாக: குடும்பத்தில் மரணம், "
+            "திருமணம், ஓய்வூதிய பிரச்சனை அல்லது வேறு ஏதாவது?"
+        ),
+        "hi": (
+            "मैं आपको सरकारी प्रक्रियाओं में मदद करने के लिए यहाँ हूँ। "
+            "क्या आप बता सकते हैं क्या हुआ? जैसे: परिवार में मृत्यु, "
+            "विवाह, पेंशन की समस्या, या कुछ और?"
+        ),
+    },
+    "death_empathy": {
+        "en": "I'm so sorry for your loss.",
+        "ta": "உங்கள் இழப்பிற்கு என் ஆழமான அனுதாபங்கள்.",
+        "hi": "आपके नुकसान के लिए मुझे बहुत दुख है।",
+    },
+    "death_relationship": {
+        "en": "What was your relationship to the person who passed away?",
+        "ta": "மறைந்தவருடன் உங்கள் உறவு என்ன?",
+        "hi": "जो व्यक्ति गुजरे, उनसे आपका क्या रिश्ता था?",
+    },
+    "death_pension": {
+        "en": "Were they receiving any government pension?",
+        "ta": "அவர்கள் ஏதாவது அரசு ஓய்வூதியம் பெற்று வந்தார்களா?",
+        "hi": "क्या वे कोई सरकारी पेंशन प्राप्त कर रहे थे?",
+    },
+    "death_property": {
+        "en": "Did they own any property (house or land)?",
+        "ta": "அவர்களுக்கு சொத்து (வீடு அல்லது நிலம்) இருந்ததா?",
+        "hi": "क्या उनके पास कोई संपत्ति (घर या ज़मीन) थी?",
+    },
+    "death_bank": {
+        "en": "How many bank accounts did they have?",
+        "ta": "அவர்களிடம் எத்தனை வங்கி கணக்குகள் இருந்தன?",
+        "hi": "उनके कितने बैंक खाते थे?",
+    },
+}
+
+import re as _re
+
+_YES_PATTERN = _re.compile(
+    r"\b(yes|yeah|yep|yup|sure|correct|right|ok|okay|haan|aamam|aama)\b"
+    r"|ஆமாம்|ஆம்|हाँ|हां",
+    _re.IGNORECASE,
+)
+_NO_PATTERN = _re.compile(
+    r"\b(no|nope|nahi|nope|none|not|illa|illai)\b"
+    r"|இல்லை|नहीं",
+    _re.IGNORECASE,
+)
+
+
+def _is_affirmative(text: str) -> bool:
+    return bool(_YES_PATTERN.search(text))
+
+
+def _is_negative(text: str) -> bool:
+    return bool(_NO_PATTERN.search(text))
+
+
+def _lang_key(lang: Language) -> str:
+    return {Language.TAMIL: "ta", Language.HINDI: "hi"}.get(lang, "en")
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# DeterministicIntake — nuclear language-aware, zero-LLM
 # ═══════════════════════════════════════════════════════════════════════
 
 class DeterministicIntake:
     """Processes user messages with pure keyword extraction.
 
-    This is the original intake logic — zero LLM calls. Kept intact as
-    the always-available fallback path.
+    Language is treated as SACRED — it is set once from the UI preference
+    (in routes_chat.py) and never changed by this agent.  All questions are
+    delivered in the stored case language.
     """
 
     def __init__(self, case_file: CaseFile | None = None):
         self.case = case_file or CaseFile()
+        self._death_empathy_sent = False
 
     def process_message(self, message: str) -> tuple[CaseFile, str | None]:
         """Process a user message and return (case_file, next_question).
 
         next_question is None when intake is complete.
         """
-        self.case.language = detect_language(message)
+        _t0 = time.monotonic()
+        # Language lock: ONLY upgrade to script-detected language if the user
+        # actually typed Tamil/Hindi Unicode characters — never downgrade or
+        # switch based on English keywords like city names.
+        detected = detect_language(message)
+        if detected != Language.ENGLISH:
+            # User typed actual Tamil/Hindi script → honour that
+            self.case.language = detected
+
+        lower = message.lower().strip()
 
         if self.case.life_event.type is None:
             event = extract_event_type(message)
@@ -183,30 +286,81 @@ class DeterministicIntake:
                 self.case.life_event.location = loc
                 self.case.user.state = "tn"
 
+        # Context flags — smart field-aware extraction.
+        # Priority: explicit keyword + optional negation > bare yes/no.
+        # Bare yes/no only applies to the FIRST unanswered bool field so that
+        # "no pension" doesn't also accidentally set property=False.
         new_context = extract_context(message)
-        if new_context.had_pension:
-            self.case.context.had_pension = True
-        if new_context.had_property:
-            self.case.context.had_property = True
-        if new_context.had_bank_accounts > 0:
-            self.case.context.had_bank_accounts = new_context.had_bank_accounts
+
+        # Track which bare yes/no has been consumed
+        _bare_consumed = False
+
+        # ── Pension ──
+        if self.case.context.had_pension is None:
+            pension_keyword = "pension" in lower
+            if pension_keyword:
+                # Explicit: "yes pension" / "no pension" / "pension irunthathu"
+                self.case.context.had_pension = not _is_negative(lower)
+                _bare_consumed = True          # negation already applied
+            elif not _bare_consumed and (_is_affirmative(lower) or _is_negative(lower)):
+                self.case.context.had_pension = _is_affirmative(lower)
+                _bare_consumed = True
+
+        # ── Property ──
+        if self.case.context.had_property is None:
+            prop_keyword = "property" in lower or "house" in lower or "land" in lower
+            if prop_keyword:
+                self.case.context.had_property = not _is_negative(lower)
+                _bare_consumed = True
+            elif not _bare_consumed and (_is_affirmative(lower) or _is_negative(lower)):
+                self.case.context.had_property = _is_affirmative(lower)
+                _bare_consumed = True
+
+        # ── Bank accounts ──
+        # Only runs when the agent is actively asking this question (field is None).
+        # Handles: keyword extraction, bare digits, word numbers, and explicit negation.
+        if self.case.context.had_bank_accounts is None:
+            if new_context.had_bank_accounts and new_context.had_bank_accounts > 0:
+                # Keyword + number found (e.g. "1 bank account", "1 bannk account")
+                self.case.context.had_bank_accounts = new_context.had_bank_accounts
+            else:
+                # Bare digit — user typed just "1", "2", "3"
+                _bare_digit = re.search(r"^\s*(\d+)\s*$", lower)
+                if _bare_digit:
+                    self.case.context.had_bank_accounts = int(_bare_digit.group(1))
+                # Word numbers — "one account", "two", "oru"
+                elif not _bare_consumed:
+                    _WNUM = {"one": 1, "two": 2, "three": 3, "oru": 1, "rendu": 2, "ek": 1, "do": 2}
+                    for _w, _v in _WNUM.items():
+                        if re.search(rf"\b{_w}\b", lower):
+                            self.case.context.had_bank_accounts = _v
+                            break
+                    else:
+                        # Explicit negative → 0 (no bank accounts confirmed, stop looping)
+                        if _is_negative(lower) or re.search(r"\bnone\b|\bzero\b|\bno bank", lower):
+                            self.case.context.had_bank_accounts = 0
+
+        # ── Insurance ──
         if new_context.had_insurance:
             self.case.context.had_insurance = True
+
         if new_context.free_text and not self.case.context.free_text:
             self.case.context.free_text = new_context.free_text
 
         next_q = self._get_next_question()
         if next_q is None:
             self.case.status = CaseStatus.PLANNING
+        logger.debug("DeterministicIntake.process_message: %dms", int((time.monotonic() - _t0) * 1000))
         return self.case, next_q
+
+    def _q(self, key: str) -> str:
+        """Return a question in the case's stored language."""
+        lang = _lang_key(self.case.language)
+        return _Q[key].get(lang, _Q[key]["en"])
 
     def _get_next_question(self) -> str | None:
         if self.case.life_event.type is None:
-            return (
-                "I'm here to help you navigate government procedures. "
-                "Could you tell me what happened? For example: a death in the family, "
-                "a marriage, a pension issue, or something else?"
-            )
+            return self._q("unknown_event")
         if self.case.life_event.type == LifeEventType.DEATH:
             return self._death_questions()
         if self.case.life_event.type == LifeEventType.MARRIAGE:
@@ -216,17 +370,35 @@ class DeterministicIntake:
         return None
 
     def _death_questions(self) -> str | None:
+        lang = _lang_key(self.case.language)
+        empathy = _Q["death_empathy"][lang]
+
         if self.case.user.relationship_to_subject is None:
-            return "I'm sorry for your loss. What was your relationship to the person who passed away?"
+            q = _Q["death_relationship"].get(lang, _Q["death_relationship"]["en"])
+            # Prepend empathy only on the first death question
+            if not self._death_empathy_sent:
+                self._death_empathy_sent = True
+                return f"{empathy} {q}"
+            return q
+
         if self.case.life_event.location is None:
             self.case.user.state = "tn"
             self.case.life_event.location = "Tamil Nadu"
+
         if self.case.context.had_pension is None:
-            return "Was the deceased receiving any government pension?"
+            q = _Q["death_pension"].get(lang, _Q["death_pension"]["en"])
+            if not self._death_empathy_sent:
+                self._death_empathy_sent = True
+                return f"{empathy} {q}"
+            return q
+
         if self.case.context.had_property is None:
-            return "Did they own any property (house or land)?"
-        if self.case.context.had_bank_accounts is None or self.case.context.had_bank_accounts == 0:
-            return "How many bank accounts did they have?"
+            return _Q["death_property"].get(lang, _Q["death_property"]["en"])
+
+        # Ask only while field is still None — 0 is a valid confirmed answer
+        if self.case.context.had_bank_accounts is None:
+            return _Q["death_bank"].get(lang, _Q["death_bank"]["en"])
+
         return None
 
     def _marriage_questions(self) -> str | None:
@@ -332,19 +504,21 @@ class IntakeAgent:
             self._case.status = CaseStatus.PLANNING
             return self._case, None
 
-        # We do have missing fields.  Use the LLM's follow-up if it
-        # provided one, otherwise polish the deterministic question.
-        followup = result.get("followup_question_in_user_language")
-        if followup and result.get("needs_followup", True):
-            return self._case, followup
-
+        # We have missing fields. Always use _polish_followup so the response
+        # is in the user's UI language (stored in self._case.language).
+        # We do NOT use followup_question_in_user_language from the LLM JSON
+        # because the LLM may have generated it in the wrong language
+        # (e.g. Tamil when the user selected English).
         return self._case, await self._polish_followup(det_question)
 
     def _apply_llm_result(self, result: dict, original_message: str) -> None:
         """Apply LLM-extracted fields to the case file."""
-        # Language
-        lang_code = result.get("language_detected", "en")
-        self._case.language = _LANG_MAP.get(lang_code, Language.ENGLISH)
+        # Language: intentionally NOT applied from LLM detection.
+        # The UI language preference is set on case_file.language before this
+        # agent is called (in routes_chat.py). We preserve that always.
+        # Rationale: Llama3.2 sees "Chennai" and detects Tamil, causing all
+        # subsequent responses to come back in Tamil regardless of UI setting.
+        # LLM language detection is unreliable — trust the user's explicit choice.
 
         # Life event
         event_str = result.get("life_event")

@@ -15,7 +15,9 @@ from fastapi.testclient import TestClient
 @pytest.fixture(scope="module")
 def client():
     """Import app lazily to avoid side effects at collection time."""
-    from nyayamitra.main import app
+    import sys, os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+    from main import app
     return TestClient(app)
 
 
@@ -54,17 +56,16 @@ def seeded_case(client):
         "without_nyayamitra_baseline_days": 120,
         "without_nyayamitra_baseline_cost_inr": 15000,
     }
-    case_data = {
-        "language": "en",
-        "life_event": "death",
-        "state": "tn",
-        "has_pension": True,
-        "has_property": False,
-        "has_bank_accounts": 1,
-        "has_insurance": False,
-        "family_details": {},
-        "documents_available": [],
-    }
+    # Use the current CaseFile schema shape (nested models)
+    from nyayamitra.schemas.case_file import CaseFile, LifeEventType
+    cf = CaseFile()
+    cf.life_event.type = LifeEventType.DEATH
+    cf.life_event.location = "Chennai, Tamil Nadu"
+    cf.user.state = "tn"
+    cf.context.had_pension = True
+    cf.context.had_property = False
+    cf.context.had_bank_accounts = 1
+    case_data = cf.model_dump()
 
     record = CaseRecord(
         id=case_id,
@@ -105,8 +106,11 @@ class TestProceduresEndpoint:
     def test_procedure_has_required_fields(self, client):
         data = client.get("/api/procedures").json()
         proc = data["procedures"][0]
-        for field in ("procedure_id", "name_en", "estimated_days_min", "estimated_days_max"):
+        # estimated_duration_days is a nested object {"min": ..., "max": ...}
+        for field in ("procedure_id", "name_en", "estimated_duration_days"):
             assert field in proc, f"Missing field: {field}"
+        assert "min" in proc["estimated_duration_days"]
+        assert "max" in proc["estimated_duration_days"]
 
     def test_death_procedures_present(self, client):
         data = client.get("/api/procedures").json()
@@ -272,13 +276,14 @@ class TestNavigationEndpoint:
 # ── /api/escalation/{id} ─────────────────────────────────────────────────────
 
 class TestEscalationEndpoint:
+    # Escalation is a POST endpoint (takes escalation_type param)
     def test_escalation_200(self, client, seeded_case):
-        resp = client.get(f"/api/escalation/{seeded_case}")
+        resp = client.post(f"/api/escalation/tn_death_certificate?case_id={seeded_case}")
         assert resp.status_code in (200, 404)
 
     def test_escalation_404_unknown(self, client):
-        resp = client.get("/api/escalation/nonexistent-case")
-        assert resp.status_code == 404
+        resp = client.post("/api/escalation/nonexistent-procedure?case_id=nonexistent")
+        assert resp.status_code in (404, 422)
 
 
 # ── KG robustness ─────────────────────────────────────────────────────────────
@@ -290,13 +295,12 @@ class TestKGRobustness:
         assert isinstance(procs, dict)
         assert len(procs) > 0
 
-    def test_procedures_have_valid_life_events(self):
+    def test_procedures_have_applicable_when(self):
+        """Every procedure must have a non-empty applicable_when description."""
         from nyayamitra.kg.loader import get_all_procedures
-        valid_events = {"death", "marriage", "birth", "pension_claim", "grievance", "property"}
         procs = get_all_procedures()
         for proc in procs.values():
-            for event in proc.applicable_for:
-                assert event in valid_events, f"Unknown event '{event}' in {proc.procedure_id}"
+            assert proc.applicable_when, f"{proc.procedure_id} missing applicable_when"
 
     def test_dependency_references_are_valid(self):
         """Every dependency ID must reference an existing procedure."""
@@ -304,7 +308,7 @@ class TestKGRobustness:
         procs = get_all_procedures()
         all_ids = set(procs.keys())
         for proc in procs.values():
-            for dep_id in proc.depends_on:
+            for dep_id in proc.dependencies:   # correct field name
                 assert dep_id in all_ids, (
                     f"{proc.procedure_id} depends on '{dep_id}' which doesn't exist"
                 )
@@ -317,6 +321,7 @@ class TestKGRobustness:
     def test_estimated_days_range_valid(self):
         from nyayamitra.kg.loader import get_all_procedures
         for proc in get_all_procedures().values():
-            assert proc.estimated_days_min <= proc.estimated_days_max, (
-                f"{proc.procedure_id} has min > max days"
+            d = proc.estimated_duration_days   # DurationEstimate object
+            assert d.min <= d.max, (
+                f"{proc.procedure_id} has min ({d.min}) > max ({d.max}) days"
             )

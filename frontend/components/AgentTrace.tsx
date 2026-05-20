@@ -57,7 +57,7 @@ const agentConfig: Record<
     color: "text-navy",
   },
   done: {
-    label: "NyayaMitra",
+    label: "PaperTrail AI",
     icon: Zap,
     color: "text-saffron",
   },

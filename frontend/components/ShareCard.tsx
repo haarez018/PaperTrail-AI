@@ -59,7 +59,7 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
 
   const buildShareText = () => {
     const lines = [
-      "📋 *NyayaMitra Case Plan*",
+      "📋 *PaperTrail AI Case Plan*",
       "━━━━━━━━━━━━━━━━━━━━━",
       "",
       `📊 *${plan.procedures.length} procedures identified*`,
@@ -76,8 +76,8 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
       "",
       nextName ? `⏩ *Next step:* ${nextName}` : null,
       "",
-      "NyayaMitra — Free AI for Indian bureaucracy",
-      "nyayamitra.app",
+      "PaperTrail AI — Free AI for Indian bureaucracy",
+      "papertrailai.app",
     ].filter((l) => l !== null);
 
     return lines.join("\n");
@@ -87,9 +87,9 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
     setState("loading");
     const text = buildShareText();
     const result = await shareText(
-      "My NyayaMitra Case Plan",
+      "My PaperTrail AI Case Plan",
       text,
-      "https://nyayamitra.app"
+      "https://papertrailai.app"
     );
     if (result === "shared" || result === "copied") {
       setState(result);
@@ -160,7 +160,7 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
             {/* Card header */}
             <div className="mb-3 flex items-center gap-2 border-b border-paper-dark pb-2">
               <Scale size={14} className="text-saffron" />
-              <span className="font-display text-sm text-navy font-bold">NyayaMitra</span>
+              <span className="font-display text-sm text-navy font-bold">PaperTrail AI</span>
             </div>
 
             <div className="space-y-1.5 text-text-secondary">
@@ -205,7 +205,7 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
             </div>
 
             <div className="mt-3 border-t border-paper-dark pt-2 text-[10px] text-text-muted text-center">
-              nyayamitra.app
+              papertrailai.app
             </div>
           </motion.div>
         )}

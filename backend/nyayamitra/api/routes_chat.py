@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from typing import AsyncGenerator
 
 from fastapi import APIRouter
@@ -15,24 +16,40 @@ from nyayamitra.config import DEMO_MODE, LLM_MODE
 from nyayamitra.db.models import CaseRecord
 from nyayamitra.db.session import get_session
 from nyayamitra.demo_cache import get_demo_response, match_demo_prompt
-from nyayamitra.schemas.case_file import CaseFile
+from nyayamitra.schemas.case_file import CaseFile, Language as CaseLanguage
 from nyayamitra.schemas.plan import ProcedurePlan
+
+_UI_LANG_MAP: dict[str, CaseLanguage] = {
+    "en": CaseLanguage.ENGLISH,
+    "ta": CaseLanguage.TAMIL,
+    "hi": CaseLanguage.HINDI,
+}
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
 
+class HistoryMessage(BaseModel):
+    role: str  # "user" | "agent"
+    content: str
+
+
 class ChatRequest(BaseModel):
     case_id: str | None = None
     message: str
     language: str = "en"
+    history: list[HistoryMessage] = []
 
 
 async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
     """Generate SSE events for a chat message."""
+    _t_start = time.monotonic()
+
+    # 2.5 — Immediate ack so the browser sees first byte instantly
+    yield {"event": "ack", "data": json.dumps({"status": "received"})}
+
     # Load existing case if any
-    case_file = None
     existing_plan = None
 
     if request.case_id:
@@ -42,6 +59,14 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
                 case_file = CaseFile(**json.loads(record.case_data))
                 if record.plan_data:
                     existing_plan = ProcedurePlan(**json.loads(record.plan_data))
+            else:
+                case_file = CaseFile()
+    else:
+        case_file = CaseFile()
+
+    # ALWAYS respect the UI language preference — never let the LLM override it.
+    # This prevents the model from switching to Tamil because it sees "Chennai".
+    case_file.language = _UI_LANG_MAP.get(request.language, CaseLanguage.ENGLISH)
 
     # Check demo mode
     if DEMO_MODE:
@@ -51,7 +76,7 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
             if demo:
                 yield {"event": "agent_thinking", "data": json.dumps({"agent": "intake", "message": "Understanding your situation..."})}
                 yield {"event": "agent_thinking", "data": json.dumps({"agent": "procedure", "message": "Building your procedure plan..."})}
-                yield {"event": "agent_response", "data": json.dumps({"agent": "NyayaMitra", "content": demo["response"]})}
+                yield {"event": "agent_response", "data": json.dumps({"agent": "done", "content": demo["response"]})}
                 yield {"event": "case_state_update", "data": json.dumps({"case": demo["case_file"]})}
                 yield {"event": "plan_ready", "data": json.dumps({"plan": demo["plan"]})}
                 yield {"event": "done", "data": json.dumps({"case_id": demo["case_file"]["case_id"]})}
@@ -59,6 +84,9 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
 
     # Signal agent thinking
     yield {"event": "agent_thinking", "data": json.dumps({"agent": "orchestrator", "message": "Processing..."})}
+
+    # Convert history to plain dicts
+    history_dicts = [{"role": h.role, "content": h.content} for h in request.history]
 
     # Run orchestrator — use async path if hybrid mode
     if LLM_MODE == "hybrid":
@@ -70,6 +98,7 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
                 case_file=case_file,
                 existing_plan=existing_plan,
                 llm_client=llm_client,
+                history=history_dicts,
             )
         except Exception as e:
             logger.warning("Async orchestrator failed, falling back to sync: %s", e)
@@ -77,12 +106,14 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
                 user_message=request.message,
                 case_file=case_file,
                 existing_plan=existing_plan,
+                history=history_dicts,
             )
     else:
         state = process_message(
             user_message=request.message,
             case_file=case_file,
             existing_plan=existing_plan,
+            history=history_dicts,
         )
 
     updated_case = CaseFile(**state["case_file"])
@@ -132,6 +163,9 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
             )
             session.add(record)
         session.commit()
+
+    _elapsed_ms = int((time.monotonic() - _t_start) * 1000)
+    logger.info("chat SSE end-to-end: %dms  agent=%s", _elapsed_ms, state.get("current_agent", "?"))
 
     # Signal done
     yield {

@@ -123,7 +123,7 @@ export function Term({ term, children, className }: TermProps) {
 
             {/* Glossary label */}
             <p className="mt-2 text-[9px] uppercase tracking-widest text-text-muted">
-              NyayaMitra Glossary
+              PaperTrail AI Glossary
             </p>
 
             {/* Caret */}

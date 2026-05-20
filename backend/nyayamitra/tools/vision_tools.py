@@ -15,7 +15,7 @@ import re
 
 import httpx
 
-from nyayamitra.config import OLLAMA_BASE_URL
+from nyayamitra.config import OLLAMA_HOST as OLLAMA_BASE_URL
 
 logger = logging.getLogger(__name__)
 

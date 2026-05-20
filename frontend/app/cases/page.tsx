@@ -98,7 +98,7 @@ export default function CasesPage() {
             <div>
               <p className="font-display text-xl text-navy">No cases yet</p>
               <p className="mt-1 text-sm text-text-secondary">
-                Start by describing your situation — NyayaMitra will build your complete plan.
+                Start by describing your situation — PaperTrail AI will build your complete plan.
               </p>
             </div>
             <Link href="/chat">

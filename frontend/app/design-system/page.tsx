@@ -54,7 +54,7 @@ export default function DesignSystemPage() {
 
       <header className="border-b border-paper-dark bg-surface/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-          <h1 className="font-display text-2xl sm:text-3xl text-navy">NyayaMitra Design System</h1>
+          <h1 className="font-display text-2xl sm:text-3xl text-navy">PaperTrail AI Design System</h1>
           <p className="mt-1 text-sm text-text-secondary">Phase 1 — Component Library Showcase</p>
         </div>
       </header>
@@ -265,7 +265,7 @@ export default function DesignSystemPage() {
       </main>
 
       <footer className="border-t border-paper-dark py-6 text-center text-sm text-text-muted">
-        NyayaMitra Design System v1.0 — Phase 1 Complete
+        PaperTrail AI Design System v1.0 — Phase 1 Complete
       </footer>
     </div>
   );

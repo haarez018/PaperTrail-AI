@@ -1,4 +1,4 @@
-# Contributing to NyayaMitra
+# Contributing to PaperTrail AI
 
 Thank you for wanting to help make bureaucracy less painful for 700M people.
 

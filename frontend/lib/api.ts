@@ -95,7 +95,8 @@ export async function sendMessage(
   message: string,
   caseId: string | null,
   language: string,
-  onEvent: (event: SSEEvent) => void
+  onEvent: (event: SSEEvent) => void,
+  history?: { role: "user" | "agent"; content: string }[]
 ): Promise<void> {
   const res = await fetch(`${API_URL}/api/chat`, {
     method: "POST",
@@ -104,6 +105,7 @@ export async function sendMessage(
       case_id: caseId,
       message,
       language,
+      history: history?.slice(-10) ?? [],
     }),
   });
 

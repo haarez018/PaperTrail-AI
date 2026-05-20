@@ -34,7 +34,7 @@ export function PdfViewer({
   title = "Document",
   open,
   onClose,
-  downloadFilename = "nyayamitra-document.pdf",
+  downloadFilename = "papertrail-document.pdf",
 }: PdfViewerProps) {
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);

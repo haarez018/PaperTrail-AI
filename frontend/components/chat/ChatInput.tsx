@@ -66,17 +66,21 @@ export function ChatInput({
     <div className="border-t border-paper-dark bg-surface px-4 py-3 sm:px-6">
       <div className="flex items-end gap-2">
         {/* Voice input mic */}
-        <VoiceInput
-          language={language}
-          onTranscript={handleTranscript}
-          disabled={isLoading}
-        />
+        <span title="Tap to speak your message">
+          <VoiceInput
+            language={language}
+            onTranscript={handleTranscript}
+            disabled={isLoading}
+          />
+        </span>
 
         {/* Document scanner */}
-        <DocumentScanner
-          onFieldsConfirmed={handleScannedDocument}
-          disabled={isLoading}
-        />
+        <span title="Scan a document or photo">
+          <DocumentScanner
+            onFieldsConfirmed={handleScannedDocument}
+            disabled={isLoading}
+          />
+        </span>
 
         <textarea
           ref={textareaRef}
@@ -116,7 +120,7 @@ export function ChatInput({
         </Button>
       </div>
       <p className="mt-1.5 text-center text-[11px] text-text-muted">
-        Enter to send · Shift+Enter for new line · Mic to speak · Camera to scan docs
+        Enter to send · Shift+Enter for new line
       </p>
     </div>
   );

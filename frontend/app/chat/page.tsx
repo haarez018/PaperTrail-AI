@@ -14,12 +14,18 @@ import ProcedureDetail from "@/components/ProcedureDetail";
 import { AgentTrace } from "@/components/AgentTrace";
 import { Onboarding } from "@/components/Onboarding";
 import { ShortcutsModal } from "@/components/ShortcutsModal";
-import { CommandPalette } from "@/components/CommandPalette";
+import dynamic from "next/dynamic";
+const CommandPalette = dynamic(
+  () => import("@/components/CommandPalette").then((m) => ({ default: m.CommandPalette })),
+  { ssr: false },
+);
 import { SmartSuggestions } from "@/components/SmartSuggestions";
+import { StepGuide } from "@/components/StepGuide";
 import { getSuggestions, Suggestion } from "@/lib/suggestions";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
+import { playSend, playPlanReady, playAgentResponse } from "@/lib/sounds";
 
 /** Main chat interface — message stream with optional procedure timeline side panel. */
 export default function ChatPage() {
@@ -46,6 +52,7 @@ export default function ChatPage() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [lastAgent, setLastAgent] = useState<string | undefined>();
+  const [viewedProcedures, setViewedProcedures] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendStartRef = useRef<number>(0);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -67,10 +74,10 @@ export default function ChatPage() {
       if (ctrl && e.key === "d") {
         e.preventDefault();
         const stored =
-          localStorage.getItem("nyayamitra-theme") ?? "system";
+          localStorage.getItem("papertrail-theme") ?? "system";
         const next =
           stored === "light" ? "dark" : stored === "dark" ? "system" : "light";
-        localStorage.setItem("nyayamitra-theme", next);
+        localStorage.setItem("papertrail-theme", next);
         const root = document.documentElement;
         root.classList.remove("light", "dark");
         if (next === "dark") root.classList.add("dark");
@@ -105,8 +112,12 @@ export default function ChatPage() {
     addMessage({ role: "user", content: userMsg, timestamp: Date.now() });
     setLoading(true);
     sendStartRef.current = Date.now();
+    playSend();
 
     try {
+      // Pass last 5 exchanges (10 messages) as conversation memory
+      const recentHistory = messages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
+
       await sendMessage(userMsg, caseId, language, (event: SSEEvent) => {
         const agentKey = (event.data.agent as string) || "done";
 
@@ -151,9 +162,11 @@ export default function ChatPage() {
             agent: agentName,
             timestamp: Date.now(),
           });
+          playAgentResponse();
         } else if (event.event === "plan_ready") {
           const p = event.data.plan as ProcedurePlan;
           setPlan(p);
+          playPlanReady();
 
           addTrace({
             id: `planner-plan-${Date.now()}`,
@@ -163,7 +176,7 @@ export default function ChatPage() {
               `Topological sort by dependencies`,
               `Estimated total: ~${p.total_estimated_days} days`,
               `Total fees: ₹${p.total_estimated_cost_inr}`,
-              `Without NyayaMitra: ~${p.without_nyayamitra_baseline_days} days, ₹${p.without_nyayamitra_baseline_cost_inr}`,
+              `Without PaperTrail AI: ~${p.without_nyayamitra_baseline_days} days, ₹${p.without_nyayamitra_baseline_cost_inr}`,
               ...p.procedures.slice(0, 3).map(
                 (proc) => `→ ${proc.procedure_id.replace(/^tn_/, "").replace(/_/g, " ")}`
               ),
@@ -190,7 +203,7 @@ export default function ChatPage() {
             durationMs: Date.now() - sendStartRef.current,
           });
         }
-      });
+      }, recentHistory);
     } catch {
       addMessage({
         role: "agent",
@@ -207,13 +220,20 @@ export default function ChatPage() {
     setInput(prompt);
   };
 
+  const handleSelectProcedure = (procedureId: string | null) => {
+    setSelectedProcedure(procedureId);
+    if (procedureId) {
+      setViewedProcedures((prev) => { const s = new Set(prev); s.add(procedureId); return s; });
+    }
+  };
+
   const totalDuration =
     traces.length > 0
       ? traces[traces.length - 1].timestamp - traces[0].timestamp
       : undefined;
 
   return (
-    <div className="flex h-screen bg-ivory">
+    <div className="flex h-screen flex-col bg-ivory sm:flex-row">
       <Onboarding />
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
       <CommandPalette
@@ -228,19 +248,26 @@ export default function ChatPage() {
       {/* ── Chat Panel ── */}
       <div
         className={`flex flex-col transition-all duration-500 ease-smooth ${
-          plan ? "w-1/2" : "w-full max-w-3xl mx-auto"
+          plan
+            ? "w-full sm:w-1/2"          // mobile: full width, desktop: half
+            : "w-full sm:max-w-3xl sm:mx-auto"
         }`}
       >
         <ChatHeader
           language={language}
           onLanguageChange={setLanguage}
           caseId={caseId}
+          messages={messages}
         />
 
         {/* Messages Area */}
+        <ErrorBoundary section="Chat" variant="chat">
         <div
           ref={scrollRef}
           className="flex flex-1 flex-col overflow-y-auto scrollbar-thin px-4 py-6 sm:px-6"
+          role="log"
+          aria-live="polite"
+          aria-label="Conversation with PaperTrail AI"
         >
           {messages.length === 0 ? (
             <WelcomeScreen onSelectPrompt={handleSelectPrompt} />
@@ -255,6 +282,7 @@ export default function ChatPage() {
                     agent={msg.agent}
                     timestamp={msg.timestamp}
                     index={i}
+                    isLatest={i === messages.length - 1}
                   />
                 ))}
               </AnimatePresence>
@@ -268,6 +296,7 @@ export default function ChatPage() {
             </div>
           )}
         </div>
+        </ErrorBoundary>
 
         <SmartSuggestions
           suggestions={getSuggestions({
@@ -287,6 +316,15 @@ export default function ChatPage() {
             }
           }}
         />
+        <StepGuide
+          language={language}
+          messageCount={messages.length}
+          isLoading={isLoading}
+          hasPlan={!!plan}
+          selectedProcedure={selectedProcedure}
+          totalProcedures={plan?.procedures.length ?? 0}
+          viewedProcedures={viewedProcedures}
+        />
         <ChatInput
           value={input}
           onChange={setInput}
@@ -299,12 +337,12 @@ export default function ChatPage() {
 
       {/* ── Timeline Panel — appears when plan is ready ── */}
       {plan && (
-        <div className="w-1/2 overflow-y-auto border-l border-paper-dark bg-surface scrollbar-thin">
+        <div className="w-full overflow-y-auto border-t border-paper-dark bg-surface scrollbar-thin sm:w-1/2 sm:border-l sm:border-t-0 max-h-[45vh] sm:max-h-none">
           <ErrorBoundary section="Timeline">
             <ProcedureTimeline
               plan={plan}
               selectedProcedure={selectedProcedure}
-              onSelect={setSelectedProcedure}
+              onSelect={handleSelectProcedure}
               caseId={caseId}
             />
           </ErrorBoundary>

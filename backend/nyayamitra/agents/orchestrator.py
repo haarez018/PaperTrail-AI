@@ -9,6 +9,7 @@ Supports both sync (deterministic-only) and async (LLM-hybrid) paths.
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any, TypedDict
 
 from nyayamitra.agents.intake_agent import DeterministicIntake, IntakeAgent
@@ -87,8 +88,10 @@ async def run_intake_async(state: CaseState, llm_client: Any = None) -> CaseStat
 
 def run_procedure_agent(state: CaseState) -> CaseState:
     """Run the procedure agent to generate a plan."""
+    _t0 = time.monotonic()
     case_file = CaseFile(**state["case_file"])
     plan = build_procedure_plan(case_file)
+    logger.debug("run_procedure_agent: %dms  procedures=%d", int((time.monotonic() - _t0) * 1000), len(plan.procedures))
 
     state["plan"] = plan.model_dump()
     state["case_file"]["status"] = CaseStatus.IN_PROGRESS.value
@@ -96,10 +99,10 @@ def run_procedure_agent(state: CaseState) -> CaseState:
 
     # Build a human-readable response
     lines = [
-        f"I've identified **{len(plan.procedures)} procedures** your family needs to complete.",
+        f"✅ I've identified **{len(plan.procedures)} procedures** your family needs to complete.",
         f"",
-        f"Estimated timeline: **{plan.total_estimated_days} days** (vs ~{plan.without_nyayamitra_baseline_days} days without help)",
-        f"Estimated cost: **Rs.{plan.total_estimated_cost_inr}** (vs ~Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent fees)",
+        f"Estimated timeline: **{plan.total_estimated_days} days** (vs ~{plan.without_nyayamitra_baseline_days} days without PaperTrail AI)",
+        f"Estimated govt. fees: **Rs.{plan.total_estimated_cost_inr}** (vs ~Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent/middleman fees)",
         f"",
         f"Here's your step-by-step plan:",
         f"",
@@ -125,6 +128,7 @@ def process_message(
     user_message: str,
     case_file: CaseFile | None = None,
     existing_plan: ProcedurePlan | None = None,
+    history: list[dict] | None = None,
 ) -> CaseState:
     """Process a message synchronously (deterministic path).
 
@@ -132,6 +136,8 @@ def process_message(
     deterministic_only mode or when called from sync contexts.
     """
     state = create_initial_state(user_message, case_file)
+    if history:
+        state["messages"] = history
 
     if existing_plan:
         state["plan"] = existing_plan.model_dump()
@@ -149,12 +155,15 @@ async def process_message_async(
     case_file: CaseFile | None = None,
     existing_plan: ProcedurePlan | None = None,
     llm_client: Any = None,
+    history: list[dict] | None = None,
 ) -> CaseState:
     """Process a message asynchronously (LLM-hybrid path).
 
     Uses LLM for intake when available, deterministic for everything else.
     """
     state = create_initial_state(user_message, case_file)
+    if history:
+        state["messages"] = history
 
     if existing_plan:
         state["plan"] = existing_plan.model_dump()

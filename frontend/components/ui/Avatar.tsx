@@ -19,7 +19,7 @@ const sizeMap = {
 
 const iconSizeMap = { sm: 14, md: 18, lg: 24 };
 
-/** Chat avatar — saffron for the NyayaMitra agent, navy for the user. */
+/** Chat avatar — saffron for the PaperTrail AI agent, navy for the user. */
 export function Avatar({ type, initials, size = "md", className }: AvatarProps) {
   const isAgent = type === "agent";
 
@@ -33,7 +33,7 @@ export function Avatar({ type, initials, size = "md", className }: AvatarProps) 
         sizeMap[size],
         className
       )}
-      aria-label={isAgent ? "NyayaMitra agent" : "You"}
+      aria-label={isAgent ? "PaperTrail AI agent" : "You"}
     >
       {initials ? (
         initials.slice(0, 2).toUpperCase()

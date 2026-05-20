@@ -34,10 +34,10 @@ interface ProcedureDetailProps {
 
 type Tab = "documents" | "navigate" | "escalate";
 
-const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
-  { key: "documents", label: "Generate Form", icon: FileText },
-  { key: "navigate", label: "Navigate", icon: MapPin },
-  { key: "escalate", label: "Escalate", icon: AlertTriangle },
+const tabs: { key: Tab; label: string; shortLabel: string; icon: React.ElementType }[] = [
+  { key: "documents", label: "Generate Form", shortLabel: "Form", icon: FileText },
+  { key: "navigate",  label: "Navigate",      shortLabel: "Visit", icon: MapPin },
+  { key: "escalate",  label: "Escalate",      shortLabel: "RTI",   icon: AlertTriangle },
 ];
 
 export default function ProcedureDetail({
@@ -124,7 +124,7 @@ export default function ProcedureDetail({
 
       {/* ── Tabs ── */}
       <div className="mb-5 flex gap-2">
-        {tabs.map(({ key, label, icon: Icon }) => (
+        {tabs.map(({ key, label, shortLabel, icon: Icon }) => (
           <button
             key={key}
             onClick={() => {
@@ -134,14 +134,17 @@ export default function ProcedureDetail({
               if (key === "escalate" && !escResult) handleEscalate();
             }}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-3.5 py-2 text-sm font-medium transition-all duration-[var(--duration-fast)]",
+              "inline-flex items-center gap-1.5 rounded-[var(--radius-md)] px-2.5 py-2 text-xs font-medium transition-all duration-[var(--duration-fast)] sm:px-3.5 sm:text-sm",
               activeTab === key
                 ? "bg-saffron text-white shadow-sm"
                 : "border border-paper-dark bg-surface text-text-secondary hover:border-saffron/40 hover:text-saffron-dark"
             )}
+            title={label}
           >
-            <Icon size={14} />
-            {label}
+            <Icon size={13} />
+            {/* Full label on sm+, short label on mobile */}
+            <span className="hidden xs:inline">{label}</span>
+            <span className="xs:hidden">{shortLabel}</span>
           </button>
         ))}
       </div>

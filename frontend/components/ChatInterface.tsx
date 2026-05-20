@@ -82,7 +82,7 @@ export default function ChatInterface({ messages, isLoading }: ChatInterfaceProp
           >
             {msg.role === "agent" && msg.agent && (
               <div className="text-xs font-medium text-nyaya-600 mb-1 uppercase tracking-wide">
-                {msg.agent === "done" ? "NyayaMitra" : msg.agent}
+                {msg.agent === "done" ? "PaperTrail AI" : msg.agent}
               </div>
             )}
             <div

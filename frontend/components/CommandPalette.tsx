@@ -89,9 +89,9 @@ export function CommandPalette({
     const actions: Record<string, () => void> = {
       "action-new-case": () => { onNewCase?.(); onClose(); },
       "action-theme": () => {
-        const stored = localStorage.getItem("nyayamitra-theme") ?? "system";
+        const stored = localStorage.getItem("papertrail-theme") ?? "system";
         const next = stored === "light" ? "dark" : stored === "dark" ? "system" : "light";
-        localStorage.setItem("nyayamitra-theme", next);
+        localStorage.setItem("papertrail-theme", next);
         const root = document.documentElement;
         root.classList.remove("light", "dark");
         if (next === "dark") root.classList.add("dark");

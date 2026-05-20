@@ -40,7 +40,7 @@ export function DeadlineTracker({ procedures }: DeadlineTrackerProps) {
 
   // Load saved submitted dates from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem("nyayamitra-submitted-dates");
+    const saved = localStorage.getItem("papertrail-submitted-dates");
     if (saved) {
       try {
         setSubmittedDates(JSON.parse(saved));
@@ -87,7 +87,7 @@ export function DeadlineTracker({ procedures }: DeadlineTrackerProps) {
     const today = new Date().toISOString().split("T")[0];
     const updated = { ...submittedDates, [procedureId]: today };
     setSubmittedDates(updated);
-    localStorage.setItem("nyayamitra-submitted-dates", JSON.stringify(updated));
+    localStorage.setItem("papertrail-submitted-dates", JSON.stringify(updated));
 
     // Fire a confirmation notification
     if (notifEnabled) {
@@ -96,7 +96,7 @@ export function DeadlineTracker({ procedures }: DeadlineTrackerProps) {
         .replace(/_/g, " ")
         .replace(/\b\w/g, (l) => l.toUpperCase());
       const days = STATUTORY_DAYS[procedureId] ?? 30;
-      sendNotification("NyayaMitra — Deadline set", {
+      sendNotification("PaperTrail AI — Deadline set", {
         body: `${name}: expected by ${new Date(Date.now() + days * 86400000).toLocaleDateString("en-IN")}`,
         tag: `submitted-${procedureId}`,
       });

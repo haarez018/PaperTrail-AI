@@ -57,7 +57,7 @@ export function ExportKitButton({ caseId, className }: ExportKitButtonProps) {
 
       const a = document.createElement("a");
       a.href = url;
-      a.download = `nyayamitra-kit-${caseId.slice(0, 8).toUpperCase()}.pdf`;
+      a.download = `papertrail-kit-${caseId.slice(0, 8).toUpperCase()}.pdf`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -150,10 +150,10 @@ export function ExportKitButton({ caseId, className }: ExportKitButtonProps) {
       {pdfBase64 && (
         <PdfViewer
           src={pdfBase64}
-          title={`NyayaMitra Kit — Case ${caseId.slice(0, 8).toUpperCase()}`}
+          title={`PaperTrail AI Kit — Case ${caseId.slice(0, 8).toUpperCase()}`}
           open={viewerOpen}
           onClose={() => setViewerOpen(false)}
-          downloadFilename={`nyayamitra-kit-${caseId.slice(0, 8).toUpperCase()}.pdf`}
+          downloadFilename={`papertrail-kit-${caseId.slice(0, 8).toUpperCase()}.pdf`}
         />
       )}
     </>
