@@ -55,7 +55,6 @@ export default function ChatPage() {
   const [viewedProcedures, setViewedProcedures] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const sendStartRef = useRef<number>(0);
-  const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const LANGUAGES = ["en", "ta", "hi"];
 
@@ -220,6 +219,41 @@ export default function ChatPage() {
     setInput(prompt);
   };
 
+  /** Send a message directly without requiring the user to press Send.
+   *  Used by suggestion chips for one-tap actions. */
+  const sendDirectMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return;
+    setInput("");
+    clearTraces();
+    addMessage({ role: "user", content: text, timestamp: Date.now() });
+    setLoading(true);
+    sendStartRef.current = Date.now();
+    playSend();
+    try {
+      const recentHistory = messages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
+      await sendMessage(text, caseId, language, (event: SSEEvent) => {
+        const agentKey = (event.data.agent as string) || "done";
+        if (event.event === "agent_response") {
+          const content = event.data.content as string;
+          setLastAgent(agentKey);
+          addMessage({ role: "agent", content, agent: agentKey, timestamp: Date.now() });
+          playAgentResponse();
+        } else if (event.event === "plan_ready") {
+          setPlan(event.data.plan as ProcedurePlan);
+          playPlanReady();
+        } else if (event.event === "case_state_update") {
+          setCaseData(event.data.case as CaseData);
+        } else if (event.event === "done") {
+          if (event.data.case_id) setCaseId(event.data.case_id as string);
+        }
+      }, recentHistory);
+    } catch {
+      addMessage({ role: "agent", content: "Couldn't reach the server. Please try again.", timestamp: Date.now() });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSelectProcedure = (procedureId: string | null) => {
     setSelectedProcedure(procedureId);
     if (procedureId) {
@@ -247,7 +281,7 @@ export default function ChatPage() {
       />
       {/* ── Chat Panel ── */}
       <div
-        className={`flex flex-col transition-all duration-500 ease-smooth ${
+        className={`flex min-h-0 flex-1 flex-col transition-all duration-500 ease-smooth sm:flex-none ${
           plan
             ? "w-full sm:w-1/2"          // mobile: full width, desktop: half
             : "w-full sm:max-w-3xl sm:mx-auto"
@@ -307,8 +341,9 @@ export default function ChatPage() {
           })}
           visible={!isLoading && messages.length > 0}
           onSelect={(s: Suggestion) => {
-            if (s.type === "prompt") {
-              setInput(s.prompt);
+            if (s.type === "prompt" && s.prompt) {
+              // Auto-send the suggestion — one tap = message sent
+              sendDirectMessage(s.prompt);
             } else if (s.id === "sp-kit") {
               document.querySelector<HTMLButtonElement>("[data-export-kit]")?.click();
             } else if (s.id === "sp-graph") {

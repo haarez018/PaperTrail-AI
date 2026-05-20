@@ -114,6 +114,9 @@ export async function sendMessage(
 
   const decoder = new TextDecoder();
   let buffer = "";
+  // currentEvent persists across chunk boundaries so that an event: line
+  // arriving in one TCP read is still paired with the data: line in the next.
+  let currentEvent = "";
 
   while (true) {
     const { done, value } = await reader.read();
@@ -123,19 +126,21 @@ export async function sendMessage(
     const lines = buffer.split("\n");
     buffer = lines.pop() || "";
 
-    let currentEvent = "";
-    let currentData = "";
-
     for (const line of lines) {
       if (line.startsWith("event: ")) {
         currentEvent = line.slice(7).trim();
       } else if (line.startsWith("data: ")) {
-        currentData = line.slice(6).trim();
+        const currentData = line.slice(6).trim();
         try {
           onEvent({ event: currentEvent, data: JSON.parse(currentData) });
         } catch {
           onEvent({ event: currentEvent, data: { raw: currentData } });
         }
+        // Reset after dispatch so stale event type doesn't bleed into next message
+        currentEvent = "";
+      } else if (line === "") {
+        // blank line = SSE message boundary; reset event type
+        currentEvent = "";
       }
     }
   }

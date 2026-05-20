@@ -1,7 +1,7 @@
 """Orchestrator — state machine coordinating all agents.
 
 State flows:
-  START -> intake -> planning -> [document/navigate/escalate] -> done
+  START -> intake -> planning -> [followup/document/navigate/escalate] -> done
 
 Supports both sync (deterministic-only) and async (LLM-hybrid) paths.
 """
@@ -9,6 +9,7 @@ Supports both sync (deterministic-only) and async (LLM-hybrid) paths.
 from __future__ import annotations
 
 import logging
+import re
 import time
 from typing import Any, TypedDict
 
@@ -45,6 +46,169 @@ def create_initial_state(user_message: str, case_file: CaseFile | None = None) -
         is_complete=False,
     )
 
+
+# ─── Follow-up intent classifier ────────────────────────────────────────────
+
+_RE_NEXT = re.compile(
+    r"\b(next|start|begin|proceed|continue|how|process|steps?|guide|walk|explain|"
+    r"do|what|first|go ahead|tell me|show me|help)\b",
+    re.IGNORECASE,
+)
+_RE_STEP_N = re.compile(r"\bstep\s*(\d+)\b|\b(\d+)\s*(?:st|nd|rd|th)\s*step\b", re.IGNORECASE)
+_RE_PLAN = re.compile(r"\b(plan|summary|overview|list|all procedures?|show)\b", re.IGNORECASE)
+_RE_DONE = re.compile(r"\b(done|finished|completed?|marked?)\b", re.IGNORECASE)
+
+
+def _followup_response(state: CaseState) -> str:
+    """Build a rich conversational response for post-plan messages."""
+    message = state["user_message"]
+    plan_data = state.get("plan") or {}
+    procedures = plan_data.get("procedures", [])
+
+    from nyayamitra.kg.loader import get_procedure
+
+    # ── Did the user say they completed something? ───────────────────────────
+    if _RE_DONE.search(message):
+        pending = [p for p in procedures if p.get("status") != "done"]
+        if not pending:
+            return (
+                "🎉 **All done!** Congratulations — all your procedures are complete.\n\n"
+                "Your name change is now officially registered. Keep copies of all receipts "
+                "and certificates in a safe place.\n\n"
+                "If you need anything else — another name change, pension, or property issue — "
+                "just start a new conversation."
+            )
+        # Show the remaining steps
+        next_p = pending[0]
+        proc = get_procedure(next_p["procedure_id"])
+        name = proc.name_en if proc else next_p["procedure_id"]
+        remaining_names = []
+        for p in pending[1:]:
+            pr = get_procedure(p["procedure_id"])
+            remaining_names.append(pr.name_en if pr else p["procedure_id"])
+        lines = [
+            f"✅ Great progress! Let's keep going.\n",
+            f"**Up next → Step {next_p['order']}: {name}**",
+        ]
+        if remaining_names:
+            lines.append(f"\nAfter that: {' → '.join(remaining_names)}")
+        lines.append("\nType **\"how do I do this?\"** and I'll walk you through it step by step.")
+        return "\n".join(lines)
+
+    # ── Did the user ask about a specific step number? ───────────────────────
+    m = _RE_STEP_N.search(message)
+    if m:
+        n = int(m.group(1) or m.group(2))
+        match = next((p for p in procedures if p.get("order") == n), None)
+        if match:
+            return _procedure_walkthrough(match, procedures, get_procedure)
+
+    # ── User wants the plan summary ──────────────────────────────────────────
+    if _RE_PLAN.search(message) and not _RE_NEXT.search(message):
+        lines = ["📋 **Here's your full plan:**\n"]
+        for p in procedures:
+            proc = get_procedure(p["procedure_id"])
+            name = proc.name_en if proc else p["procedure_id"]
+            status_icon = "✅" if p.get("status") == "done" else "⏳"
+            lines.append(f"{status_icon} **Step {p['order']}**: {name}")
+            if p.get("depends_on_procedure_ids"):
+                lines.append(f"   ↳ Requires: {', '.join(p['depends_on_procedure_ids'])}")
+        lines.append(
+            "\nClick any procedure in the timeline on the right to generate forms, "
+            "get navigation, or draft an RTI letter."
+        )
+        return "\n".join(lines)
+
+    # ── Default: guide them to the first pending step ────────────────────────
+    pending = [p for p in procedures if p.get("status") != "done"]
+    if not pending:
+        return (
+            "🎉 All your procedures are complete! If you need to handle anything else, "
+            "start a new case from the home page."
+        )
+
+    return _procedure_walkthrough(pending[0], procedures, get_procedure)
+
+
+def _procedure_walkthrough(
+    plan_proc: dict,
+    all_procedures: list[dict],
+    get_proc_fn: Any,
+) -> str:
+    """Return a rich step-by-step walkthrough for a single procedure."""
+    proc = get_proc_fn(plan_proc["procedure_id"])
+    if not proc:
+        return (
+            f"Your next step is **{plan_proc['procedure_id']}**. "
+            "Click it in the timeline to generate forms and get navigation help."
+        )
+
+    order = plan_proc.get("order", 1)
+    lines = [
+        f"## Step {order}: {proc.name_en}",
+        "",
+        f"**What this is:** {proc.applicable_when}",
+        "",
+        f"⏱️ **Time needed:** {proc.estimated_duration_days.min}–{proc.estimated_duration_days.max} days",
+        f"💰 **Govt. fee:** Rs. {proc.fee_inr}",
+        f"🏛️ **Office:** {proc.issuing_authority or proc.office_type or 'Local government office'}",
+        "",
+    ]
+
+    # Documents checklist
+    if proc.documents_required:
+        lines.append("**📄 Documents to bring:**")
+        for doc in proc.documents_required:
+            req = " *(required)*" if doc.mandatory else " *(optional)*"
+            where = f" — get from: {doc.where_to_get}" if doc.where_to_get else ""
+            lines.append(f"• {doc.name}{req}{where}")
+        lines.append("")
+
+    # Step-by-step instructions
+    lines.append("**📝 What to do:**")
+    lines += [
+        "1. Collect all documents listed above",
+        f"2. Visit **{proc.issuing_authority or 'the office'}** — click **Navigate** on the timeline card to get the exact address, best time to visit, and what to say at the counter",
+        f"3. Submit your application and pay Rs. {proc.fee_inr}",
+        "4. Collect your **acknowledgement receipt** — keep it safely",
+        f"5. Wait {proc.estimated_duration_days.min}–{proc.estimated_duration_days.max} days for the certificate",
+        "6. If delayed beyond the deadline, click **Escalate** to auto-generate an RTI letter",
+        "",
+    ]
+
+    # Rejection tips
+    if proc.common_rejection_reasons:
+        lines.append("**⚠️ Common reasons for rejection (avoid these):**")
+        for reason in proc.common_rejection_reasons[:3]:
+            lines.append(f"• {reason}")
+        lines.append("")
+
+    # Legal basis
+    if proc.legal_basis:
+        lines.append(f"**⚖️ Legal basis:** {proc.legal_basis}")
+        lines.append("")
+
+    # What's next
+    pending_after = [
+        p for p in all_procedures
+        if p.get("order", 0) > order and p.get("status") != "done"
+    ]
+    if pending_after:
+        next_p = pending_after[0]
+        next_proc = get_proc_fn(next_p["procedure_id"])
+        next_name = next_proc.name_en if next_proc else next_p["procedure_id"]
+        lines.append(f"➡️ **After this:** Step {next_p['order']} — {next_name}")
+        lines.append("")
+
+    lines.append(
+        "💡 **Quick action:** Click the procedure card in the timeline → "
+        "**Generate Form** for a pre-filled PDF to print and take to the office."
+    )
+
+    return "\n".join(lines)
+
+
+# ─── Orchestrator nodes ──────────────────────────────────────────────────────
 
 def run_intake(state: CaseState) -> CaseState:
     """Run the deterministic intake agent to update the case file."""
@@ -91,38 +255,64 @@ def run_procedure_agent(state: CaseState) -> CaseState:
     _t0 = time.monotonic()
     case_file = CaseFile(**state["case_file"])
     plan = build_procedure_plan(case_file)
-    logger.debug("run_procedure_agent: %dms  procedures=%d", int((time.monotonic() - _t0) * 1000), len(plan.procedures))
+    logger.debug(
+        "run_procedure_agent: %dms  procedures=%d",
+        int((time.monotonic() - _t0) * 1000),
+        len(plan.procedures),
+    )
 
     state["plan"] = plan.model_dump()
     state["case_file"]["status"] = CaseStatus.IN_PROGRESS.value
     state["current_agent"] = "done"
 
-    # Build a human-readable response
+    # Build a human-readable summary
     lines = [
-        f"✅ I've identified **{len(plan.procedures)} procedures** your family needs to complete.",
+        f"✅ I've identified **{len(plan.procedures)} procedures** you need to complete.",
         f"",
-        f"Estimated timeline: **{plan.total_estimated_days} days** (vs ~{plan.without_nyayamitra_baseline_days} days without PaperTrail AI)",
-        f"Estimated govt. fees: **Rs.{plan.total_estimated_cost_inr}** (vs ~Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent/middleman fees)",
+        f"⏱️ Estimated timeline: **{plan.total_estimated_days} days** "
+        f"(vs ~{plan.without_nyayamitra_baseline_days} days without PaperTrail AI)",
+        f"💰 Estimated govt. fees: **Rs.{plan.total_estimated_cost_inr}** "
+        f"(vs ~Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent/middleman fees)",
         f"",
-        f"Here's your step-by-step plan:",
+        f"**Here's your step-by-step plan:**",
         f"",
     ]
 
-    for p in plan.procedures:
-        from nyayamitra.kg.loader import get_procedure
+    from nyayamitra.kg.loader import get_procedure
 
+    for p in plan.procedures:
         proc = get_procedure(p.procedure_id)
         name = proc.name_en if proc else p.procedure_id
         lines.append(f"**{p.order}. {name}**")
         lines.append(f"   {p.why_this_is_needed}")
         if p.depends_on_procedure_ids:
-            lines.append(f"   _Depends on: {', '.join(p.depends_on_procedure_ids)}_")
+            deps = [
+                (get_procedure(d).name_en if get_procedure(d) else d)
+                for d in p.depends_on_procedure_ids
+            ]
+            lines.append(f"   ↳ *Requires: {', '.join(deps)}*")
         lines.append("")
+
+    lines += [
+        "---",
+        "💬 **Type \"walk me through step 1\"** to get detailed instructions, or click any "
+        "procedure in the timeline on the right to generate forms and get navigation help.",
+    ]
 
     state["agent_response"] = "\n".join(lines)
     state["is_complete"] = True
     return state
 
+
+def handle_followup(state: CaseState) -> CaseState:
+    """Handle messages when a plan already exists — conversational guidance mode."""
+    state["agent_response"] = _followup_response(state)
+    state["current_agent"] = "navigation"
+    state["is_complete"] = False
+    return state
+
+
+# ─── Main entry points ───────────────────────────────────────────────────────
 
 def process_message(
     user_message: str,
@@ -132,8 +322,8 @@ def process_message(
 ) -> CaseState:
     """Process a message synchronously (deterministic path).
 
-    This is the main entry point for the chat API when running in
-    deterministic_only mode or when called from sync contexts.
+    If a plan already exists, route to follow-up conversation handler instead
+    of re-running intake + procedure agent (which would just repeat the plan).
     """
     state = create_initial_state(user_message, case_file)
     if history:
@@ -141,7 +331,11 @@ def process_message(
 
     if existing_plan:
         state["plan"] = existing_plan.model_dump()
+        # Plan already built — answer follow-up questions conversationally
+        state = handle_followup(state)
+        return state
 
+    # Normal intake → plan flow
     state = run_intake(state)
 
     if state["current_agent"] == "procedure":
@@ -160,6 +354,7 @@ async def process_message_async(
     """Process a message asynchronously (LLM-hybrid path).
 
     Uses LLM for intake when available, deterministic for everything else.
+    If a plan already exists, route to follow-up conversation handler.
     """
     state = create_initial_state(user_message, case_file)
     if history:
@@ -167,6 +362,8 @@ async def process_message_async(
 
     if existing_plan:
         state["plan"] = existing_plan.model_dump()
+        state = handle_followup(state)
+        return state
 
     # Use async intake with LLM
     state = await run_intake_async(state, llm_client=llm_client)

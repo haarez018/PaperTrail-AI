@@ -12,6 +12,28 @@ import json
 import logging
 import re
 import time
+
+# ─── Yes / No intent patterns ───────────────────────────────────────────────
+# Only match UNAMBIGUOUS affirmatives/negatives — avoid common discourse
+# markers that appear mid-sentence ("ok thanks", "I'm not sure", "correct me").
+_YES_PATTERN = re.compile(
+    r"\b(yes|yeah|yep|yup|haan|aamam|aama)\b"
+    r"|ஆமாம்|ஆம்|हाँ|हां",
+    re.IGNORECASE,
+)
+_NO_PATTERN = re.compile(
+    r"\b(no|nope|nahi|none|illa|illai)\b"  # removed "not" — too common mid-sentence
+    r"|இல்லை|नहीं",
+    re.IGNORECASE,
+)
+
+# ─── Word-to-digit map (English + Tamil + Hindi cardinal numbers) ─────────────
+_WORD_NUMS: dict[str, int] = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
+    "oru": 1, "rendu": 2, "moonu": 3, "naalu": 4,
+    "ek": 1, "do": 2, "teen": 3, "chaar": 4, "paanch": 5,
+}
+
 from pathlib import Path
 from typing import Any
 
@@ -133,8 +155,6 @@ def _count_banks(text: str) -> int:
         return int(match.group(1))
 
     # Any bank-like keyword present → look for nearby digit or word-number
-    _WORD_NUMS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5,
-                  "oru": 1, "rendu": 2, "ek": 1, "do": 2, "teen": 3}
     if re.search(r"ban+k+", text):
         num_match = re.search(r"\b(\d+)\b", text)
         if num_match:
@@ -211,19 +231,6 @@ _Q: dict[str, dict[str, str]] = {
         "hi": "उनके कितने बैंक खाते थे?",
     },
 }
-
-import re as _re
-
-_YES_PATTERN = _re.compile(
-    r"\b(yes|yeah|yep|yup|sure|correct|right|ok|okay|haan|aamam|aama)\b"
-    r"|ஆமாம்|ஆம்|हाँ|हां",
-    _re.IGNORECASE,
-)
-_NO_PATTERN = _re.compile(
-    r"\b(no|nope|nahi|nope|none|not|illa|illai)\b"
-    r"|இல்லை|नहीं",
-    _re.IGNORECASE,
-)
 
 
 def _is_affirmative(text: str) -> bool:
@@ -330,8 +337,7 @@ class DeterministicIntake:
                     self.case.context.had_bank_accounts = int(_bare_digit.group(1))
                 # Word numbers — "one account", "two", "oru"
                 elif not _bare_consumed:
-                    _WNUM = {"one": 1, "two": 2, "three": 3, "oru": 1, "rendu": 2, "ek": 1, "do": 2}
-                    for _w, _v in _WNUM.items():
+                    for _w, _v in _WORD_NUMS.items():
                         if re.search(rf"\b{_w}\b", lower):
                             self.case.context.had_bank_accounts = _v
                             break
