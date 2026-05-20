@@ -118,9 +118,14 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
 
     updated_case = CaseFile(**state["case_file"])
 
+    # A plan is "new" only if it was just generated this turn (no prior plan existed).
+    # Follow-up turns carry the existing plan in state but must NOT re-emit plan_ready
+    # (which would replay the sound and flicker the timeline on every message).
+    plan_is_new = state.get("plan") and existing_plan is None
+
     # Signal which agent responded
     agent_name = state.get("current_agent", "orchestrator")
-    if state.get("plan"):
+    if plan_is_new:
         yield {
             "event": "agent_thinking",
             "data": json.dumps({"agent": "procedure", "message": "Building your procedure plan..."}),
@@ -138,8 +143,8 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
         "data": json.dumps({"case": state["case_file"]}),
     }
 
-    # Send plan if ready
-    if state.get("plan"):
+    # Only emit plan_ready for newly generated plans — not for every follow-up
+    if plan_is_new:
         yield {
             "event": "plan_ready",
             "data": json.dumps({"plan": state["plan"]}),
