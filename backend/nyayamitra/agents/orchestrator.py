@@ -119,6 +119,31 @@ def _followup_response(state: CaseState) -> str:
         )
         return "\n".join(lines)
 
+    # ── "What next" after a step was just explained — advance to the next step ─
+    # Look at the most recent agent message in history to see which step was
+    # last discussed, so "what next" progresses rather than repeating step 1.
+    if _RE_NEXT.search(message):
+        history = state.get("messages") or []
+        last_agent_content = next(
+            (m.get("content", "") for m in reversed(history) if m.get("role") == "agent"),
+            "",
+        )
+        last_step_match = re.search(r"## Step (\d+):", last_agent_content)
+        if last_step_match:
+            last_n = int(last_step_match.group(1))
+            next_proc = next(
+                (p for p in procedures if p.get("order") == last_n + 1), None
+            )
+            if next_proc:
+                return _procedure_walkthrough(next_proc, procedures, get_procedure)
+            # No next step → all explained
+            return (
+                "🎉 You've gone through all the steps!\n\n"
+                "Click **Generate Form** on each procedure card in the timeline to get "
+                "pre-filled PDFs ready to print and submit.\n\n"
+                "Type **\"show my plan\"** for a full summary, or ask about any specific step."
+            )
+
     # ── Default: guide them to the first pending step ────────────────────────
     pending = [p for p in procedures if p.get("status") != "done"]
     if not pending:
