@@ -216,7 +216,8 @@ export default function ChatPage() {
   };
 
   const handleSelectPrompt = (prompt: string) => {
-    setInput(prompt);
+    // Auto-send welcome-screen suggestions — same UX as suggestion chips
+    sendDirectMessage(prompt);
   };
 
   /** Send a message directly without requiring the user to press Send.

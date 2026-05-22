@@ -79,6 +79,9 @@ const config: Config = {
         'pulse-saffron': 'pulse-saffron 2s ease-in-out infinite',
         'shimmer': 'shimmer 1.5s ease-in-out infinite',
         'stamp': 'stamp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+        'fly-up': 'fly-up 0.3s ease-in forwards',
+        'wobble': 'wobble 0.4s ease-in-out',
+        'glow-pulse': 'glow-pulse 1.5s ease-in-out infinite',
       },
       keyframes: {
         'pulse-saffron': {
@@ -93,6 +96,21 @@ const config: Config = {
           '0%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.15)' },
           '100%': { transform: 'scale(1)' },
+        },
+        'fly-up': {
+          '0%': { transform: 'translateY(0)', opacity: '1' },
+          '100%': { transform: 'translateY(-8px)', opacity: '0' },
+        },
+        'wobble': {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%': { transform: 'translateX(-4px)' },
+          '40%': { transform: 'translateX(4px)' },
+          '60%': { transform: 'translateX(-3px)' },
+          '80%': { transform: 'translateX(3px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(237, 137, 54, 0.4)' },
+          '50%': { boxShadow: '0 0 0 6px rgba(237, 137, 54, 0)' },
         },
       },
     },
