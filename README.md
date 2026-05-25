@@ -1,4 +1,4 @@
-# NyayaMitra — AI Bureaucracy Navigator
+PaperTrail-AI — AI Bureaucracy Navigator
 
 > **Agentic AI that navigates Indian government bureaucracy — for the 700 million citizens who can't afford a lawyer.**
 
