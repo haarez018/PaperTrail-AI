@@ -80,7 +80,7 @@ export function CaseCard({
                   ~{totalEstimatedDays} days
                 </span>
               )}
-              {totalEstimatedCostInr !== undefined && (
+              {totalEstimatedCostInr != null && (
                 <span className="flex items-center gap-1">
                   <IndianRupee size={11} />
                   {totalEstimatedCostInr.toLocaleString()} in fees

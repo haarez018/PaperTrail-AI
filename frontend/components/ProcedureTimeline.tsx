@@ -32,6 +32,7 @@ const ProcedureListView = dynamic(
 );
 import { cn } from "@/lib/cn";
 import { ProcedurePlan, Procedure } from "@/lib/api";
+import { calcSuccessScore } from "@/lib/successScore";
 
 interface ProcedureTimelineProps {
   plan: ProcedurePlan;
@@ -275,9 +276,22 @@ export default function ProcedureTimeline({
                       {proc.why_this_is_needed}
                     </p>
                   </div>
-                  <Badge status={status} className="shrink-0">
-                    {proc.status.replace("_", " ")}
-                  </Badge>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {(() => {
+                      const scoreResult = calcSuccessScore({
+                        depends_on_procedure_ids: proc.depends_on_procedure_ids,
+                        procedure_id: proc.procedure_id,
+                      });
+                      return (
+                        <span className={`text-xs font-medium px-1.5 py-0.5 rounded-full ${scoreResult.color}`}>
+                          {scoreResult.score}%
+                        </span>
+                      );
+                    })()}
+                    <Badge status={status} className="shrink-0">
+                      {proc.status.replace("_", " ")}
+                    </Badge>
+                  </div>
                 </div>
 
                 {/* Dependencies */}

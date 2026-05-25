@@ -10,6 +10,8 @@ import {
   CalendarDays,
   FileText,
   RefreshCw,
+  Download,
+  Loader2,
 } from "lucide-react";
 import {
   Card,
@@ -24,12 +26,15 @@ import {
 import { getCase, CaseData, Procedure, ProcedureStatus } from "@/lib/api";
 import { ExportKitButton } from "@/components/ExportKitButton";
 import { DeadlineTracker } from "@/components/DeadlineTracker";
+import { ShareCaseButton } from "@/components/ShareCaseButton";
+import { OfflineKitButton } from "@/components/OfflineKitButton";
 
 /** Dashboard view for a specific case — shows stats, progress, and procedure list. */
 export default function CasePage({ params }: { params: { id: string } }) {
   const [caseData, setCaseData] = useState<CaseData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [kitLoading, setKitLoading] = useState(false);
 
   const fetchCase = async () => {
     setLoading(true);
@@ -41,6 +46,25 @@ export default function CasePage({ params }: { params: { id: string } }) {
       setError("Hmm, I can't reach the server right now. Your case data might still be loading — let me try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadKit = async () => {
+    setKitLoading(true);
+    try {
+      const res = await fetch(`/api/cases/${params.id}/export`);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `PaperTrail-${params.id}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Export failed. Please try again.");
+    } finally {
+      setKitLoading(false);
     }
   };
 
@@ -162,6 +186,16 @@ export default function CasePage({ params }: { params: { id: string } }) {
               <DeadlineTracker procedures={caseData.plan.procedures} />
             )}
 
+            {/* Share */}
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <p className="text-sm text-text-muted">Share your progress</p>
+              <ShareCaseButton
+                caseId={params.id}
+                procedureCount={caseData.plan?.procedures?.length ?? 0}
+                estimatedDays={caseData.plan?.total_estimated_days ?? 0}
+              />
+            </div>
+
             {/* Procedure List */}
             {caseData.plan?.procedures && (
               <Card>
@@ -202,6 +236,24 @@ export default function CasePage({ params }: { params: { id: string } }) {
                 </Button>
               </Link>
               <ExportKitButton caseId={params.id} />
+              {caseData.plan && (
+                <OfflineKitButton plan={caseData.plan} caseId={params.id} />
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadKit}
+                disabled={kitLoading}
+                aria-label="Download case data as zip archive"
+                className="inline-flex items-center gap-1.5"
+              >
+                {kitLoading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Download size={14} />
+                )}
+                {kitLoading ? "Preparing…" : "Download Kit (.zip)"}
+              </Button>
             </div>
           </>
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mic, MicOff, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -29,9 +29,13 @@ const langLabel: Record<string, string> = {
 export function VoiceInput({ language, onTranscript, disabled }: VoiceInputProps) {
   const [state, setState] = useState<RecordingState>("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [supported, setSupported] = useState(false);
   const sessionRef = useRef<{ start: () => void; stop: () => void } | null>(null);
 
-  const supported = isSpeechSupported();
+  // Defer to client-side so SSR and client render the same initial tree
+  useEffect(() => {
+    setSupported(isSpeechSupported());
+  }, []);
 
   const handleToggle = useCallback(() => {
     if (!supported) return;

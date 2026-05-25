@@ -14,9 +14,12 @@ import {
   Shield,
   CheckSquare,
   IndianRupee,
+  MessageCircle,
+  ChevronDown,
 } from "lucide-react";
 import { Button, Card, CardContent, LoadingSpinner } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { useAppStore } from "@/lib/store";
 import {
   generateDocument,
   getNavigation,
@@ -25,6 +28,9 @@ import {
   NavigationResult,
   EscalationResult,
 } from "@/lib/api";
+import { RejectionScanner } from "@/components/RejectionScanner";
+import { LegalPrecedents } from "@/components/LegalPrecedents";
+import { CostComparison } from "@/components/CostComparison";
 
 interface ProcedureDetailProps {
   procedureId: string;
@@ -40,6 +46,61 @@ const tabs: { key: Tab; label: string; shortLabel: string; icon: React.ElementTy
   { key: "escalate",  label: "Escalate",      shortLabel: "RTI",   icon: AlertTriangle },
 ];
 
+const downloadText = (content: string, filename: string) => {
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+const OFFICE_TIPS: Record<string, string[]> = {
+  corporation: [
+    "Best days: Tuesday or Wednesday — Mondays are crowded after the weekend",
+    "Arrive by 9:30 AM to get a morning token — afternoon queues are 2× longer",
+    "Bring more photocopies than required — they often ask for 3 copies",
+    "Parking is limited near Ripon Building — take public transport if possible",
+    "Token system: after getting token, you can step out briefly and return",
+  ],
+  tahsildar: [
+    "Affidavit must be on Rs.20 stamp paper — buy at the District Court complex nearby",
+    "Submitted Mon–Wed → typically ready by Friday of same week",
+    "Submitted Thu–Fri → typically ready following Wednesday",
+    "Bring original documents + 2 full sets of photocopies",
+    "Ask to speak to the Tahsildar directly if counter staff are unhelpful",
+  ],
+  bank: [
+    "Visit the specific branch where the account was held — not just any branch",
+    "Bring all legal heirs in person if possible — or notarized consent letters",
+    "Bank Manager has discretion — politely request to speak with them",
+    "Best time: 10–11 AM, not month-end (salary processing makes banks busy)",
+    "Some banks require a formal 'Stop Payment' request submitted first",
+  ],
+  treasury: [
+    "Bring a cancelled cheque from the nominee's bank account",
+    "Pension order number (found on old pension slips) speeds up processing",
+    "Ask for acknowledgement receipt — track processing by calling after 15 days",
+  ],
+  default: [
+    "Morning visits (before 11 AM) are consistently faster across all government offices",
+    "Bring more photocopies than you think you need — 3 sets of everything",
+    "Always ask for an acknowledgement receipt with date and reference number",
+    "Officer name on receipt matters — helps with RTI if there's a delay",
+    "If told 'come back tomorrow', ask for a specific date in writing",
+  ],
+};
+
+function getOfficeTips(officeName?: string): string[] {
+  const name = (officeName || "").toLowerCase();
+  if (name.includes("corporation") || name.includes("municipal")) return OFFICE_TIPS.corporation;
+  if (name.includes("tahsildar") || name.includes("revenue")) return OFFICE_TIPS.tahsildar;
+  if (name.includes("bank")) return OFFICE_TIPS.bank;
+  if (name.includes("treasury") || name.includes("pension")) return OFFICE_TIPS.treasury;
+  return OFFICE_TIPS.default;
+}
+
 export default function ProcedureDetail({
   procedureId,
   caseId,
@@ -50,6 +111,23 @@ export default function ProcedureDetail({
   const [navResult, setNavResult] = useState<NavigationResult | null>(null);
   const [escResult, setEscResult] = useState<EscalationResult | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Documents tab — rejection scanner modal
+  const [showScanner, setShowScanner] = useState(false);
+
+  // Documents tab — submit flow
+  const [showSubmitForm, setShowSubmitForm] = useState(false);
+  const [receiptRef, setReceiptRef] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  // Escalate tab — RTI chain
+  const [showFirstAppeal, setShowFirstAppeal] = useState(false);
+  const [showSecondAppeal, setShowSecondAppeal] = useState(false);
+
+  // Navigate tab — Office Intelligence
+  const [tipsOpen, setTipsOpen] = useState(false);
+
+  const markSubmitted = useAppStore((s) => s.markSubmitted);
 
   const procName = procedureId
     .replace(/^tn_/, "")
@@ -103,6 +181,60 @@ export default function ProcedureDetail({
     link.download = filename;
     link.click();
   };
+
+  // Deadline date: 21 days from now
+  const deadlineDate = new Date(Date.now() + 21 * 86400000).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  // RTI letter dates
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const today = new Date().toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const firstAppealText = `To: The First Appellate Authority
+   [Department/Office that received your RTI]
+Subject: First Appeal under Section 19(1) of RTI Act 2005
+
+My RTI application dated ${thirtyDaysAgo} was not responded to within the
+mandatory 30-day period under Section 7(1) of the Right to Information Act 2005.
+
+I hereby file this First Appeal requesting:
+1. The information sought in my original RTI application
+2. Reason for delay / non-response
+
+I request you to provide the information within 15 days under Section 19(1) RTI Act.
+
+Yours faithfully,
+[Your Name]
+Date: ${today}`;
+
+  const secondAppealText = `To: The Central Information Commissioner
+    Central Information Commission, New Delhi - 110003
+
+Under Section 19(3) of the RTI Act 2005, I file this Second Appeal
+as my First Appeal dated ${today} has not been responded to.
+
+Attachments required:
+• Copy of original RTI application
+• Copy of First Appeal
+• Proof of postage/acknowledgement
+
+Submit online: https://cic.gov.in
+Fee: None for second appeal
+
+Yours faithfully,
+[Your Name]
+Date: ${today}`;
 
   return (
     <motion.div
@@ -210,6 +342,65 @@ export default function ProcedureDetail({
                   <span>Size: {Math.round(docResult.pdf_size_bytes / 1024)}KB</span>
                 </div>
 
+                {/* ── Mark as Submitted flow ── */}
+                <div className="mt-4">
+                  {!submitted && !showSubmitForm && (
+                    <button
+                      onClick={() => setShowSubmitForm(true)}
+                      className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-navy/30 px-3 py-1.5 text-sm font-medium text-navy hover:bg-navy/5 transition-colors"
+                    >
+                      ✓ Mark as Submitted
+                    </button>
+                  )}
+
+                  {showSubmitForm && !submitted && (
+                    <div className="rounded-[var(--radius-md)] border border-paper-dark bg-paper p-4 space-y-3">
+                      <label className="block text-sm font-medium text-navy">
+                        Receipt reference number (optional):
+                      </label>
+                      <input
+                        type="text"
+                        value={receiptRef}
+                        onChange={(e) => setReceiptRef(e.target.value)}
+                        placeholder="e.g. TN/2024/123456"
+                        className="w-full rounded-[var(--radius-sm)] border border-paper-dark bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-navy/40 focus:outline-none focus:ring-1 focus:ring-navy/20"
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          onClick={() => {
+                            markSubmitted(procedureId, 21, receiptRef);
+                            setSubmitted(true);
+                            setShowSubmitForm(false);
+                          }}
+                        >
+                          Confirm
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowSubmitForm(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {submitted && (
+                    <div className="rounded-[var(--radius-md)] border border-saffron/30 bg-saffron-light/30 p-4">
+                      <p className="flex items-center gap-2 text-sm font-semibold text-saffron-dark">
+                        <Clock size={14} />
+                        Submitted! Deadline: {deadlineDate}
+                      </p>
+                      <p className="mt-1 text-xs text-text-secondary">
+                        We&apos;ll flag this case if there&apos;s no response by then.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="mt-4">
                   <h5 className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-navy">
                     <CheckSquare size={14} className="text-saffron" />
@@ -236,9 +427,24 @@ export default function ProcedureDetail({
                       </li>
                     ))}
                   </ul>
+
+                  <button
+                    onClick={() => setShowScanner(true)}
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border border-saffron/40 bg-saffron-light/30 px-3 py-1.5 text-sm font-medium text-saffron-dark hover:bg-saffron-light/60 transition-colors"
+                  >
+                    Pre-check Documents →
+                  </button>
                 </div>
               </CardContent>
             </Card>
+
+            {showScanner && (
+              <RejectionScanner
+                procedureId={procedureId}
+                procedureName={procName}
+                onClose={() => setShowScanner(false)}
+              />
+            )}
           </motion.div>
         )}
 
@@ -258,6 +464,24 @@ export default function ProcedureDetail({
                   {navResult.office?.name}
                 </h4>
                 <p className="mt-1 text-sm text-text-secondary">{navResult.office?.address}</p>
+                {navResult.office?.address && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((navResult.office.address || '') + ', Tamil Nadu')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+                    >
+                      🗺️ Google Maps
+                    </a>
+                    <a
+                      href={`maps:?q=${encodeURIComponent(navResult.office.address || '')}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                    >
+                      🍎 Apple Maps
+                    </a>
+                  </div>
+                )}
                 <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                   <div className="rounded-[var(--radius-sm)] bg-paper p-2">
                     <span className="text-xs text-text-muted">Counter</span>
@@ -289,6 +513,26 @@ export default function ProcedureDetail({
               </CardContent>
             </Card>
 
+            <div className="rounded-[var(--radius-md)] border border-paper-dark bg-surface">
+              <button
+                className="flex w-full items-center justify-between p-3 text-sm font-semibold text-navy"
+                onClick={() => setTipsOpen(!tipsOpen)}
+              >
+                <span>🧠 Office Intelligence</span>
+                <ChevronDown size={14} className={`transition-transform ${tipsOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {tipsOpen && (
+                <ul className="border-t border-paper-dark p-3 space-y-2">
+                  {getOfficeTips(navResult.office?.name).map((tip, i) => (
+                    <li key={i} className="flex items-start gap-2 text-sm text-text-secondary">
+                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-saffron" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
             {navResult.if_they_ask_X_say_Y?.length > 0 && (
               <Card className="border-saffron/30 bg-saffron-light/30">
                 <CardContent>
@@ -311,6 +555,8 @@ export default function ProcedureDetail({
                 </CardContent>
               </Card>
             )}
+
+            <CostComparison procedureId={procedureId} govtFeeInr={docResult?.fee_inr ?? 0} />
           </motion.div>
         )}
 
@@ -334,7 +580,7 @@ export default function ProcedureDetail({
                   pre-drafted RTI application to legally compel a response.
                 </p>
 
-                <div className="mt-4">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <Button
                     variant="danger"
                     size="sm"
@@ -342,6 +588,17 @@ export default function ProcedureDetail({
                   >
                     <Download size={14} /> Download RTI PDF
                   </Button>
+
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `I need help posting an RTI letter for ${procName}.\n\nOffice: Government office\nLegal basis: ${escResult?.letter?.legal_citations?.[0] || "RTI Act 2005"}\n\nI've generated the letter via PaperTrail AI. Can you help post it?\nhttps://papertrail.ai`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[#25D366] px-3 py-2 text-sm font-medium text-white hover:bg-[#1ea855] transition-colors"
+                  >
+                    <MessageCircle size={13} /> Ask family to post via WhatsApp
+                  </a>
                 </div>
 
                 <div className="mt-4 space-y-1.5 text-sm text-danger/80">
@@ -377,6 +634,71 @@ export default function ProcedureDetail({
                 </ul>
               </CardContent>
             </Card>
+
+            {/* ── First Appeal Card ── */}
+            <Card className="border-orange-200/60">
+              <CardContent>
+                <button
+                  onClick={() => setShowFirstAppeal((v) => !v)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <h5 className="text-sm font-semibold text-orange-700">
+                    📝 First Appeal — if RTI unanswered after 30 days
+                  </h5>
+                  <span className="text-xs text-text-muted">{showFirstAppeal ? "▲" : "▼"}</span>
+                </button>
+
+                {showFirstAppeal && (
+                  <div className="mt-3 space-y-3">
+                    <pre className="whitespace-pre-wrap rounded-[var(--radius-sm)] bg-paper p-3 text-xs text-text-secondary font-mono leading-relaxed">
+                      {firstAppealText}
+                    </pre>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadText(firstAppealText, `${procedureId}_first_appeal.txt`)}
+                    >
+                      <Download size={13} /> Download First Appeal
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* ── Second Appeal Card ── */}
+            <Card className="border-red-200/60">
+              <CardContent>
+                <button
+                  onClick={() => setShowSecondAppeal((v) => !v)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <h5 className="text-sm font-semibold text-red-700">
+                    ⚠️ Second Appeal — to Central Information Commission
+                  </h5>
+                  <span className="text-xs text-text-muted">{showSecondAppeal ? "▲" : "▼"}</span>
+                </button>
+
+                {showSecondAppeal && (
+                  <div className="mt-3 space-y-3">
+                    <p className="text-xs font-medium text-text-secondary">
+                      If First Appeal is also ignored after 45 days:
+                    </p>
+                    <pre className="whitespace-pre-wrap rounded-[var(--radius-sm)] bg-paper p-3 text-xs text-text-secondary font-mono leading-relaxed">
+                      {secondAppealText}
+                    </pre>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => downloadText(secondAppealText, `${procedureId}_second_appeal.txt`)}
+                    >
+                      <Download size={13} /> Download Second Appeal
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <LegalPrecedents procedureId={procedureId} />
           </motion.div>
         )}
         {/* ── Empty States ── */}

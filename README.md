@@ -1,4 +1,4 @@
-# PaperTrail AI
+# NyayaMitra — AI Bureaucracy Navigator
 
 > **Agentic AI that navigates Indian government bureaucracy — for the 700 million citizens who can't afford a lawyer.**
 
@@ -6,123 +6,179 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110-009688.svg)](https://fastapi.tiangolo.com/)
-[![Ollama](https://img.shields.io/badge/LLM-Ollama-FF6F00.svg)](https://ollama.ai/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg)](https://www.typescriptlang.org/)
+[![Ollama](https://img.shields.io/badge/LLM-Ollama%20%28optional%29-FF6F00.svg)](https://ollama.ai/)
 [![SQLite](https://img.shields.io/badge/DB-SQLite-003B57.svg)](https://www.sqlite.org/)
+[![Zero LLM Required](https://img.shields.io/badge/LLM-optional%20%E2%80%94%20works%20without%20it-green.svg)](#)
 
 ---
 
 ## The Problem
 
-When someone dies in India, their family must navigate **11+ government procedures** across 6 departments — death certificate, legal heir certificate, pension transfer, property mutation, bank KYC, and more. Each requires different forms, different offices, and different documents. Most families spend **3–6 months** and pay **₹10,000–₹25,000** to middlemen just to figure out where to start.
+When someone dies in India, their family must navigate **11+ government procedures** across 6 departments — death certificate, legal heir certificate, pension transfer, property mutation, bank KYC updates, and more. Each procedure requires different forms, different offices, different documents, and different legal citations. Most families spend **3–6 months** and pay **₹10,000–₹25,000 to middlemen** just to figure out where to start.
+
+They don't need a lawyer. They need a map.
 
 ---
 
 ## The Solution
 
-PaperTrail AI is a **6-agent AI system** that understands your situation in Tamil, Hindi, or English, then automatically identifies every government procedure you need, generates pre-filled PDF forms, tells you exactly which office to visit and what to say, and drafts RTI escalation letters if any official delays beyond the legal deadline. It works offline, costs nothing, and runs entirely on your machine.
+NyayaMitra is a **6-agent AI system** that:
+- Understands your situation in **Tamil, Hindi, or English** — including voice input
+- Automatically identifies **every government procedure** you need, in order, with dependencies
+- Generates **pre-filled PDF forms** ready to print, sign, and submit
+- Tells you **exactly which office to visit**, what counter, what hours, what to say
+- Drafts **RTI escalation letters** citing exact legal provisions if any office delays beyond the statutory deadline
+- Tracks **response deadlines** and alerts you when to escalate
+- Works **completely offline** once set up — no API keys, no cloud, no cost
+
+**The system runs in full deterministic mode with zero LLM calls.** Ollama (llama3.2) is an optional polish layer. Everything works without it.
+
+---
+
+## Demo
+
+| Chat → Plan | Procedure Detail | Offline Kit |
+|---|---|---|
+| *Type or speak your situation — get a full procedure plan with timelines and fees* | *3-tab detail: Generate Form · Navigate · Escalate with RTI chain* | *Print-ready HTML kit — works with no internet at government office* |
+
+> 🎬 **[Watch the 90-second demo →](#)** *(link after recording)*
 
 ---
 
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────┐
-│                   Browser (390px → 1920px)            │
-│  Next.js 14 App Router · Framer Motion · Zustand     │
-│  D3 force graph · Voice input · Command palette       │
-│  10 routes · dark mode · Tamil/Hindi/English i18n    │
-└────────────────────────┬─────────────────────────────┘
-                         │  Server-Sent Events (SSE)
-┌────────────────────────▼─────────────────────────────┐
-│                   FastAPI Backend                     │
-│                                                       │
-│  ┌──────────┐   ┌──────────┐   ┌───────────────┐    │
-│  │  Intake  │ → │ Planner  │ → │   Document    │    │
-│  │  Agent   │   │  Agent   │   │    Agent      │    │
-│  │ <1ms det.│   │ KG query │   │  ReportLab PDF│    │
-│  └──────────┘   └──────────┘   └───────────────┘    │
-│                      │                                │
-│  ┌──────────┐   ┌────▼─────┐   ┌───────────────┐    │
-│  │Escalation│   │Navigation│   │  Orchestrator │    │
-│  │  Agent   │   │  Agent   │   │  (state mach) │    │
-│  │RTI drafts│   │ Offices  │   │  asyncio SSE  │    │
-│  └──────────┘   └──────────┘   └───────────────┘    │
-│                                                       │
-│  Knowledge Graph: NetworkX · 20 TN procedures        │
-│  Persistence: SQLite (SQLModel) · PT-YYYY-XXXX IDs   │
-│  LLM: Ollama llama3.2 (optional) · det. fallback     │
-└──────────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                   Browser (390px → 1920px)                    │
+│  Next.js 14 App Router · Framer Motion · Zustand · D3.js     │
+│  Voice input · Command palette · Dark mode · i18n (3 langs)  │
+│  10 routes · 40+ components · localStorage persistence       │
+└────────────────────────────┬─────────────────────────────────┘
+                             │  SSE streaming / REST
+┌────────────────────────────▼─────────────────────────────────┐
+│                       FastAPI Backend                         │
+│                                                               │
+│   ┌──────────┐    ┌──────────┐    ┌──────────────────────┐  │
+│   │  Intake  │ →  │ Planner  │ →  │  Document Agent      │  │
+│   │  Agent   │    │  Agent   │    │  ReportLab PDF gen   │  │
+│   │ <1ms det.│    │  KG topo │    │  pre-filled forms    │  │
+│   └──────────┘    └────┬─────┘    └──────────────────────┘  │
+│                        │                                      │
+│   ┌──────────┐    ┌────▼──────┐   ┌──────────────────────┐  │
+│   │Escalation│    │Navigation │   │    Orchestrator       │  │
+│   │  Agent   │    │  Agent    │   │  asyncio state mach  │  │
+│   │RTI drafts│    │Office KG  │   │  SSE · SSR fallback  │  │
+│   └──────────┘    └───────────┘   └──────────────────────┘  │
+│                                                               │
+│   Knowledge Graph: NetworkX · 20 TN procedures · typed edges │
+│   Persistence: SQLite (SQLModel) · PT-YYYY-XXXX human IDs    │
+│   LLM: Ollama llama3.2 optional · deterministic fallback <1ms│
+└──────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Features
 
+### Core AI Pipeline
 | Feature | Description |
 |---|---|
-| 🤖 **6 AI Agents** | Intake → Planner → Document → Navigation → Escalation → Orchestrator |
-| 🗣️ **Voice Input** | Speak Tamil, Hindi, or English — Web Speech API with locale detection |
-| 📸 **Document Scanner** | Point camera at Aadhaar/documents → auto-extracted via vision model |
-| 📊 **D3 Dependency Graph** | Interactive force-directed dependency graph — drag, hover, click |
-| ⌨️ **Command Palette** | Ctrl+K — power search across all pages, procedures, and actions |
-| 💡 **Step Guide** | Floating bar that guides first-time users through each phase |
-| 📄 **Pre-filled PDFs** | Forms auto-filled with your case data — print and sign |
-| 📦 **Document Kit** | All forms + checklist + office schedule exported as one PDF |
-| ⚡ **RTI Escalation** | Auto-drafted Right to Information application with exact law citations |
-| ⏰ **Deadline Tracker** | Statutory deadlines with overdue alerts |
+| 🤖 **6-Agent Pipeline** | Intake → Planner → Document → Navigation → Escalation → Orchestrator |
+| 🧠 **Deterministic-First** | Every agent works without LLM — KG traversal + topological sort in <1ms |
+| 🌐 **3-Language Support** | Tamil, Hindi, English — voice and text — script auto-detection |
+| 📊 **Knowledge Graph** | NetworkX graph of 20 Tamil Nadu procedures with typed dependency edges |
+| ⚡ **SSE Streaming** | First byte in <1ms (ack event) — browser sees progress before LLM finishes |
+| 🔄 **Graceful Fallback** | LLM timeout (8s) → silent fallback to deterministic — zero crashes |
+
+### Document & Forms
+| Feature | Description |
+|---|---|
+| 📄 **Pre-filled PDFs** | ReportLab forms auto-filled with case data — print and sign |
+| 📦 **ZIP Export** | All forms + plan + README in one downloadable kit |
+| 🖨️ **Offline HTML Kit** | Self-contained print-ready file — office addresses, checklists, receipt stubs, emergency numbers |
+| 📸 **Document Scanner** | Camera → Aadhaar/document OCR via vision model |
+| 🔍 **Rejection Pre-Scanner** | Procedure-specific readiness checklist before you go — live score % |
+
+### Navigation & Escalation
+| Feature | Description |
+|---|---|
+| 🗺️ **Office Navigation** | Address, counter, hours, avg wait, best time — Google Maps + Apple Maps links |
+| 🧠 **Office Intelligence** | Crowd-sourced tips per office type (corporation, treasury, tahsildar) |
+| ⚖️ **RTI Escalation** | Auto-drafted RTI application with exact legal citations |
+| 📝 **First Appeal** | Auto-dated First Appeal letter template (30-day trigger) |
+| 🏛️ **Second Appeal** | CIC Second Appeal template + online submission link (45-day trigger) |
+| 📜 **Legal Precedents** | RTI Act sections and case citations with copy-to-clipboard |
+
+### Deadline & Tracking
+| Feature | Description |
+|---|---|
+| ⏰ **Deadline Countdown** | Color-coded pills: green → yellow → orange → pulsing red when overdue |
+| ✅ **Mark as Submitted** | Record submission with optional receipt reference — starts 21-day clock |
+| 💾 **Session Persistence** | Zustand + localStorage — case survives refresh, back navigation, tab close |
+
+### Intelligence
+| Feature | Description |
+|---|---|
+| 🎯 **Success Probability** | Per-procedure score (55–95%) with risk bullets and boost bullets |
+| 💰 **Cost Comparison** | PaperTrail AI (govt fees only) vs middleman agent — savings displayed |
+
+### UX & Interface
+| Feature | Description |
+|---|---|
+| 🗣️ **Voice Input** | Web Speech API — speak in Tamil/Hindi/English |
+| ⌨️ **Command Palette** | Ctrl+K — instant search across pages, procedures, actions |
 | 🌙 **Dark Mode** | Light / dark / system — no flash on load |
-| 🗂️ **Multi-Case** | Save and resume multiple cases simultaneously |
+| 📱 **Mobile-First** | Fully responsive 390px → 1920px |
+| 💡 **Step Guide** | Floating guide bar for first-time users |
+| 🔊 **Sound Effects** | Web Audio API feedback — mutable |
+| 🟢 **System Status** | Live health indicator — green/yellow/red |
+| 📡 **Agent Trace** | Expandable reasoning trace showing which agent did what |
+
+### Data & Sharing
+| Feature | Description |
+|---|---|
+| 🗂️ **Multi-Case** | Save and resume multiple simultaneous cases |
 | 📈 **Stats Dashboard** | Live metrics: case counts, procedure distribution, language breakdown |
-| 🏆 **Success Stories** | Anonymised real cases with before/after time and cost metrics |
-| 🔊 **Sound Effects** | Web Audio API whoosh/ding feedback — mutable |
-| 🟢 **System Status** | Live health indicator — green/yellow/red based on backend mode |
-
-### Screenshots
-
-| Chat Interface | Procedure Timeline | Mobile (390px) |
-|---|---|---|
-| _(screenshot)_ | _(screenshot)_ | _(screenshot)_ |
-
----
-
-## Tech Stack
-
-**Frontend**
-- Next.js 14 (App Router) + TypeScript — SSR, lazy imports, `loading.tsx` skeletons
-- Tailwind CSS + CVA — custom `xs/sm/md` breakpoints, CSS custom properties design tokens
-- Framer Motion — page transitions, slide animations, `AnimatePresence`
-- D3.js — force-directed procedure dependency graph (lazy-loaded)
-- Zustand — global state (messages, plan, caseId, language, traces)
-
-**Backend**
-- FastAPI + Python 3.11 — async, SSE streaming via `sse-starlette`
-- SQLModel + SQLite — case persistence with `PT-YYYY-XXXX` human-readable IDs
-- NetworkX — knowledge graph traversal + topological sort
-- ReportLab — PDF generation (forms, kits, chat exports)
-- Ollama (`llama3.2:latest`) — optional LLM polish; system fully functional without it
+| 🔗 **Share Case** | Copy link or WhatsApp share to track progress with family |
+| 👁️ **Shared Case Page** | Public read-only view at `/shared/[caseId]/[token]` |
+| 🏆 **Success Stories** | Anonymised real cases with before/after time and cost |
+| 📊 **D3 Dependency Graph** | Interactive force-directed procedure graph — drag, hover, zoom |
+| 🗣️ **WhatsApp RTI Share** | Pre-formatted message to ask family to post RTI letter |
 
 ---
 
 ## Quick Start
 
+### Option A — Docker (recommended, 3 commands)
+
 ```bash
-# 1. Clone and enter project
-git clone https://github.com/haarez/papertrail-ai && cd papertrail-ai
-
-# 2. Install and start backend  (Python 3.11+ required)
-cd backend && pip install -e . && python -m uvicorn main:app --reload --port 8000
-
-# 3. Pull the local LLM (optional — skip for instant deterministic mode)
-ollama pull llama3.2
-
-# 4. Install and start frontend  (Node 20+ required)
-cd ../frontend && npm install && npm run dev
-
-# 5. Open http://localhost:3000 and type your situation
+git clone https://github.com/haarez/nyayamitra && cd nyayamitra
+docker-compose up --build
+# Open http://localhost:3000
 ```
 
-> **No Ollama?** The system runs in `deterministic_only` mode by default — responses in under 5ms with no LLM. Set `LLM_MODE=hybrid` in `.env` to enable Ollama polish.
+### Option B — Manual (5 commands)
+
+```bash
+# 1. Clone
+git clone https://github.com/haarez/nyayamitra && cd nyayamitra
+
+# 2. Backend (Python 3.11+)
+cd backend && pip install -e . && uvicorn main:app --reload --port 8000
+
+# 3. Frontend (Node 20+)
+cd ../frontend && npm install && npm run dev
+
+# 4. Open http://localhost:3000
+```
+
+**No Ollama required.** The system runs in `deterministic_only` mode by default — full functionality, responses under 5ms. To enable LLM polish:
+
+```bash
+ollama pull llama3.2        # install Ollama first: https://ollama.ai
+# set LLM_MODE=hybrid in .env
+```
 
 ---
 
@@ -130,62 +186,118 @@ cd ../frontend && npm install && npm run dev
 
 | Variable | Default | Description |
 |---|---|---|
-| `LLM_MODE` | `deterministic_only` | `hybrid` uses Ollama; `deterministic_only` skips LLM (instant, reliable) |
-| `DEMO_MODE` | `false` | `true` serves pre-cached demo responses (stage-reliable for judges) |
+| `LLM_MODE` | `deterministic_only` | `hybrid` uses Ollama; `deterministic_only` skips LLM entirely |
+| `DEMO_MODE` | `false` | `true` serves pre-cached demo responses (for hackathon demos) |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
 | `DATABASE_URL` | `sqlite:///./data/nyayamitra.db` | SQLite path |
 | `FRONTEND_URL` | `http://localhost:3000` | CORS allowed origin |
-| `LLM_TIMEOUT_SECONDS` | `8` | Per-request LLM timeout before deterministic fallback |
+| `LLM_TIMEOUT_SECONDS` | `8` | Timeout before falling back to deterministic |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend URL for frontend |
 
 ---
 
-## Design Decisions
+## Deployment
 
-PaperTrail AI is built **deterministic-first**: every agent works without any LLM, using keyword extraction, word-boundary regex, and a NetworkX knowledge graph. The KG encodes Tamil Nadu's 20 most common procedures as nodes with typed dependency edges — `build_procedure_plan()` runs a topological sort in under 1ms. Ollama is an optional polish layer that improves natural-language responses when available, but the system degrades gracefully to keyword-only mode the moment the LLM times out (8s hard cap, 1 retry). SSE streaming means the browser sees the first byte in under 1ms — a single `ack` event fires before any processing begins. Language selection is a sacred UI preference: the `_UI_LANG_MAP` in `routes_chat.py` sets the language on the `CaseFile` before any agent runs, and agents can only *upgrade* to a detected script (Tamil Unicode seen → Tamil confirmed), never downgrade. Human-readable case IDs (`PT-2026-K7MR`) replace UUIDs so users can write them on paper.
+### Frontend → Vercel
+
+```bash
+cd frontend
+npx vercel --prod
+# Set NEXT_PUBLIC_API_URL=https://your-railway-backend.up.railway.app
+```
+
+### Backend → Railway
+
+```bash
+# In Railway dashboard:
+# 1. New project → Deploy from GitHub → select /backend
+# 2. Set env vars: LLM_MODE=deterministic_only, DEMO_MODE=true
+# 3. Set start command: uvicorn main:app --host 0.0.0.0 --port $PORT
+```
+
+> **Note on LLM in production:** Ollama cannot run on Railway's free tier (no GPU). Set `LLM_MODE=deterministic_only` for the public deployment. All features remain fully functional — the deterministic engine handles everything.
 
 ---
 
-## Roadmap
+## Design Philosophy
 
-- [ ] **Karnataka + Maharashtra KG** — expand beyond Tamil Nadu to cover 60% of India's population
-- [ ] **Telugu and Kannada language support** — Noto fonts already in layout, need i18n strings
-- [ ] **WhatsApp bot** — Twilio integration so feature-phone users get the same guidance via SMS
-- [ ] **Offline PWA** — service worker + IndexedDB so the app works with zero network
-- [ ] **Community procedure database** — open contribution model for procedure accuracy across states
+**Deterministic-first, LLM-optional.** Every agent works without any language model using keyword extraction, word-boundary regex, and a NetworkX knowledge graph. The KG encodes Tamil Nadu's 20 most common procedures as typed nodes with dependency edges — `build_procedure_plan()` runs a topological sort in under 1ms.
+
+**SSE over polling.** The browser receives the first event in <1ms (an `ack` before any processing starts), then receives streamed updates as each agent completes. No polling loops, no "loading for 30 seconds" UX.
+
+**Human-readable IDs.** Case IDs are `PT-2026-K7MR`, not UUIDs. Citizens should be able to write their case ID on a piece of paper.
+
+**Language is sacred.** The user's selected language follows them across every agent, every response, every PDF. Agents can upgrade (Tamil Unicode detected → confirmed Tamil) but never downgrade.
+
+**Offline-capable.** The Offline HTML Kit generates a self-contained file that works with zero network. Citizens go to government offices in areas with poor connectivity — the app accounts for this.
 
 ---
 
 ## Project Structure
 
 ```
-papertrail-ai/
+nyayamitra/
 ├── backend/
+│   ├── main.py                    # FastAPI entrypoint + CORS
 │   └── nyayamitra/
-│       ├── agents/       # 6 agents: intake, orchestrator, procedure, document, navigation, escalation
-│       ├── api/          # FastAPI routes: chat SSE, cases, export, feedback, documents, OCR
-│       ├── db/           # SQLModel: CaseRecord, FeedbackRecord
-│       ├── kg/           # NetworkX KG + procedures.json (20 Tamil Nadu procedures)
-│       ├── llm/          # LLM abstraction: OllamaClient + deterministic fallback
-│       ├── schemas/      # Pydantic: CaseFile, ProcedurePlan, CaseContext
-│       └── tools/        # Kit generator, vision/OCR, KG query tools
+│       ├── agents/                # 6 agents: intake, orchestrator, procedure,
+│       │                          #   document, navigation, escalation
+│       ├── api/                   # Routes: chat SSE, cases, export, documents,
+│       │                          #   feedback, OCR, procedures, stats
+│       ├── db/                    # SQLModel models: CaseRecord, FeedbackRecord
+│       ├── kg/                    # NetworkX KG + procedures.json (20 TN procs)
+│       ├── llm/                   # Ollama client + deterministic fallback
+│       ├── schemas/               # Pydantic: CaseFile, ProcedurePlan, etc.
+│       └── tools/                 # Kit generator, OCR, KG query tools
 ├── frontend/
-│   ├── app/             # 10 Next.js routes + loading.tsx skeletons
-│   ├── components/      # 40+ components: chat, timeline, detail, modals, ui
-│   └── lib/             # store, api, sounds, i18n, guideSteps, suggestions, hooks
-├── .env                 # All config (LLM_MODE=deterministic_only by default)
-├── docker-compose.yml
+│   ├── app/                       # 10 Next.js routes + loading.tsx skeletons
+│   │   ├── chat/                  # Main chat interface
+│   │   ├── case/[id]/             # Case dashboard + procedure detail
+│   │   ├── cases/                 # Multi-case list
+│   │   ├── procedures/            # Knowledge graph explorer
+│   │   ├── stories/               # Success stories
+│   │   ├── stats/                 # Performance dashboard
+│   │   └── shared/[caseId]/[token]/ # Public read-only case view
+│   ├── components/                # 40+ components
+│   │   ├── ProcedureDetail.tsx    # 3-tab detail panel (all 35 features here)
+│   │   ├── ProcedureTimeline.tsx  # D3 + success scores + dependency graph
+│   │   ├── RejectionScanner.tsx   # Pre-submission readiness modal
+│   │   ├── LegalPrecedents.tsx    # RTI Act citations
+│   │   ├── CostComparison.tsx     # Agent vs PaperTrail cost card
+│   │   ├── OfflineKitButton.tsx   # Offline HTML kit generator
+│   │   ├── DeadlineCountdown.tsx  # Live deadline pill bar
+│   │   ├── ShareCaseButton.tsx    # Copy link + WhatsApp share
+│   │   └── ui/                    # Design system: Button, Card, Badge, etc.
+│   └── lib/
+│       ├── store.ts               # Zustand (persist → localStorage)
+│       ├── api.ts                 # Typed API client
+│       ├── successScore.ts        # Success probability engine
+│       └── i18n/                  # Tamil/Hindi/English strings
+├── docker-compose.yml             # Full stack: Ollama + backend + frontend
+├── .env.example                   # All environment variables documented
 └── README.md
 ```
+
+---
+
+## Roadmap
+
+- [ ] **Karnataka + Maharashtra KG** — extend beyond Tamil Nadu (60% of India)
+- [ ] **Telugu and Kannada** — Noto fonts ready, need i18n strings
+- [ ] **WhatsApp bot** — Twilio SMS for feature-phone users
+- [ ] **Offline PWA** — service worker + IndexedDB for zero-network use
+- [ ] **Community accuracy** — open contribution model for procedure data
 
 ---
 
 ## Author
 
 **Mohammed Haarez**
-2nd-year B.Tech · Chennai Institute of Technology · Built solo for hackathon 2026
+2nd-year B.Tech · Chennai Institute of Technology · Built solo, 2026
 
-[GitHub](https://github.com/haarez) · [LinkedIn](https://linkedin.com/in/haarez)
+[![GitHub](https://img.shields.io/badge/GitHub-haarez-181717?logo=github)](https://github.com/haarez)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-haarez-0A66C2?logo=linkedin)](https://linkedin.com/in/haarez)
 
 ---
 
-*PaperTrail AI — Clearing the path through Indian bureaucracy. Free forever. Government fees only.*
+*NyayaMitra — Clearing the path through Indian bureaucracy. Free forever. Government fees only.*

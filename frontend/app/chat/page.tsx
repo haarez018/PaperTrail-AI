@@ -21,6 +21,7 @@ const CommandPalette = dynamic(
 );
 import { SmartSuggestions } from "@/components/SmartSuggestions";
 import { StepGuide } from "@/components/StepGuide";
+import { DeadlineCountdown } from "@/components/DeadlineCountdown";
 import { getSuggestions, Suggestion } from "@/lib/suggestions";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
@@ -361,6 +362,7 @@ export default function ChatPage() {
           totalProcedures={plan?.procedures.length ?? 0}
           viewedProcedures={viewedProcedures}
         />
+        <DeadlineCountdown />
         <ChatInput
           value={input}
           onChange={setInput}

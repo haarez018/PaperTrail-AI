@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+import io
 import json
 import logging
+import zipfile
+from datetime import datetime
 from functools import lru_cache
 from typing import Optional
 
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from nyayamitra.db.models import CaseRecord, FeedbackRecord
@@ -52,6 +56,42 @@ async def export_kit(case_id: str):
             status_code=500,
             detail=f"Kit generation failed: {exc}",
         ) from exc
+
+
+@router.get("/api/cases/{case_id}/export")
+async def export_case_kit(case_id: str):
+    """Export complete case kit as a downloadable zip."""
+    with get_session() as session:
+        record = session.get(CaseRecord, case_id)
+        if not record:
+            raise HTTPException(status_code=404, detail="Case not found")
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("case_summary.json", record.case_data)
+        if record.plan_data:
+            zf.writestr("procedure_plan.json", record.plan_data)
+        zf.writestr(
+            "README.txt",
+            f"""PaperTrail AI — Case Export Kit
+Case ID: {case_id}
+Generated: {datetime.now().strftime('%d %B %Y, %H:%M')}
+
+Files in this kit:
+- case_summary.json  : Your personal case details
+- procedure_plan.json: All procedures, timelines, and fees
+- README.txt         : This file
+
+Continue your case at: https://papertrail.ai/case/{case_id}
+PaperTrail AI is free. Government fees only.
+""",
+        )
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/zip",
+        headers={"Content-Disposition": f"attachment; filename=PaperTrail-{case_id}.zip"},
+    )
 
 
 class ChatExportRequest(BaseModel):
