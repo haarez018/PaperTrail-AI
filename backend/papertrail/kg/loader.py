@@ -1,4 +1,4 @@
-"""Load procedures.json into a NetworkX DiGraph for querying."""
+﻿"""Load procedures.json into a NetworkX DiGraph for querying."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from typing import Any
 
 import networkx as nx
 
-from nyayamitra.schemas.procedure import Procedure
+from papertrail.schemas.procedure import Procedure
 
 KG_DIR = Path(__file__).parent
 PROCEDURES_PATH = KG_DIR / "procedures.json"

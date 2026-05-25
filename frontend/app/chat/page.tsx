@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
@@ -176,7 +176,7 @@ export default function ChatPage() {
               `Topological sort by dependencies`,
               `Estimated total: ~${p.total_estimated_days} days`,
               `Total fees: ₹${p.total_estimated_cost_inr}`,
-              `Without PaperTrail AI: ~${p.without_nyayamitra_baseline_days} days, ₹${p.without_nyayamitra_baseline_cost_inr}`,
+              `Without PaperTrail AI: ~${p.without_papertrail_baseline_days} days, ₹${p.without_papertrail_baseline_cost_inr}`,
               ...p.procedures.slice(0, 3).map(
                 (proc) => `→ ${proc.procedure_id.replace(/^tn_/, "").replace(/_/g, " ")}`
               ),

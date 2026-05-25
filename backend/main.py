@@ -1,4 +1,4 @@
-import asyncio
+﻿import asyncio
 import logging
 import time
 from contextlib import asynccontextmanager
@@ -6,13 +6,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from nyayamitra.api.routes_case import router as case_router
-from nyayamitra.api.routes_chat import router as chat_router
-from nyayamitra.api.routes_documents import router as documents_router
-from nyayamitra.api.routes_export import router as export_router
-from nyayamitra.api.routes_ocr import router as ocr_router
-from nyayamitra.config import FRONTEND_URL, LLM_MODE
-from nyayamitra.db.session import init_db
+from papertrail.api.routes_case import router as case_router
+from papertrail.api.routes_chat import router as chat_router
+from papertrail.api.routes_documents import router as documents_router
+from papertrail.api.routes_export import router as export_router
+from papertrail.api.routes_ocr import router as ocr_router
+from papertrail.config import FRONTEND_URL, LLM_MODE
+from papertrail.db.session import init_db
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ async def _warmup_llm() -> None:
         logger.info("[startup] LLM mode: deterministic_only — warmup skipped")
         return
     try:
-        from nyayamitra.llm.client import LLMClient
+        from papertrail.llm.client import LLMClient
         client = LLMClient.from_config()
         t0 = time.perf_counter()
         ok = await asyncio.wait_for(client.health_check(), timeout=5.0)

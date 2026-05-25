@@ -1,4 +1,4 @@
-"""Demo mode cached responses for stage-reliable demos.
+﻿"""Demo mode cached responses for stage-reliable demos.
 
 When DEMO_MODE=true, the system serves pre-recorded responses for known
 demo prompts. This ensures the demo never fails due to API issues.
@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import re
 
-from nyayamitra.agents.procedure_agent import build_procedure_plan
-from nyayamitra.schemas.case_file import (
+from papertrail.agents.procedure_agent import build_procedure_plan
+from papertrail.schemas.case_file import (
     CaseContext,
     CaseFile,
     CaseStatus,
@@ -78,7 +78,7 @@ def get_demo_response(demo_id: str) -> dict | None:
 
 
 def _build_death_response(plan) -> str:
-    from nyayamitra.kg.loader import get_procedure
+    from papertrail.kg.loader import get_procedure
 
     lines = [
         "I'm so sorry for your loss. Let me help you handle everything.",
@@ -86,7 +86,7 @@ def _build_death_response(plan) -> str:
         f"I've identified **{len(plan.procedures)} procedures** your family needs to complete.",
         "",
         f"With PaperTrail AI: **~{plan.total_estimated_days} days, Rs.{plan.total_estimated_cost_inr} in govt. fees**",
-        f"Without help: ~{plan.without_nyayamitra_baseline_days} days, Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent fees",
+        f"Without help: ~{plan.without_papertrail_baseline_days} days, Rs.{plan.without_papertrail_baseline_cost_inr} in agent fees",
         "",
         "Here's your step-by-step plan:",
         "",

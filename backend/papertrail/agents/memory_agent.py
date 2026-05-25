@@ -1,4 +1,4 @@
-"""Memory Agent — logs cases and enables pattern detection.
+﻿"""Memory Agent — logs cases and enables pattern detection.
 
 Uses ChromaDB for vector storage of anonymized case summaries.
 LLM-enhanced summarization produces better embeddings for similarity
@@ -12,8 +12,8 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from nyayamitra.schemas.case_file import CaseFile
-from nyayamitra.schemas.plan import ProcedurePlan
+from papertrail.schemas.case_file import CaseFile
+from papertrail.schemas.plan import ProcedurePlan
 
 logger = logging.getLogger(__name__)
 
@@ -126,7 +126,7 @@ async def log_case_async(
     if not _available or not _collection:
         return None
 
-    from nyayamitra.config import LLM_MODE
+    from papertrail.config import LLM_MODE
 
     doc_id = hashlib.sha256(case_file.case_id.encode()).hexdigest()[:16]
     metadata = _build_metadata(case_file, plan)
@@ -135,7 +135,7 @@ async def log_case_async(
     text_summary = None
     if LLM_MODE == "hybrid" and llm_client is not None:
         try:
-            from nyayamitra.llm.prompts import load_prompt
+            from papertrail.llm.prompts import load_prompt
 
             prompt_template = load_prompt("memory_summarize.txt")
             # Build anonymized case JSON (no names/addresses)

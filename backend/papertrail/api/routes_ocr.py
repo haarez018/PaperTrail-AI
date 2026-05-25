@@ -1,4 +1,4 @@
-"""OCR / document scanning endpoint."""
+﻿"""OCR / document scanning endpoint."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from nyayamitra.tools.vision_tools import extract_document_fields
+from papertrail.tools.vision_tools import extract_document_fields
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

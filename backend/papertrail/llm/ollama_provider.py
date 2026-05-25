@@ -1,4 +1,4 @@
-"""Ollama LLM provider — calls a local Ollama server via HTTP."""
+﻿"""Ollama LLM provider — calls a local Ollama server via HTTP."""
 
 from __future__ import annotations
 
@@ -8,8 +8,8 @@ import time
 
 import httpx
 
-from nyayamitra.llm.base import LLMProvider, LLMResponse
-from nyayamitra.llm.exceptions import LLMTimeoutError, LLMUnavailableError
+from papertrail.llm.base import LLMProvider, LLMResponse
+from papertrail.llm.exceptions import LLMTimeoutError, LLMUnavailableError
 
 logger = logging.getLogger(__name__)
 

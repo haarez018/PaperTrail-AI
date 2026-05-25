@@ -1,4 +1,4 @@
-"""Escalation Agent — generates RTI applications, grievance letters, and Lokayukta complaints.
+﻿"""Escalation Agent — generates RTI applications, grievance letters, and Lokayukta complaints.
 
 All legal citations, act references, section numbers, template structure,
 and submission addresses are HARDCODED. LLM is used ONLY for the grievance
@@ -20,9 +20,9 @@ from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import cm, mm
 from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
-from nyayamitra.kg.loader import get_procedure
-from nyayamitra.schemas.case_file import CaseFile
-from nyayamitra.schemas.escalation import EscalationLetter, EscalationType
+from papertrail.kg.loader import get_procedure
+from papertrail.schemas.case_file import CaseFile
+from papertrail.schemas.escalation import EscalationLetter, EscalationType
 
 logger = logging.getLogger(__name__)
 
@@ -295,8 +295,8 @@ async def _llm_grievance_paragraph(
 ) -> str:
     """Use LLM to generate a situation-specific grievance paragraph."""
     try:
-        from nyayamitra.llm.prompts import load_prompt
-        from nyayamitra.config import LLM_TEMPERATURE_ESCALATION
+        from papertrail.llm.prompts import load_prompt
+        from papertrail.config import LLM_TEMPERATURE_ESCALATION
 
         case_summary = (
             f"Event: {case_file.life_event.type.value if case_file.life_event.type else 'unknown'}. "
@@ -341,7 +341,7 @@ async def generate_escalation_async(
     All legal citations and template structure stay deterministic.
     LLM polishes ONLY the grievance description paragraph.
     """
-    from nyayamitra.config import LLM_MODE
+    from papertrail.config import LLM_MODE
 
     # Get the fully deterministic result first
     result = generate_escalation(procedure_id, case_file, escalation_type, days_delayed)

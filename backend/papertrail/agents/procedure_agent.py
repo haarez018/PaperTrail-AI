@@ -1,4 +1,4 @@
-"""Procedure Agent — given a CaseFile, returns a complete ProcedurePlan.
+﻿"""Procedure Agent — given a CaseFile, returns a complete ProcedurePlan.
 
 This agent queries the Knowledge Graph and reasons about which procedures
 are needed based on the case context. It produces an ordered plan with
@@ -9,10 +9,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from nyayamitra.kg.loader import get_procedure, get_topological_order
-from nyayamitra.schemas.case_file import CaseFile, LifeEventType
-from nyayamitra.schemas.plan import PlannedProcedure, ProcedurePlan
-from nyayamitra.tools.kg_tools import query_procedure_kg
+from papertrail.kg.loader import get_procedure, get_topological_order
+from papertrail.schemas.case_file import CaseFile, LifeEventType
+from papertrail.schemas.plan import PlannedProcedure, ProcedurePlan
+from papertrail.tools.kg_tools import query_procedure_kg
 
 PROMPT_PATH = Path(__file__).parent / "prompts" / "procedure.txt"
 
@@ -185,6 +185,6 @@ def build_procedure_plan(case_file: CaseFile) -> ProcedurePlan:
         procedures=planned,
         total_estimated_days=max_end_day,
         total_estimated_cost_inr=total_cost,
-        without_nyayamitra_baseline_days=180,
-        without_nyayamitra_baseline_cost_inr=15000,
+        without_papertrail_baseline_days=180,
+        without_papertrail_baseline_cost_inr=15000,
     )

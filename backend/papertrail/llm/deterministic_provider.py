@@ -1,4 +1,4 @@
-"""Deterministic (no-LLM) provider — returns canned responses.
+﻿"""Deterministic (no-LLM) provider — returns canned responses.
 
 Used when LLM_MODE=deterministic_only or as a fallback when the real
 provider is unreachable.
@@ -6,7 +6,7 @@ provider is unreachable.
 
 from __future__ import annotations
 
-from nyayamitra.llm.base import LLMProvider, LLMResponse
+from papertrail.llm.base import LLMProvider, LLMResponse
 
 
 class DeterministicProvider(LLMProvider):

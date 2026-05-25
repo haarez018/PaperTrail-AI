@@ -1,8 +1,8 @@
-"""Unit tests for the Procedure Knowledge Graph."""
+﻿"""Unit tests for the Procedure Knowledge Graph."""
 
 import pytest
 
-from nyayamitra.kg.loader import (
+from papertrail.kg.loader import (
     get_all_procedures,
     get_dependencies,
     get_dependents,
@@ -11,7 +11,7 @@ from nyayamitra.kg.loader import (
     get_topological_order,
     reload_kg,
 )
-from nyayamitra.tools.kg_tools import query_procedure_kg
+from papertrail.tools.kg_tools import query_procedure_kg
 
 
 @pytest.fixture(autouse=True)

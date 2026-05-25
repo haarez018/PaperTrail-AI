@@ -1,4 +1,4 @@
-/** Backend API base URL, configurable via environment variable. */
+﻿/** Backend API base URL, configurable via environment variable. */
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 /* ── Shared Types ── */
@@ -26,8 +26,8 @@ export interface ProcedurePlan {
   procedures: Procedure[];
   total_estimated_days: number;
   total_estimated_cost_inr: number;
-  without_nyayamitra_baseline_days: number;
-  without_nyayamitra_baseline_cost_inr: number;
+  without_papertrail_baseline_days: number;
+  without_papertrail_baseline_cost_inr: number;
 }
 
 export interface CaseData {

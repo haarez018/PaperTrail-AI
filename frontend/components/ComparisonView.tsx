@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import {
@@ -98,14 +98,14 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
             <div className="rounded-[var(--radius-sm)] bg-red-100/60 p-2.5 text-center">
               <div className="flex items-center justify-center gap-1 font-display text-2xl text-danger line-through opacity-60">
                 <CalendarDays size={16} />
-                {plan.without_nyayamitra_baseline_days}
+                {plan.without_papertrail_baseline_days}
               </div>
               <p className="text-[10px] text-text-muted">days</p>
             </div>
             <div className="rounded-[var(--radius-sm)] bg-red-100/60 p-2.5 text-center">
               <div className="flex items-center justify-center gap-1 font-display text-2xl text-danger line-through opacity-60">
                 <IndianRupee size={16} />
-                {plan.without_nyayamitra_baseline_cost_inr.toLocaleString()}
+                {plan.without_papertrail_baseline_cost_inr.toLocaleString()}
               </div>
               <p className="text-[10px] text-text-muted">in fees</p>
             </div>
@@ -194,11 +194,11 @@ export function ComparisonView({ plan }: ComparisonViewProps) {
         className="mt-4 rounded-[var(--radius-md)] bg-navy px-4 py-3 text-center text-sm text-white"
       >
         <span className="font-semibold text-saffron">
-          Estimated savings: ₹{(plan.without_nyayamitra_baseline_cost_inr - plan.total_estimated_cost_inr).toLocaleString()}
+          Estimated savings: ₹{(plan.without_papertrail_baseline_cost_inr - plan.total_estimated_cost_inr).toLocaleString()}
         </span>
         {" "}and{" "}
         <span className="font-semibold text-saffron">
-          {plan.without_nyayamitra_baseline_days - plan.total_estimated_days} days
+          {plan.without_papertrail_baseline_days - plan.total_estimated_days} days
         </span>
         {" "}with PaperTrail AI
         <p className="mt-1 text-[11px] text-white/60">

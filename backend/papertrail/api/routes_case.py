@@ -1,4 +1,4 @@
-"""Case CRUD endpoints."""
+﻿"""Case CRUD endpoints."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ import json
 
 from fastapi import APIRouter, HTTPException
 
-from nyayamitra.db.models import CaseRecord
-from nyayamitra.db.session import get_session
+from papertrail.db.models import CaseRecord
+from papertrail.db.session import get_session
 
 router = APIRouter()
 

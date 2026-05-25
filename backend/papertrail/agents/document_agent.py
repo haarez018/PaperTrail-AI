@@ -1,4 +1,4 @@
-"""Document Agent — generates filled government forms as PDFs.
+﻿"""Document Agent — generates filled government forms as PDFs.
 
 Deterministic for all structured fields (name, date, address, fees,
 checklists).  LLM used ONLY for free-text fields like "reason for
@@ -25,8 +25,8 @@ from reportlab.platypus import (
     TableStyle,
 )
 
-from nyayamitra.kg.loader import get_procedure
-from nyayamitra.schemas.case_file import CaseFile
+from papertrail.kg.loader import get_procedure
+from papertrail.schemas.case_file import CaseFile
 
 logger = logging.getLogger(__name__)
 
@@ -224,8 +224,8 @@ def _deterministic_freetext(field_name: str, case_file: CaseFile) -> str:
 async def _llm_freetext(field_name: str, procedure_name: str, case_file: CaseFile, llm_client: Any) -> str:
     """Use LLM to generate polished free-text for a form field."""
     try:
-        from nyayamitra.llm.prompts import load_prompt
-        from nyayamitra.config import LLM_TEMPERATURE_DOCUMENT
+        from papertrail.llm.prompts import load_prompt
+        from papertrail.config import LLM_TEMPERATURE_DOCUMENT
 
         prompt_template = load_prompt("document_freetext.txt")
         prompt = prompt_template.format(
@@ -259,7 +259,7 @@ async def generate_document_async(
     All structured fields (name, date, fee, checklist) stay deterministic.
     LLM is used ONLY for free-text paragraphs if available.
     """
-    from nyayamitra.config import LLM_MODE
+    from papertrail.config import LLM_MODE
 
     # Start with the fully deterministic document
     result = generate_document(procedure_id, case_file)

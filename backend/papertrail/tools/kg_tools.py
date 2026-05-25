@@ -1,11 +1,11 @@
-"""Tools for querying the Procedure Knowledge Graph.
+﻿"""Tools for querying the Procedure Knowledge Graph.
 
 These are used by the Procedure Agent via LangGraph tool-calling.
 """
 
 from __future__ import annotations
 
-from nyayamitra.kg.loader import (
+from papertrail.kg.loader import (
     get_all_procedures,
     get_dependencies,
     get_dependents,

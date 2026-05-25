@@ -10,8 +10,8 @@ from pathlib import Path
 # Add backend to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "backend"))
 
-from nyayamitra.agents.procedure_agent import build_procedure_plan
-from nyayamitra.schemas.case_file import (
+from papertrail.agents.procedure_agent import build_procedure_plan
+from papertrail.schemas.case_file import (
     CaseContext,
     CaseFile,
     CaseStatus,
@@ -64,7 +64,7 @@ def main() -> None:
     print(f"Procedures found: {len(plan.procedures)}")
     print(f"Estimated total days: {plan.total_estimated_days}")
     print(f"Estimated total cost: Rs.{plan.total_estimated_cost_inr}")
-    print(f"Without PaperTrail AI: ~{plan.without_nyayamitra_baseline_days} days, Rs.{plan.without_nyayamitra_baseline_cost_inr}")
+    print(f"Without PaperTrail AI: ~{plan.without_papertrail_baseline_days} days, Rs.{plan.without_papertrail_baseline_cost_inr}")
     print()
 
     print("PROCEDURE PLAN:")

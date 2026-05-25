@@ -33,9 +33,9 @@ out/
 Thumbs.db
 
 # Data
-backend/data/nyayamitra.db
+backend/data/papertrail.db
 
 # Generated
 *.pdf
-!nyayamitra/backend/nyayamitra/kg/templates/*.pdf
-!nyayamitra/backend/nyayamitra/kg/legal_templates/*.pdf
+!backend/papertrail/kg/templates/*.pdf
+!backend/papertrail/kg/legal_templates/*.pdf

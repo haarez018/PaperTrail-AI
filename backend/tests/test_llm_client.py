@@ -1,13 +1,13 @@
-"""Tests for the LLM abstraction layer."""
+﻿"""Tests for the LLM abstraction layer."""
 
 import json
 import pytest
 
-from nyayamitra.llm.base import LLMResponse
-from nyayamitra.llm.client import LLMClient
-from nyayamitra.llm.deterministic_provider import DeterministicProvider
-from nyayamitra.llm.exceptions import LLMParseError, LLMTimeoutError, LLMUnavailableError
-from nyayamitra.llm.ollama_provider import OllamaProvider
+from papertrail.llm.base import LLMResponse
+from papertrail.llm.client import LLMClient
+from papertrail.llm.deterministic_provider import DeterministicProvider
+from papertrail.llm.exceptions import LLMParseError, LLMTimeoutError, LLMUnavailableError
+from papertrail.llm.ollama_provider import OllamaProvider
 
 
 # ── Deterministic Provider Tests ──────────────────────────────────────

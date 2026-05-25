@@ -1,4 +1,4 @@
-"""LLMClient — the single entry-point that agents use for LLM calls.
+﻿"""LLMClient — the single entry-point that agents use for LLM calls.
 
 Handles provider selection, retries, and automatic fallback to the
 deterministic provider when the real one is unreachable.
@@ -12,15 +12,15 @@ from typing import Any, Type
 
 from pydantic import BaseModel
 
-from nyayamitra.llm.base import LLMProvider, LLMResponse
-from nyayamitra.llm.deterministic_provider import DeterministicProvider
-from nyayamitra.llm.exceptions import (
+from papertrail.llm.base import LLMProvider, LLMResponse
+from papertrail.llm.deterministic_provider import DeterministicProvider
+from papertrail.llm.exceptions import (
     LLMError,
     LLMParseError,
     LLMTimeoutError,
     LLMUnavailableError,
 )
-from nyayamitra.llm.ollama_provider import OllamaProvider
+from papertrail.llm.ollama_provider import OllamaProvider
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class LLMClient:
     @classmethod
     def from_config(cls) -> "LLMClient":
         """Build a client from the current config.py settings."""
-        from nyayamitra.config import (
+        from papertrail.config import (
             LLM_FALLBACK_TO_DETERMINISTIC,
             LLM_MAX_RETRIES,
             LLM_PROVIDER,

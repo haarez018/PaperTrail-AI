@@ -1,4 +1,4 @@
-"""Print-Ready Document Kit generator.
+﻿"""Print-Ready Document Kit generator.
 
 Combines all case documents into a single, well-structured PDF:
   - Cover page with case summary
@@ -30,10 +30,10 @@ from reportlab.platypus import (
     HRFlowable,
 )
 
-from nyayamitra.agents.document_agent import generate_document
-from nyayamitra.agents.navigator_agent import build_navigation_plan
-from nyayamitra.kg.loader import get_procedure
-from nyayamitra.schemas.case_file import CaseFile
+from papertrail.agents.document_agent import generate_document
+from papertrail.agents.navigator_agent import build_navigation_plan
+from papertrail.kg.loader import get_procedure
+from papertrail.schemas.case_file import CaseFile
 
 logger = logging.getLogger(__name__)
 

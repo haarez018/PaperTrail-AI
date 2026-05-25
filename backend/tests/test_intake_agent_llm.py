@@ -1,18 +1,18 @@
-"""Tests for the LLM-enhanced intake agent."""
+﻿"""Tests for the LLM-enhanced intake agent."""
 
 import pytest
 
-from nyayamitra.agents.intake_agent import (
+from papertrail.agents.intake_agent import (
     DeterministicIntake,
     IntakeAgent,
     detect_language,
     extract_event_type,
     extract_relationship,
 )
-from nyayamitra.llm.client import LLMClient
-from nyayamitra.llm.deterministic_provider import DeterministicProvider
-from nyayamitra.llm.ollama_provider import OllamaProvider
-from nyayamitra.schemas.case_file import CaseFile, Language, LifeEventType, Relationship
+from papertrail.llm.client import LLMClient
+from papertrail.llm.deterministic_provider import DeterministicProvider
+from papertrail.llm.ollama_provider import OllamaProvider
+from papertrail.schemas.case_file import CaseFile, Language, LifeEventType, Relationship
 
 
 # ── Deterministic Path Tests (regression) ─────────────────────────────
@@ -128,7 +128,7 @@ class TestIntakeAgentLLM:
     @pytest.mark.asyncio
     async def test_deterministic_only_mode(self):
         """In deterministic_only mode, LLM is never called."""
-        import nyayamitra.config as config
+        import papertrail.config as config
         original = config.LLM_MODE
         config.LLM_MODE = "deterministic_only"
         try:

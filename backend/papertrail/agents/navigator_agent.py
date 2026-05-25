@@ -1,10 +1,10 @@
-"""Navigator Agent — tells the user exactly what to do, where, and when."""
+﻿"""Navigator Agent — tells the user exactly what to do, where, and when."""
 
 from __future__ import annotations
 
-from nyayamitra.kg.loader import get_procedure
-from nyayamitra.schemas.navigation import ConditionalAdvice, NavigationPlan, Office
-from nyayamitra.tools.office_tools import find_office
+from papertrail.kg.loader import get_procedure
+from papertrail.schemas.navigation import ConditionalAdvice, NavigationPlan, Office
+from papertrail.tools.office_tools import find_office
 
 # Common legal workarounds applicable in Tamil Nadu
 _WORKAROUNDS: dict[str, list[dict[str, str]]] = {

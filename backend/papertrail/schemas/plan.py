@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from enum import Enum
 
@@ -27,5 +27,5 @@ class ProcedurePlan(BaseModel):
     procedures: list[PlannedProcedure] = Field(default_factory=list)
     total_estimated_days: int = 0
     total_estimated_cost_inr: int = 0
-    without_nyayamitra_baseline_days: int = 180
-    without_nyayamitra_baseline_cost_inr: int = 15000
+    without_papertrail_baseline_days: int = 180
+    without_papertrail_baseline_cost_inr: int = 15000

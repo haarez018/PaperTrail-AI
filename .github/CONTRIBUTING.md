@@ -4,11 +4,11 @@ Thank you for wanting to help make bureaucracy less painful for 700M people.
 
 ## Before You Start
 
-Read the [README](../README.md) and the system architecture in `backend/nyayamitra/`. Understand the multi-agent pattern before proposing changes.
+Read the [README](../README.md) and the system architecture in `backend/papertrail/`. Understand the multi-agent pattern before proposing changes.
 
 ## What We Need Most
 
-1. **More procedures** — Tamil Nadu has 200+ government procedures. We've mapped 20. Adding more to `backend/nyayamitra/kg/procedures.json` is the highest-leverage contribution.
+1. **More procedures** — Tamil Nadu has 200+ government procedures. We've mapped 20. Adding more to `backend/papertrail/kg/procedures.json` is the highest-leverage contribution.
 2. **Other states** — The architecture is state-agnostic. Karnataka, Maharashtra, Andhra Pradesh need the same treatment.
 3. **Language translations** — UI strings need ta/hi/te translations in `frontend/lib/i18n/`.
 4. **Bug reports** — Real citizens using this will hit edge cases we haven't seen. Please report them.
@@ -17,8 +17,8 @@ Read the [README](../README.md) and the system architecture in `backend/nyayamit
 
 ### Setup
 ```bash
-git clone https://github.com/haarez/nyayamitra
-cd nyayamitra
+git clone https://github.com/haarez/papertrail
+cd papertrail
 
 # Backend
 cd backend && python -m venv .venv && .venv/Scripts/activate
@@ -32,7 +32,7 @@ npm run build  # must pass
 
 ### Adding a Procedure
 
-Edit `backend/nyayamitra/kg/procedures.json`. Each procedure needs:
+Edit `backend/papertrail/kg/procedures.json`. Each procedure needs:
 
 ```json
 {

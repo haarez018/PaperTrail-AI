@@ -1,4 +1,4 @@
-"""Export endpoints — print-ready document kit, case list, procedure explorer, and feedback."""
+﻿"""Export endpoints — print-ready document kit, case list, procedure explorer, and feedback."""
 
 from __future__ import annotations
 
@@ -14,11 +14,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from nyayamitra.db.models import CaseRecord, FeedbackRecord
-from nyayamitra.db.session import get_session
-from nyayamitra.kg.loader import get_all_procedures
-from nyayamitra.schemas.case_file import CaseFile
-from nyayamitra.tools.kit_generator import generate_kit
+from papertrail.db.models import CaseRecord, FeedbackRecord
+from papertrail.db.session import get_session
+from papertrail.kg.loader import get_all_procedures
+from papertrail.schemas.case_file import CaseFile
+from papertrail.tools.kit_generator import generate_kit
 
 logger = logging.getLogger(__name__)
 router = APIRouter()

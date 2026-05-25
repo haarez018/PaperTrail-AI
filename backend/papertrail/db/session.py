@@ -1,4 +1,4 @@
-"""Database session management."""
+﻿"""Database session management."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from pathlib import Path
 
 from sqlmodel import Session, SQLModel, create_engine
 
-from nyayamitra.config import DATABASE_URL
+from papertrail.config import DATABASE_URL
 
 # Ensure data directory exists
 _db_path = DATABASE_URL.replace("sqlite:///", "")

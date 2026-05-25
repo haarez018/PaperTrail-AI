@@ -1,4 +1,4 @@
-"""Orchestrator — state machine coordinating all agents.
+﻿"""Orchestrator — state machine coordinating all agents.
 
 State flows:
   START -> intake -> planning -> [followup/document/navigate/escalate] -> done
@@ -13,10 +13,10 @@ import re
 import time
 from typing import Any, TypedDict
 
-from nyayamitra.agents.intake_agent import DeterministicIntake, IntakeAgent
-from nyayamitra.agents.procedure_agent import build_procedure_plan
-from nyayamitra.schemas.case_file import CaseFile, CaseStatus
-from nyayamitra.schemas.plan import ProcedurePlan
+from papertrail.agents.intake_agent import DeterministicIntake, IntakeAgent
+from papertrail.agents.procedure_agent import build_procedure_plan
+from papertrail.schemas.case_file import CaseFile, CaseStatus
+from papertrail.schemas.plan import ProcedurePlan
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ def _followup_response(state: CaseState) -> str:
     plan_data = state.get("plan") or {}
     procedures = plan_data.get("procedures", [])
 
-    from nyayamitra.kg.loader import get_procedure
+    from papertrail.kg.loader import get_procedure
 
     # ── Did the user say they completed something? ───────────────────────────
     if _RE_DONE.search(message):
@@ -295,15 +295,15 @@ def run_procedure_agent(state: CaseState) -> CaseState:
         f"✅ I've identified **{len(plan.procedures)} procedures** you need to complete.",
         f"",
         f"⏱️ Estimated timeline: **{plan.total_estimated_days} days** "
-        f"(vs ~{plan.without_nyayamitra_baseline_days} days without PaperTrail AI)",
+        f"(vs ~{plan.without_papertrail_baseline_days} days without PaperTrail AI)",
         f"💰 Estimated govt. fees: **Rs.{plan.total_estimated_cost_inr}** "
-        f"(vs ~Rs.{plan.without_nyayamitra_baseline_cost_inr} in agent/middleman fees)",
+        f"(vs ~Rs.{plan.without_papertrail_baseline_cost_inr} in agent/middleman fees)",
         f"",
         f"**Here's your step-by-step plan:**",
         f"",
     ]
 
-    from nyayamitra.kg.loader import get_procedure
+    from papertrail.kg.loader import get_procedure
 
     for p in plan.procedures:
         proc = get_procedure(p.procedure_id)

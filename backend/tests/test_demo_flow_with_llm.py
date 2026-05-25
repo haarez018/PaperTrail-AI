@@ -1,12 +1,12 @@
-"""End-to-end tests: full demo flow with LLM enabled and disabled."""
+﻿"""End-to-end tests: full demo flow with LLM enabled and disabled."""
 
 import pytest
 
-from nyayamitra.agents.orchestrator import process_message, process_message_async
-from nyayamitra.llm.client import LLMClient
-from nyayamitra.llm.deterministic_provider import DeterministicProvider
-from nyayamitra.llm.ollama_provider import OllamaProvider
-from nyayamitra.schemas.case_file import CaseFile, LifeEventType
+from papertrail.agents.orchestrator import process_message, process_message_async
+from papertrail.llm.client import LLMClient
+from papertrail.llm.deterministic_provider import DeterministicProvider
+from papertrail.llm.ollama_provider import OllamaProvider
+from papertrail.schemas.case_file import CaseFile, LifeEventType
 
 
 # ── Deterministic E2E (regression) ───────────────────────────────────

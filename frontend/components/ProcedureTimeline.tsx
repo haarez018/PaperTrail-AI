@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
@@ -173,13 +173,13 @@ export default function ProcedureTimeline({
               <div className="mt-1 flex items-baseline gap-1 line-through opacity-50">
                 <CalendarDays size={14} className="text-text-muted" />
                 <span className="font-display text-2xl text-text-muted">
-                  ~{plan.without_nyayamitra_baseline_days}
+                  ~{plan.without_papertrail_baseline_days}
                 </span>
                 <span className="text-sm text-text-muted">days</span>
               </div>
               <div className="mt-1 flex items-center gap-1 text-sm text-text-muted line-through opacity-50">
                 <IndianRupee size={12} />
-                <span>{plan.without_nyayamitra_baseline_cost_inr} in fees</span>
+                <span>{plan.without_papertrail_baseline_cost_inr} in fees</span>
               </div>
             </CardContent>
           </Card>

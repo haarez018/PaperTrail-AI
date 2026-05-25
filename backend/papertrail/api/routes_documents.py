@@ -1,4 +1,4 @@
-"""Document generation, navigation, and escalation endpoints."""
+﻿"""Document generation, navigation, and escalation endpoints."""
 
 from __future__ import annotations
 
@@ -6,12 +6,12 @@ import json
 
 from fastapi import APIRouter, HTTPException
 
-from nyayamitra.agents.document_agent import generate_document
-from nyayamitra.agents.escalation_agent import generate_escalation
-from nyayamitra.agents.navigator_agent import build_navigation_plan
-from nyayamitra.db.models import CaseRecord
-from nyayamitra.db.session import get_session
-from nyayamitra.schemas.case_file import CaseFile
+from papertrail.agents.document_agent import generate_document
+from papertrail.agents.escalation_agent import generate_escalation
+from papertrail.agents.navigator_agent import build_navigation_plan
+from papertrail.db.models import CaseRecord
+from papertrail.db.session import get_session
+from papertrail.schemas.case_file import CaseFile
 
 router = APIRouter()
 

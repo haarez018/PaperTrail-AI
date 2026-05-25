@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,8 +42,8 @@ export function ShareCard({ plan, caseId, className }: ShareCardProps) {
   const pending = plan.procedures.length - done - inProgress - blocked;
 
   const savings = {
-    days: plan.without_nyayamitra_baseline_days - plan.total_estimated_days,
-    money: plan.without_nyayamitra_baseline_cost_inr - plan.total_estimated_cost_inr,
+    days: plan.without_papertrail_baseline_days - plan.total_estimated_days,
+    money: plan.without_papertrail_baseline_cost_inr - plan.total_estimated_cost_inr,
   };
 
   // Next pending procedure

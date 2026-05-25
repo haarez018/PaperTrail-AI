@@ -1,4 +1,4 @@
-"""Intake Agent — builds a CaseFile from user conversation.
+﻿"""Intake Agent — builds a CaseFile from user conversation.
 
 Two paths:
   1. LLM path (hybrid mode): Uses Ollama to understand natural language
@@ -37,7 +37,7 @@ _WORD_NUMS: dict[str, int] = {
 from pathlib import Path
 from typing import Any
 
-from nyayamitra.schemas.case_file import (
+from papertrail.schemas.case_file import (
     CaseContext,
     CaseFile,
     CaseStatus,
@@ -461,7 +461,7 @@ class IntakeAgent:
     """
 
     def __init__(self, llm_client: Any = None, case_file: CaseFile | None = None):
-        from nyayamitra.config import LLM_MODE
+        from papertrail.config import LLM_MODE
         self._llm = llm_client
         self._mode = LLM_MODE
         self._deterministic = DeterministicIntake(case_file)
@@ -485,8 +485,8 @@ class IntakeAgent:
 
     async def _llm_process(self, message: str) -> tuple[CaseFile, str | None]:
         """Use LLM to extract case info from natural language."""
-        from nyayamitra.llm.prompts import load_prompt
-        from nyayamitra.config import LLM_TEMPERATURE_INTAKE
+        from papertrail.llm.prompts import load_prompt
+        from papertrail.config import LLM_TEMPERATURE_INTAKE
 
         system_prompt = load_prompt("intake_system.txt")
 
@@ -569,7 +569,7 @@ class IntakeAgent:
     async def _polish_followup(self, deterministic_question: str) -> str:
         """Use LLM to make a deterministic follow-up warmer. Falls back to original."""
         try:
-            from nyayamitra.llm.prompts import load_prompt
+            from papertrail.llm.prompts import load_prompt
 
             lang_map = {Language.ENGLISH: "en", Language.TAMIL: "ta", Language.HINDI: "hi"}
             lang = lang_map.get(self._case.language, "en")

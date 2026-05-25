@@ -153,7 +153,7 @@ PaperTrail-AI is a **6-agent AI system** that:
 ### Option A — Docker (recommended, 3 commands)
 
 ```bash
-git clone https://github.com/haarez/nyayamitra && cd nyayamitra
+git clone https://github.com/haarez/papertrail && cd papertrail
 docker-compose up --build
 # Open http://localhost:3000
 ```
@@ -162,7 +162,7 @@ docker-compose up --build
 
 ```bash
 # 1. Clone
-git clone https://github.com/haarez/nyayamitra && cd nyayamitra
+git clone https://github.com/haarez/papertrail && cd papertrail
 
 # 2. Backend (Python 3.11+)
 cd backend && pip install -e . && uvicorn main:app --reload --port 8000
@@ -189,7 +189,7 @@ ollama pull llama3.2        # install Ollama first: https://ollama.ai
 | `LLM_MODE` | `deterministic_only` | `hybrid` uses Ollama; `deterministic_only` skips LLM entirely |
 | `DEMO_MODE` | `false` | `true` serves pre-cached demo responses (for hackathon demos) |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
-| `DATABASE_URL` | `sqlite:///./data/nyayamitra.db` | SQLite path |
+| `DATABASE_URL` | `sqlite:///./data/papertrail.db` | SQLite path |
 | `FRONTEND_URL` | `http://localhost:3000` | CORS allowed origin |
 | `LLM_TIMEOUT_SECONDS` | `8` | Timeout before falling back to deterministic |
 | `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | Backend URL for frontend |
@@ -236,10 +236,10 @@ npx vercel --prod
 ## Project Structure
 
 ```
-nyayamitra/
+papertrail/
 ├── backend/
 │   ├── main.py                    # FastAPI entrypoint + CORS
-│   └── nyayamitra/
+│   └── papertrail/
 │       ├── agents/                # 6 agents: intake, orchestrator, procedure,
 │       │                          #   document, navigation, escalation
 │       ├── api/                   # Routes: chat SSE, cases, export, documents,
@@ -300,4 +300,4 @@ nyayamitra/
 
 ---
 
-*NyayaMitra — Clearing the path through Indian bureaucracy. Free forever. Government fees only.*
+*PaperTrail AI — Clearing the path through Indian bureaucracy. Free forever. Government fees only.*

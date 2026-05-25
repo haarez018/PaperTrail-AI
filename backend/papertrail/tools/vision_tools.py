@@ -1,4 +1,4 @@
-"""Vision / OCR tools — document scanning with Ollama multimodal models.
+﻿"""Vision / OCR tools — document scanning with Ollama multimodal models.
 
 Strategy:
   1. Try Ollama vision model (llava or llama3.2-vision) for structured extraction.
@@ -15,7 +15,7 @@ import re
 
 import httpx
 
-from nyayamitra.config import OLLAMA_HOST as OLLAMA_BASE_URL
+from papertrail.config import OLLAMA_HOST as OLLAMA_BASE_URL
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-"""Chat endpoint — streaming SSE responses."""
+﻿"""Chat endpoint — streaming SSE responses."""
 
 from __future__ import annotations
 
@@ -11,13 +11,13 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from sse_starlette.sse import EventSourceResponse
 
-from nyayamitra.agents.orchestrator import process_message, process_message_async
-from nyayamitra.config import DEMO_MODE, LLM_MODE
-from nyayamitra.db.models import CaseRecord
-from nyayamitra.db.session import get_session
-from nyayamitra.demo_cache import get_demo_response, match_demo_prompt
-from nyayamitra.schemas.case_file import CaseFile, Language as CaseLanguage
-from nyayamitra.schemas.plan import ProcedurePlan
+from papertrail.agents.orchestrator import process_message, process_message_async
+from papertrail.config import DEMO_MODE, LLM_MODE
+from papertrail.db.models import CaseRecord
+from papertrail.db.session import get_session
+from papertrail.demo_cache import get_demo_response, match_demo_prompt
+from papertrail.schemas.case_file import CaseFile, Language as CaseLanguage
+from papertrail.schemas.plan import ProcedurePlan
 
 _UI_LANG_MAP: dict[str, CaseLanguage] = {
     "en": CaseLanguage.ENGLISH,
@@ -91,7 +91,7 @@ async def _stream_response(request: ChatRequest) -> AsyncGenerator[dict, None]:
     # Run orchestrator — use async path if hybrid mode
     if LLM_MODE == "hybrid":
         try:
-            from nyayamitra.llm.client import LLMClient
+            from papertrail.llm.client import LLMClient
             llm_client = LLMClient.from_config()
             state = await process_message_async(
                 user_message=request.message,

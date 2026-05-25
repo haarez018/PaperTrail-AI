@@ -1,4 +1,4 @@
-"""
+﻿"""
 API endpoint integration tests — covers all REST endpoints added in Phases 1-14
 and Features 1-20. Uses FastAPI TestClient (no real HTTP server needed).
 """
@@ -27,8 +27,8 @@ def seeded_case(client):
     Create a minimal case record in the DB and return its case_id.
     Used by tests that need a real case to operate on.
     """
-    from nyayamitra.db.models import CaseRecord
-    from nyayamitra.db.session import get_session
+    from papertrail.db.models import CaseRecord
+    from papertrail.db.session import get_session
     import uuid
 
     case_id = str(uuid.uuid4())
@@ -53,11 +53,11 @@ def seeded_case(client):
         ],
         "total_estimated_days": 30,
         "total_estimated_cost_inr": 500,
-        "without_nyayamitra_baseline_days": 120,
-        "without_nyayamitra_baseline_cost_inr": 15000,
+        "without_papertrail_baseline_days": 120,
+        "without_papertrail_baseline_cost_inr": 15000,
     }
     # Use the current CaseFile schema shape (nested models)
-    from nyayamitra.schemas.case_file import CaseFile, LifeEventType
+    from papertrail.schemas.case_file import CaseFile, LifeEventType
     cf = CaseFile()
     cf.life_event.type = LifeEventType.DEATH
     cf.life_event.location = "Chennai, Tamil Nadu"
@@ -290,21 +290,21 @@ class TestEscalationEndpoint:
 
 class TestKGRobustness:
     def test_get_all_procedures_returns_dict(self):
-        from nyayamitra.kg.loader import get_all_procedures
+        from papertrail.kg.loader import get_all_procedures
         procs = get_all_procedures()
         assert isinstance(procs, dict)
         assert len(procs) > 0
 
     def test_procedures_have_applicable_when(self):
         """Every procedure must have a non-empty applicable_when description."""
-        from nyayamitra.kg.loader import get_all_procedures
+        from papertrail.kg.loader import get_all_procedures
         procs = get_all_procedures()
         for proc in procs.values():
             assert proc.applicable_when, f"{proc.procedure_id} missing applicable_when"
 
     def test_dependency_references_are_valid(self):
         """Every dependency ID must reference an existing procedure."""
-        from nyayamitra.kg.loader import get_all_procedures
+        from papertrail.kg.loader import get_all_procedures
         procs = get_all_procedures()
         all_ids = set(procs.keys())
         for proc in procs.values():
@@ -314,12 +314,12 @@ class TestKGRobustness:
                 )
 
     def test_fee_inr_non_negative(self):
-        from nyayamitra.kg.loader import get_all_procedures
+        from papertrail.kg.loader import get_all_procedures
         for proc in get_all_procedures().values():
             assert proc.fee_inr >= 0, f"{proc.procedure_id} has negative fee"
 
     def test_estimated_days_range_valid(self):
-        from nyayamitra.kg.loader import get_all_procedures
+        from papertrail.kg.loader import get_all_procedures
         for proc in get_all_procedures().values():
             d = proc.estimated_duration_days   # DurationEstimate object
             assert d.min <= d.max, (
