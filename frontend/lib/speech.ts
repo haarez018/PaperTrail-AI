@@ -5,7 +5,7 @@
 
 export type SpeechLanguage = "en-IN" | "ta-IN" | "hi-IN";
 
-/** Maps NyayaMitra language codes to BCP-47 locale codes for Speech API. */
+/** Maps PaperTrail AI language codes to BCP-47 locale codes for Speech API. */
 export const speechLocale: Record<string, SpeechLanguage> = {
   en: "en-IN",
   ta: "ta-IN",
@@ -20,7 +20,7 @@ export function isSpeechSupported(): boolean {
 }
 
 export interface SpeechRecognitionOptions {
-  language: string;              // NyayaMitra language code: en | ta | hi
+  language: string;              // PaperTrail AI language code: en | ta | hi
   onResult: (text: string) => void;
   onError?: (msg: string) => void;
   onStart?: () => void;

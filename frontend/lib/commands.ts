@@ -1,5 +1,5 @@
 /**
- * Command registry for the NyayaMitra command palette.
+ * Command registry for the PaperTrail AI command palette.
  * Commands are statically defined; dynamic commands (procedures, cases)
  * are injected at runtime by the CommandPalette component.
  */

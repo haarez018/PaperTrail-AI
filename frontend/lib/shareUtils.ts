@@ -1,5 +1,5 @@
 /**
- * Web Share API wrapper for NyayaMitra case plan sharing.
+ * Web Share API wrapper for PaperTrail AI case plan sharing.
  * Falls back to clipboard copy on platforms that don't support navigator.share.
  */
 

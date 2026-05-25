@@ -19,7 +19,7 @@ export interface DeadlineEntry {
   receiptRef?: string;
 }
 
-/** Global application state for the NyayaMitra chat interface. */
+/** Global application state for the PaperTrail AI chat interface. */
 interface AppState {
   caseId: string | null;
   messages: ChatMessage[];

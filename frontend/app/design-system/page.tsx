@@ -41,7 +41,7 @@ export default function DesignSystemPage() {
       success: "Document generated successfully",
       warning: "Deadline approaching — 3 days left",
       error: "Failed to connect to server",
-      info: "Case ID: NYM-2026-04821",
+      info: "Case ID: PT-2026-04821",
     };
     setToasts((prev) => [...prev, { id: Date.now().toString(), message: msgs[variant], variant }]);
   };
@@ -93,7 +93,7 @@ export default function DesignSystemPage() {
               <h1 className="font-display text-4xl text-navy">Display — DM Serif Display</h1>
               <p className="mt-2 text-lg text-text-primary">Body — Source Sans 3, regular weight</p>
               <p className="mt-1 text-sm text-text-secondary">Secondary text in muted tones</p>
-              <p className="mt-1 font-mono text-sm text-text-muted">NYM-2026-04821 — JetBrains Mono</p>
+              <p className="mt-1 font-mono text-sm text-text-muted">PT-2026-04821 — JetBrains Mono</p>
               <p className="mt-1 font-tamil text-base">தமிழ் உரை — Noto Sans Tamil</p>
               <p className="mt-1 font-hindi text-base">हिन्दी पाठ — Noto Sans Devanagari</p>
             </CardContent>
@@ -138,7 +138,7 @@ export default function DesignSystemPage() {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-text-primary">Case ID</label>
-              <Input placeholder="NYM-2026-XXXXX" className="font-mono" />
+              <Input placeholder="PT-2026-XXXXX" className="font-mono" />
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1.5 block text-sm font-medium text-text-primary">Describe your situation</label>

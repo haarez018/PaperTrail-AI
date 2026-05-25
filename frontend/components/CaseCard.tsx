@@ -50,7 +50,7 @@ export function CaseCard({
                 <div className="flex items-center gap-2">
                   <Scale size={16} className="text-saffron" />
                   <span className="font-mono text-sm font-bold text-navy">
-                    NYM-{shortId}
+                    PT-{shortId}
                   </span>
                 </div>
                 <p className="mt-0.5 text-xs text-text-muted flex items-center gap-1">

@@ -1,6 +1,6 @@
 /** Onboarding tutorial state management. */
 
-const STORAGE_KEY = "nyayamitra-tutorial-completed";
+const STORAGE_KEY = "papertrail-tutorial-completed";
 
 export interface TutorialStep {
   id: string;

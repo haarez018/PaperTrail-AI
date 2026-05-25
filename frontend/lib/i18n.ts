@@ -28,7 +28,7 @@ const strings = {
     errorLoadCase:
       "Could not load case data. Make sure the backend is running.",
     noCaseData: "No case data found",
-    withNyayaMitra: "With PaperTrail AI",
+    withPaperTrailAI: "With PaperTrail AI",
     withoutHelp: "Without help",
     yourProcedurePlan: "Your Procedure Plan",
     generateForm: "Generate Form",
@@ -81,7 +81,7 @@ const strings = {
     errorLoadCase:
       "வழக்குத் தரவை ஏற்ற இயலவில்லை. பின்தளம் இயங்குவதை உறுதிப்படுத்தவும்.",
     noCaseData: "வழக்குத் தரவு இல்லை",
-    withNyayaMitra: "PaperTrail AI உடன்",
+    withPaperTrailAI: "PaperTrail AI உடன்",
     withoutHelp: "உதவி இல்லாமல்",
     yourProcedurePlan: "உங்கள் நடைமுறை திட்டம்",
     generateForm: "படிவம் உருவாக்கு",
@@ -134,7 +134,7 @@ const strings = {
     errorLoadCase:
       "केस डेटा लोड नहीं हो सका। सुनिश्चित करें कि बैकएंड चल रहा है।",
     noCaseData: "कोई केस डेटा नहीं मिला",
-    withNyayaMitra: "PaperTrail AI के साथ",
+    withPaperTrailAI: "PaperTrail AI के साथ",
     withoutHelp: "बिना मदद के",
     yourProcedurePlan: "आपकी प्रक्रिया योजना",
     generateForm: "फॉर्म बनाएं",

@@ -1,5 +1,5 @@
 /**
- * Browser Notification API wrapper for NyayaMitra deadline alerts.
+ * Browser Notification API wrapper for PaperTrail AI deadline alerts.
  * Requests permission once, then lets you schedule and fire notifications.
  */
 

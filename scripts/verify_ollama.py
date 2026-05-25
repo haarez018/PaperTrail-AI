@@ -44,7 +44,7 @@ def main() -> None:
     try:
         payload = json.dumps({
             "model": model,
-            "prompt": "Say 'NyayaMitra is ready.' and nothing else.",
+            "prompt": "Say 'PaperTrail AI is ready.' and nothing else.",
             "stream": False,
             "options": {"num_predict": 50, "temperature": 0.1},
         }).encode()

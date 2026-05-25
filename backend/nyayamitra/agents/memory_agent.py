@@ -22,7 +22,7 @@ try:
 
     _client = chromadb.Client()
     _collection = _client.get_or_create_collection(
-        name="nyayamitra_cases",
+        name="papertrail_cases",
         metadata={"description": "Anonymized case summaries for pattern detection"},
     )
     _available = True

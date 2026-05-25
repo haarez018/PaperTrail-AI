@@ -1,4 +1,4 @@
-# NyayaMitra Backend
+# PaperTrail AI Backend
 
 Multi-agent AI system for navigating Indian government bureaucracy.
 

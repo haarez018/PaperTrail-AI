@@ -52,7 +52,7 @@ def main() -> None:
     )
 
     print("=" * 60)
-    print("NyayaMitra Demo - Death Scenario")
+    print("PaperTrail AI Demo - Death Scenario")
     print("=" * 60)
     print(f"\nCase: {case.life_event.subject_name} ({case.life_event.type.value})")
     print(f"Filed by: {case.user.name} ({case.user.relationship_to_subject.value})")
@@ -64,7 +64,7 @@ def main() -> None:
     print(f"Procedures found: {len(plan.procedures)}")
     print(f"Estimated total days: {plan.total_estimated_days}")
     print(f"Estimated total cost: Rs.{plan.total_estimated_cost_inr}")
-    print(f"Without NyayaMitra: ~{plan.without_nyayamitra_baseline_days} days, Rs.{plan.without_nyayamitra_baseline_cost_inr}")
+    print(f"Without PaperTrail AI: ~{plan.without_nyayamitra_baseline_days} days, Rs.{plan.without_nyayamitra_baseline_cost_inr}")
     print()
 
     print("PROCEDURE PLAN:")

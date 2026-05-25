@@ -4,7 +4,7 @@ services:
   # ── Ollama (local LLM) ───────────────────────────────────────────────
   ollama:
     image: ollama/ollama:latest
-    container_name: nyayamitra-ollama
+    container_name: papertrail-ollama
     ports:
       - "11434:11434"
     volumes:
@@ -21,14 +21,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: nyayamitra-backend
+    container_name: papertrail-backend
     ports:
       - "8000:8000"
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
       - LLM_MODE=hybrid
       - DEMO_MODE=false
-      - DATABASE_URL=sqlite:///./data/nyayamitra.db
+      - DATABASE_URL=sqlite:///./data/papertrail.db
     volumes:
       - backend_data:/app/data
     depends_on:
@@ -46,7 +46,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: nyayamitra-frontend
+    container_name: papertrail-frontend
     ports:
       - "3000:3000"
     environment:

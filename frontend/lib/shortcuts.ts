@@ -1,5 +1,5 @@
 /**
- * Global keyboard shortcut registry for NyayaMitra.
+ * Global keyboard shortcut registry for PaperTrail AI.
  * Register handlers once (in a top-level component via useEffect),
  * then clean up on unmount.
  */
