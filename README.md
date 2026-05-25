@@ -153,7 +153,7 @@ PaperTrail-AI is a **6-agent AI system** that:
 ### Option A — Docker (recommended, 3 commands)
 
 ```bash
-git clone https://github.com/haarez/papertrail && cd papertrail
+git clone https://github.com/haarez018/PaperTrail-AI && cd PaperTrail-AI
 docker-compose up --build
 # Open http://localhost:3000
 ```
@@ -162,7 +162,7 @@ docker-compose up --build
 
 ```bash
 # 1. Clone
-git clone https://github.com/haarez/papertrail && cd papertrail
+git clone https://github.com/haarez018/PaperTrail-AI && cd PaperTrail-AI
 
 # 2. Backend (Python 3.11+)
 cd backend && pip install -e . && uvicorn main:app --reload --port 8000
@@ -295,8 +295,8 @@ papertrail/
 **Mohammed Haarez**
 2nd-year B.Tech · Chennai Institute of Technology · Built solo, 2026
 
-[![GitHub](https://img.shields.io/badge/GitHub-haarez-181717?logo=github)](https://github.com/haarez018)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-haarez-0A66C2?logo=linkedin)](https://www.linkedin.com/in/mohammed-haarez-sulaiman-s/)
+[![GitHub](https://img.shields.io/badge/GitHub-haarez018-181717?logo=github)](https://github.com/haarez018)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mohammed%20Haarez-0A66C2?logo=linkedin)](https://www.linkedin.com/in/mohammed-haarez-sulaiman-s/)
 
 ---
 
