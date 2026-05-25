@@ -23,7 +23,7 @@ They don't need a lawyer. They need a map.
 
 ## The Solution
 
-NyayaMitra is a **6-agent AI system** that:
+PaperTrail-AI is a **6-agent AI system** that:
 - Understands your situation in **Tamil, Hindi, or English** — including voice input
 - Automatically identifies **every government procedure** you need, in order, with dependencies
 - Generates **pre-filled PDF forms** ready to print, sign, and submit
@@ -295,8 +295,8 @@ nyayamitra/
 **Mohammed Haarez**
 2nd-year B.Tech · Chennai Institute of Technology · Built solo, 2026
 
-[![GitHub](https://img.shields.io/badge/GitHub-haarez-181717?logo=github)](https://github.com/haarez)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-haarez-0A66C2?logo=linkedin)](https://linkedin.com/in/haarez)
+[![GitHub](https://img.shields.io/badge/GitHub-haarez-181717?logo=github)](https://github.com/haarez018)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-haarez-0A66C2?logo=linkedin)](https://www.linkedin.com/in/mohammed-haarez-sulaiman-s/)
 
 ---
 
