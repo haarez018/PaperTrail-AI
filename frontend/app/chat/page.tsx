@@ -395,11 +395,17 @@ export default function ChatPage() {
           language={language}
           onSubmit={async (data) => {
             const { userId } = useAppStore.getState();
-            await fetch(`${API_URL}/api/reviews`, {
+            const res = await fetch(`${API_URL}/api/reviews`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ...data, user_id: userId, language }),
             });
+            const json = await res.json();
+            // Store review ID so the user can delete their own review later
+            if (json.id) {
+              const prev = JSON.parse(localStorage.getItem("my_review_ids") ?? "[]") as number[];
+              localStorage.setItem("my_review_ids", JSON.stringify([...prev, json.id]));
+            }
             localStorage.setItem(`review_submitted_${caseId}`, "true");
           }}
           onClose={() => setShowReviewModal(false)}

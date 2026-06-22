@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Star, ArrowRight } from "lucide-react";
+import { Star, ArrowRight, Trash2 } from "lucide-react";
+import { useAppStore } from "@/lib/store";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -59,11 +60,19 @@ function formatDate(iso: string) {
 }
 
 export default function ReviewsPage() {
+  const userId = useAppStore((s) => s.userId);
   const [data, setData] = useState<ReviewsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<number | null>(null);
+  const [myIds, setMyIds] = useState<Set<number>>(new Set());
+  const [deleting, setDeleting] = useState<Set<number>>(new Set());
 
   useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("my_review_ids") ?? "[]") as number[];
+    setMyIds(new Set(stored));
+  }, []);
+
+  const loadReviews = () => {
     fetch(`${API_URL}/api/reviews`)
       .then((r) => r.json())
       .then(setData)
@@ -76,7 +85,38 @@ export default function ReviewsPage() {
         })
       )
       .finally(() => setLoading(false));
-  }, []);
+  };
+
+  useEffect(() => { loadReviews(); }, []);
+
+  const handleDelete = async (id: number) => {
+    if (!userId || deleting.has(id)) return;
+    if (!window.confirm("Delete your review? This cannot be undone.")) return;
+
+    setDeleting((prev) => new Set(prev).add(id));
+    try {
+      const res = await fetch(
+        `${API_URL}/api/reviews/${id}?user_id=${encodeURIComponent(userId)}`,
+        { method: "DELETE" }
+      );
+      if (!res.ok) throw new Error("Delete failed");
+
+      // Remove from local tracking
+      const updated = JSON.parse(localStorage.getItem("my_review_ids") ?? "[]").filter(
+        (i: number) => i !== id
+      );
+      localStorage.setItem("my_review_ids", JSON.stringify(updated));
+      setMyIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
+
+      // Refresh data
+      setLoading(true);
+      loadReviews();
+    } catch {
+      alert("Could not delete review. Please try again.");
+    } finally {
+      setDeleting((prev) => { const s = new Set(prev); s.delete(id); return s; });
+    }
+  };
 
   const filtered = data
     ? filter === null
@@ -125,33 +165,22 @@ export default function ReviewsPage() {
                 </div>
               </div>
 
-              {/* Distribution bars */}
               {data && data.total_count > 0 && (
                 <div className="mt-8 mx-auto max-w-xs space-y-2">
                   {[5, 4, 3, 2, 1].map((star) => {
                     const count = data.distribution[String(star)] ?? 0;
-                    const pct =
-                      data.total_count > 0
-                        ? (count / data.total_count) * 100
-                        : 0;
+                    const pct = data.total_count > 0 ? (count / data.total_count) * 100 : 0;
                     return (
                       <div key={star} className="flex items-center gap-3">
-                        <span className="w-4 shrink-0 text-right text-xs text-text-muted">
-                          {star}
-                        </span>
-                        <Star
-                          size={11}
-                          className="fill-yellow-400 text-yellow-400 shrink-0"
-                        />
+                        <span className="w-4 shrink-0 text-right text-xs text-text-muted">{star}</span>
+                        <Star size={11} className="fill-yellow-400 text-yellow-400 shrink-0" />
                         <div className="flex-1 h-2.5 rounded-full bg-paper-dark overflow-hidden">
                           <div
                             className="h-2.5 rounded-full bg-saffron transition-all duration-500"
                             style={{ width: `${pct}%` }}
                           />
                         </div>
-                        <span className="w-5 shrink-0 text-left text-xs text-text-muted">
-                          {count}
-                        </span>
+                        <span className="w-5 shrink-0 text-left text-xs text-text-muted">{count}</span>
                       </div>
                     );
                   })}
@@ -166,9 +195,7 @@ export default function ReviewsPage() {
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-thin">
             {([null, 5, 4, 3, 2, 1] as (number | null)[]).map((star) => {
               const count =
-                star === null
-                  ? data.total_count
-                  : (data.distribution[String(star)] ?? 0);
+                star === null ? data.total_count : (data.distribution[String(star)] ?? 0);
               const active = filter === star;
               return (
                 <button
@@ -190,9 +217,7 @@ export default function ReviewsPage() {
         {/* Section 3 — Reviews Grid */}
         {loading ? (
           <div className="grid gap-4 sm:grid-cols-2">
-            {[0, 1, 2, 3].map((i) => (
-              <CardSkeleton key={i} />
-            ))}
+            {[0, 1, 2, 3].map((i) => <CardSkeleton key={i} />)}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-4 py-16 text-center">
@@ -200,52 +225,74 @@ export default function ReviewsPage() {
               <Star size={28} className="text-saffron-dark" />
             </div>
             <p className="text-lg font-semibold text-navy">No reviews yet.</p>
-            <p className="text-sm text-text-muted">
-              Be the first to share your experience.
-            </p>
+            <p className="text-sm text-text-muted">Be the first to share your experience.</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2">
-            {filtered.map((review) => (
-              <div
-                key={review.id}
-                className="rounded-[var(--radius-lg)] border border-paper-dark bg-surface p-5 shadow-sm space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <StarRow rating={review.rating} />
-                  <span className="text-xs text-text-muted">
-                    {formatDate(review.created_at)}
-                  </span>
+            {filtered.map((review) => {
+              const isMine = myIds.has(review.id);
+              return (
+                <div
+                  key={review.id}
+                  className="rounded-[var(--radius-lg)] border border-paper-dark bg-surface p-5 shadow-sm space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <StarRow rating={review.rating} />
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted">
+                        {formatDate(review.created_at)}
+                      </span>
+                      {isMine && (
+                        <button
+                          onClick={() => handleDelete(review.id)}
+                          disabled={deleting.has(review.id)}
+                          title="Delete your review"
+                          className="rounded p-1 text-text-muted transition-colors hover:bg-danger/10 hover:text-danger disabled:opacity-40"
+                          aria-label="Delete review"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {isMine && (
+                    <span className="inline-block rounded-full border border-saffron/30 bg-saffron-light px-2 py-0.5 text-[10px] font-medium text-saffron-dark">
+                      Your review
+                    </span>
+                  )}
+                  {review.procedure_name && (
+                    <span className="inline-block rounded-full bg-saffron-light px-2.5 py-0.5 text-xs font-medium text-saffron-dark">
+                      {review.procedure_name}
+                    </span>
+                  )}
+                  {review.comment && (
+                    <p className="text-sm leading-relaxed text-text-secondary">{review.comment}</p>
+                  )}
+                  <p className="text-xs text-text-muted">{review.language.toUpperCase()}</p>
                 </div>
-                {review.procedure_name && (
-                  <span className="inline-block rounded-full bg-saffron-light px-2.5 py-0.5 text-xs font-medium text-saffron-dark">
-                    {review.procedure_name}
-                  </span>
-                )}
-                {review.comment && (
-                  <p className="text-sm leading-relaxed text-text-secondary">
-                    {review.comment}
-                  </p>
-                )}
-                <p className="text-xs text-text-muted">
-                  {review.language.toUpperCase()}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {/* Section 4 — CTA */}
-        <div className="text-center pt-4 pb-8">
+        <div className="text-center pt-4 pb-4">
           <Link
             href="/chat"
             className="group inline-flex items-center gap-2 rounded-[var(--radius-lg)] bg-saffron px-8 py-4 text-lg font-semibold text-white shadow-card transition-all hover:bg-saffron-dark hover:shadow-card-hover active:scale-[0.98]"
           >
             Try PaperTrail AI
-            <ArrowRight
-              size={20}
-              className="transition-transform group-hover:translate-x-1"
-            />
+            <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+
+        {/* Admin link — subtle */}
+        <div className="text-center pb-4">
+          <Link
+            href="/admin/reviews"
+            className="text-xs text-text-muted hover:text-saffron transition-colors"
+          >
+            Admin
           </Link>
         </div>
 
