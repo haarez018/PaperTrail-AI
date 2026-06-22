@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PrefetchRoutes } from "@/components/PrefetchRoutes";
+import { ReviewSummaryWidget } from "@/components/ReviewSummaryWidget";
 import {
   Scale,
   ClipboardList,
@@ -176,13 +177,14 @@ export default function Home() {
 
       {/* ── Stats ── */}
       <section className="bg-navy px-4 py-12 sm:px-8">
-        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 text-center">
+        <div className="mx-auto grid max-w-4xl grid-cols-3 gap-8 text-center sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label}>
               <div className="font-display text-4xl text-white">{s.value}</div>
               <div className="mt-1 text-sm text-white/60">{s.label}</div>
             </div>
           ))}
+          <ReviewSummaryWidget />
         </div>
       </section>
 
