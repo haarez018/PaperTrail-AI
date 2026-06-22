@@ -21,6 +21,21 @@ class CaseRecord(SQLModel, table=True):
     status: str = "intake"
 
 
+class ReviewRecord(SQLModel, table=True):
+    """Star rating review from a user."""
+
+    __tablename__ = "reviews"
+
+    id: int | None = Field(default=None, primary_key=True)
+    rating: int
+    comment: str = ""
+    case_id: str = ""
+    user_id: str = ""
+    procedure_name: str = ""
+    language: str = "en"
+    created_at: datetime = Field(default_factory=datetime.now)
+
+
 class FeedbackRecord(SQLModel, table=True):
     """User feedback on a procedure or overall plan."""
 

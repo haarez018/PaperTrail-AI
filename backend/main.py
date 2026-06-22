@@ -11,6 +11,7 @@ from papertrail.api.routes_chat import router as chat_router
 from papertrail.api.routes_documents import router as documents_router
 from papertrail.api.routes_export import router as export_router
 from papertrail.api.routes_ocr import router as ocr_router
+from papertrail.api.routes_reviews import router as reviews_router
 from papertrail.config import FRONTEND_URL, LLM_MODE
 from papertrail.db.session import init_db
 
@@ -77,6 +78,7 @@ app.include_router(case_router)
 app.include_router(documents_router)
 app.include_router(export_router)
 app.include_router(ocr_router)
+app.include_router(reviews_router)
 
 
 @app.get("/health")
