@@ -11,6 +11,7 @@ load_dotenv(_env_path, override=True)
 
 # Application
 DEMO_MODE = os.getenv("DEMO_MODE", "false").lower() == "true"
+ADMIN_SECRET: str = os.getenv("ADMIN_SECRET", "")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/papertrail.db")
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
