@@ -2,6 +2,9 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { ChatMessage, ProcedurePlan, CaseData } from "./api";
 
+const generateAnonymousId = (): string =>
+  `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
 /** One step in the agent reasoning trace. */
 export interface TraceStep {
   id: string;
@@ -30,6 +33,8 @@ interface AppState {
   selectedProcedure: string | null;
   traces: TraceStep[];
   deadlines: Record<string, DeadlineEntry>;
+  userId: string;
+  userIdGenerated: boolean;
 
   setCaseId: (id: string) => void;
   addMessage: (msg: ChatMessage) => void;
@@ -56,6 +61,8 @@ export const useAppStore = create<AppState>()(
       selectedProcedure: null,
       traces: [],
       deadlines: {},
+      userId: generateAnonymousId(),
+      userIdGenerated: true,
 
       setCaseId: (id) => set({ caseId: id }),
       addMessage: (msg) =>
@@ -105,6 +112,8 @@ export const useAppStore = create<AppState>()(
         caseData: state.caseData,
         language: state.language,
         deadlines: state.deadlines,
+        userId: state.userId,
+        userIdGenerated: state.userIdGenerated,
       }),
     }
   )
