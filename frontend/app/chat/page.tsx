@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
+import ReviewModal from "@/components/ReviewModal";
 import {
   ChatBubble,
   TypingIndicator,
@@ -26,6 +27,8 @@ import { getSuggestions, Suggestion } from "@/lib/suggestions";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAppStore } from "@/lib/store";
 import { sendMessage, SSEEvent, ProcedurePlan, CaseData } from "@/lib/api";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 import { playSend, playPlanReady, playAgentResponse } from "@/lib/sounds";
 
 /** Main chat interface — message stream with optional procedure timeline side panel. */
@@ -52,6 +55,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const reviewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [lastAgent, setLastAgent] = useState<string | undefined>();
   const [viewedProcedures, setViewedProcedures] = useState<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -167,6 +172,16 @@ export default function ChatPage() {
           const p = event.data.plan as ProcedurePlan;
           setPlan(p);
           playPlanReady();
+
+          // Schedule review modal 60 s after plan loads (once per case)
+          if (reviewTimerRef.current) clearTimeout(reviewTimerRef.current);
+          reviewTimerRef.current = setTimeout(() => {
+            const currentCaseId = useAppStore.getState().caseId;
+            const alreadyReviewed = currentCaseId
+              ? localStorage.getItem(`review_submitted_${currentCaseId}`)
+              : null;
+            if (!alreadyReviewed) setShowReviewModal(true);
+          }, 60_000);
 
           addTrace({
             id: `planner-plan-${Date.now()}`,
@@ -372,6 +387,24 @@ export default function ChatPage() {
           language={language}
         />
       </div>
+
+      {/* ── Review Modal ── */}
+      {showReviewModal && caseId && (
+        <ReviewModal
+          caseId={caseId}
+          language={language}
+          onSubmit={async (data) => {
+            const { userId } = useAppStore.getState();
+            await fetch(`${API_URL}/api/reviews`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...data, user_id: userId, language }),
+            });
+            localStorage.setItem(`review_submitted_${caseId}`, "true");
+          }}
+          onClose={() => setShowReviewModal(false)}
+        />
+      )}
 
       {/* ── Timeline Panel — appears when plan is ready ── */}
       {plan && (

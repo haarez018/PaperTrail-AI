@@ -196,6 +196,10 @@ export default function Home() {
           Stories
         </Link>
         {" · "}
+        <Link href="/reviews" className="hover:text-saffron transition-colors">
+          Reviews
+        </Link>
+        {" · "}
         <span className="text-text-muted">PaperTrail AI is free · Government fees only</span>
       </footer>
     </main>

@@ -116,7 +116,7 @@ export function ChatHeader({ language, onLanguageChange, caseId, messages = [] }
 
       <div className="flex items-center gap-1 sm:gap-2">
         <SystemStatus />
-        {/* Stories + Cases links — text label hidden on mobile */}
+        {/* Stories + Cases + Reviews links — text label hidden on mobile */}
         <Link
           href="/stories"
           className="hidden xs:inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-text-muted hover:bg-paper hover:text-navy transition-colors"
@@ -132,6 +132,14 @@ export function ChatHeader({ language, onLanguageChange, caseId, messages = [] }
         >
           <FolderOpen size={14} />
           <span className="hidden sm:inline">Cases</span>
+        </Link>
+        <Link
+          href="/reviews"
+          className="hidden xs:inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-xs text-text-muted hover:bg-paper hover:text-navy transition-colors"
+          title="User reviews"
+        >
+          <Star size={14} />
+          <span className="hidden sm:inline">Reviews</span>
         </Link>
         {caseId && messages.length > 0 && (
           <button
