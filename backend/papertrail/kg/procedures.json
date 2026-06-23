@@ -595,5 +595,442 @@
     ],
     "legal_basis": "Tamil Nadu Lokayukta Act, 2018; Prevention of Corruption Act, 1988",
     "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_birth_certificate",
+    "name_en": "Birth Certificate",
+    "name_ta": "பிறப்புச் சான்றிதழ்",
+    "issuing_authority": "Municipal Corporation / Town Panchayat (Registrar of Births and Deaths)",
+    "jurisdiction": "tn",
+    "applicable_when": "A child has been born and the birth needs to be officially registered",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Hospital discharge summary / Form 3 (institutional birth record)", "mandatory": true, "where_to_get": "Hospital where birth occurred"},
+      {"name": "Aadhaar card of both parents", "mandatory": true},
+      {"name": "Marriage certificate of parents (if available)", "mandatory": false},
+      {"name": "Address proof of parents (electricity bill or ration card)", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 3, "max": 7},
+    "fee_inr": 0,
+    "form_template_id": "tn_birth_cert_form_1",
+    "office_type": "municipal_corporation",
+    "online_option_url": "https://crsorgi.gov.in/",
+    "common_rejection_reasons": [
+      "Birth reported after 21 days — late registration needs magistrate order",
+      "Hospital birth form not in prescribed format",
+      "Child's name not mentioned at time of registration (can be added later)"
+    ],
+    "legal_basis": "Registration of Births and Deaths Act, 1969 (Sections 8, 13)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_community_certificate",
+    "name_en": "Community Certificate (Caste Certificate)",
+    "name_ta": "சமூகச் சான்றிதழ் (சாதிச் சான்றிதழ்)",
+    "issuing_authority": "Tahsildar (Revenue Department)",
+    "jurisdiction": "tn",
+    "applicable_when": "Required to prove caste/community for government jobs, education seats, scholarships, and welfare schemes",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "School transfer certificate or 10th mark sheet mentioning community", "mandatory": true},
+      {"name": "Aadhaar card", "mandatory": true},
+      {"name": "Ration card showing community entry", "mandatory": true},
+      {"name": "Father's or mother's community certificate", "mandatory": false},
+      {"name": "Village Panchayat or Ward member certificate", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 21},
+    "fee_inr": 20,
+    "form_template_id": "tn_community_cert_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://tnedistrict.tn.gov.in/",
+    "common_rejection_reasons": [
+      "School certificate does not mention community",
+      "Name mismatch between Aadhaar and ration card",
+      "Father's community certificate not provided for first-generation applicants"
+    ],
+    "legal_basis": "Tamil Nadu Backward Classes, Scheduled Castes and Scheduled Tribes (Reservation) Act, 1993",
+    "rti_template_id": "tn_community_cert_rti"
+  },
+  {
+    "procedure_id": "tn_income_certificate",
+    "name_en": "Income Certificate",
+    "name_ta": "வருமானச் சான்றிதழ்",
+    "issuing_authority": "Tahsildar (Revenue Department)",
+    "jurisdiction": "tn",
+    "applicable_when": "Required for widow pension, scholarships, fee waivers, and most government welfare schemes",
+    "dependencies": [],
+    "blocks": ["tn_widow_pension_application"],
+    "documents_required": [
+      {"name": "Salary certificate or employer letter (if salaried)", "mandatory": false},
+      {"name": "Aadhaar card", "mandatory": true},
+      {"name": "Ration card", "mandatory": true},
+      {"name": "Bank passbook — last 6 months statements", "mandatory": true},
+      {"name": "Self-declaration affidavit on Rs.20 stamp paper", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 14},
+    "fee_inr": 20,
+    "form_template_id": "tn_income_cert_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://tnedistrict.tn.gov.in/",
+    "common_rejection_reasons": [
+      "Bank statements show income above declared amount",
+      "Missing self-declaration affidavit on stamp paper",
+      "Agricultural income not separately declared"
+    ],
+    "legal_basis": "Tamil Nadu Revenue Department Certificate Rules",
+    "rti_template_id": "tn_income_cert_rti"
+  },
+  {
+    "procedure_id": "tn_land_patta_transfer",
+    "name_en": "Land Patta Transfer (Revenue Record Update)",
+    "name_ta": "நிலம் பட்டா மாற்றம்",
+    "issuing_authority": "Tahsildar / Revenue Divisional Officer",
+    "jurisdiction": "tn",
+    "applicable_when": "After buying or inheriting land — updates revenue patta record to show new owner",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Registered sale deed or gift deed (original)", "mandatory": true, "where_to_get": "Sub-Registrar Office"},
+      {"name": "Previous owner's patta (parent patta)", "mandatory": true},
+      {"name": "Encumbrance certificate for last 15 years", "mandatory": true, "where_to_get": "Sub-Registrar Office"},
+      {"name": "Aadhaar card of new owner", "mandatory": true},
+      {"name": "Latest property tax paid receipt", "mandatory": true},
+      {"name": "FMB sketch / survey sketch", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 90},
+    "fee_inr": 100,
+    "form_template_id": "tn_patta_transfer_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://eservices.tn.gov.in/eservicesnew/",
+    "common_rejection_reasons": [
+      "Encumbrance certificate shows existing loan or mortgage on land",
+      "Survey number mismatch between sale deed and patta",
+      "Property tax arrears not cleared",
+      "FMB sketch not matching field boundaries"
+    ],
+    "legal_basis": "Tamil Nadu Patta Transfer Rules; Tamil Nadu Survey and Boundaries Act, 1923",
+    "rti_template_id": "tn_patta_transfer_rti"
+  },
+  {
+    "procedure_id": "tn_voter_id_registration",
+    "name_en": "Voter ID (EPIC) Registration",
+    "name_ta": "வாக்காளர் அடையாள அட்டை பதிவு",
+    "issuing_authority": "Electoral Registration Officer / Booth Level Officer",
+    "jurisdiction": "tn",
+    "applicable_when": "First-time voter registration (18+ years) or after relocating to a new constituency",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Proof of age (birth certificate, 10th mark sheet, or Aadhaar)", "mandatory": true},
+      {"name": "Proof of address (Aadhaar, ration card, or electricity bill)", "mandatory": true},
+      {"name": "Two passport-size photographs", "mandatory": true},
+      {"name": "Aadhaar card (for seeding with voter ID)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 14, "max": 30},
+    "fee_inr": 0,
+    "form_template_id": "form_6_voter_registration",
+    "office_type": "electoral_office",
+    "online_option_url": "https://voters.eci.gov.in/",
+    "common_rejection_reasons": [
+      "Address proof does not match the constituency",
+      "Already registered at a different address",
+      "Age proof not in accepted format"
+    ],
+    "legal_basis": "Representation of the People Act, 1950 (Sections 16-22); Registration of Electors Rules, 1960 (Form 6)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_ration_card_new",
+    "name_en": "New Ration Card Application",
+    "name_ta": "புதிய ரேஷன் கார்டு விண்ணப்பம்",
+    "issuing_authority": "Taluk Supply Office / District Supply Office (Civil Supplies Department)",
+    "jurisdiction": "tn",
+    "applicable_when": "New family after marriage, or separating from parent's ration card to form an independent household",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Marriage certificate (for newly formed family)", "mandatory": false},
+      {"name": "Deletion certificate from previous ration card", "mandatory": true, "where_to_get": "Taluk Supply Office of previous address"},
+      {"name": "Aadhaar card of all family members", "mandatory": true},
+      {"name": "Address proof (electricity bill or rental agreement)", "mandatory": true},
+      {"name": "Income proof (for TPDS eligibility)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 14, "max": 45},
+    "fee_inr": 0,
+    "form_template_id": "tn_ration_card_new_form",
+    "office_type": "supply_office",
+    "online_option_url": "https://www.tnpds.gov.in/",
+    "common_rejection_reasons": [
+      "Deletion certificate from previous state or district not obtained",
+      "Aadhaar seeding not completed for all family members",
+      "Income exceeds TPDS eligibility threshold"
+    ],
+    "legal_basis": "National Food Security Act, 2013; Tamil Nadu Public Distribution System (Control) Order",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "tn_driving_license_renewal",
+    "name_en": "Driving Licence Renewal",
+    "name_ta": "ஓட்டுநர் உரிமம் புதுப்பிப்பு",
+    "issuing_authority": "Regional Transport Office (RTO)",
+    "jurisdiction": "tn",
+    "applicable_when": "Driving licence has expired or is about to expire (renewal due every 20 years for non-transport vehicles)",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Original driving licence", "mandatory": true},
+      {"name": "Form 9 (application for renewal)", "mandatory": true},
+      {"name": "Medical certificate Form 1A (for transport licence or age 50+)", "mandatory": false},
+      {"name": "Aadhaar card", "mandatory": true},
+      {"name": "Fee payment challan", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 21},
+    "fee_inr": 200,
+    "form_template_id": "rto_form_9",
+    "office_type": "rto",
+    "online_option_url": "https://sarathi.parivahan.gov.in/",
+    "common_rejection_reasons": [
+      "Medical certificate not provided for applicants aged 50+",
+      "Original licence not produced for surrender",
+      "Renewal applied more than 1 year after expiry — penalty applies",
+      "Address mismatch between licence and Aadhaar"
+    ],
+    "legal_basis": "Motor Vehicles Act, 1988 (Section 15); Central Motor Vehicles Rules, 1989 (Rule 28)",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "ka_death_certificate",
+    "name_en": "Death Certificate",
+    "name_kn": "ಮರಣ ಪ್ರಮಾಣಪತ್ರ",
+    "issuing_authority": "BBMP / City Municipal Council / Gram Panchayat (Registrar of Births and Deaths)",
+    "jurisdiction": "ka",
+    "applicable_when": "A person has died in Karnataka and the death must be officially registered",
+    "dependencies": [],
+    "blocks": ["ka_legal_heir_cert", "ka_khata_transfer", "ka_pension_transfer", "ka_ration_card_update"],
+    "documents_required": [
+      {"name": "Hospital Form 4A — cause of death certificate from treating doctor", "mandatory": true, "where_to_get": "Hospital where death occurred"},
+      {"name": "Aadhaar card of the deceased", "mandatory": true},
+      {"name": "Aadhaar card of the informant", "mandatory": true},
+      {"name": "Proof of address of the deceased", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 5, "max": 7},
+    "fee_inr": 0,
+    "form_template_id": "ka_death_cert_form_4",
+    "office_type": "municipal_corporation",
+    "online_option_url": "https://bbmponline.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Death reported after 21 days — requires Executive Magistrate order",
+      "Hospital Form 4A not attested by treating doctor",
+      "Informant not identifiably related to the deceased"
+    ],
+    "legal_basis": "Registration of Births and Deaths Act, 1969 (Sections 12, 13); Karnataka Registration Rules, 1999",
+    "rti_template_id": "ka_death_cert_rti"
+  },
+  {
+    "procedure_id": "ka_legal_heir_cert",
+    "name_en": "Legal Heir Certificate",
+    "name_kn": "ಕಾನೂನು ವಾರಸದಾರ ಪ್ರಮಾಣಪತ್ರ",
+    "issuing_authority": "Tahsildar (Revenue Department, Government of Karnataka)",
+    "jurisdiction": "ka",
+    "applicable_when": "To establish legal heirs of a deceased person for pension transfer, bank claims, and property mutation in Karnataka",
+    "dependencies": ["ka_death_certificate"],
+    "blocks": ["ka_pension_transfer", "ka_khata_transfer"],
+    "documents_required": [
+      {"name": "Death Certificate (original + 3 attested copies)", "mandatory": true},
+      {"name": "Aadhaar card of all legal heirs", "mandatory": true},
+      {"name": "Ration card showing all family members", "mandatory": true},
+      {"name": "Affidavit on Rs.20 stamp paper naming all legal heirs", "mandatory": true},
+      {"name": "Two independent witness declarations with ID proof", "mandatory": true},
+      {"name": "Passport-size photos of all legal heirs (2 each)", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 21, "max": 45},
+    "fee_inr": 100,
+    "form_template_id": "ka_lhc_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://sevasindhu.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Affidavit not on stamp paper or not notarized",
+      "Witness declarations incomplete or unverifiable",
+      "Name spelling mismatch across Aadhaar, ration card, and death certificate"
+    ],
+    "legal_basis": "Hindu Succession Act, 1956; Karnataka Revenue Department Circular on Legal Heir Certificates",
+    "rti_template_id": "ka_lhc_rti"
+  },
+  {
+    "procedure_id": "ka_marriage_registration",
+    "name_en": "Marriage Registration",
+    "name_kn": "ಮದುವೆ ನೋಂದಣಿ",
+    "issuing_authority": "Sub-Registrar of Marriages / Marriage Officer",
+    "jurisdiction": "ka",
+    "applicable_when": "To register a marriage solemnized in Karnataka for legal recognition",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Application signed by both spouses", "mandatory": true},
+      {"name": "Proof of age — birth certificate or 10th mark sheet", "mandatory": true},
+      {"name": "Address proof (Aadhaar or ration card) for both spouses", "mandatory": true},
+      {"name": "Three witnesses with Aadhaar and ID proof", "mandatory": true},
+      {"name": "Marriage invitation card or ceremony photographs", "mandatory": false},
+      {"name": "Aadhaar card of both spouses", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 30},
+    "fee_inr": 200,
+    "form_template_id": "ka_marriage_reg_form",
+    "office_type": "sub_registrar",
+    "online_option_url": "https://igr.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Groom below 21 or bride below 18 years of age",
+      "Either party has an existing undissolved marriage",
+      "Witnesses not personally present on registration day"
+    ],
+    "legal_basis": "Karnataka Marriages (Registration and Miscellaneous Provisions) Act, 1976; Hindu Marriage Act, 1955",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "ka_birth_certificate",
+    "name_en": "Birth Certificate",
+    "name_kn": "ಜನನ ಪ್ರಮಾಣಪತ್ರ",
+    "issuing_authority": "BBMP / City Municipal Council / Gram Panchayat (Registrar of Births and Deaths)",
+    "jurisdiction": "ka",
+    "applicable_when": "A child has been born in Karnataka and the birth must be registered",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Hospital birth record Form 3", "mandatory": true, "where_to_get": "Hospital where birth occurred"},
+      {"name": "Aadhaar card of both parents", "mandatory": true},
+      {"name": "Marriage certificate of parents", "mandatory": false},
+      {"name": "Address proof of parents", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 3, "max": 7},
+    "fee_inr": 0,
+    "form_template_id": "ka_birth_cert_form_1",
+    "office_type": "municipal_corporation",
+    "online_option_url": "https://bbmponline.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Registration after 21 days requires BBMP officer approval",
+      "Hospital Form 3 not in Karnataka prescribed format",
+      "Parents' address outside BBMP jurisdiction"
+    ],
+    "legal_basis": "Registration of Births and Deaths Act, 1969 (Section 8); Karnataka Registration Rules, 1999",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "ka_khata_transfer",
+    "name_en": "Khata Transfer (Property Tax Record Update)",
+    "name_kn": "ಖಾತಾ ವರ್ಗಾವಣೆ",
+    "issuing_authority": "BBMP / City Municipal Corporation (urban) or Gram Panchayat (rural)",
+    "jurisdiction": "ka",
+    "applicable_when": "After buying or inheriting urban property in Karnataka — updates Khata (municipal tax record) to new owner",
+    "dependencies": ["ka_legal_heir_cert"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Registered sale deed or gift deed (original)", "mandatory": true},
+      {"name": "Previous Khata certificate and Khata extract (Form B)", "mandatory": true},
+      {"name": "Encumbrance certificate for last 15 years", "mandatory": true, "where_to_get": "Sub-Registrar Office"},
+      {"name": "Latest property tax paid receipt", "mandatory": true},
+      {"name": "Legal Heir Certificate (if inherited property)", "mandatory": false},
+      {"name": "Death Certificate of previous owner (if inherited)", "mandatory": false}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 90},
+    "fee_inr": 500,
+    "form_template_id": "ka_khata_transfer_form",
+    "office_type": "municipal_corporation",
+    "online_option_url": "https://bbmponline.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Outstanding property tax arrears not cleared",
+      "Encumbrance certificate shows active loan on the property",
+      "Unauthorized construction flagged by BBMP",
+      "Agricultural-to-residential conversion order not obtained"
+    ],
+    "legal_basis": "Karnataka Municipal Corporations Act, 1976 (Section 108); BBMP Act, 2020",
+    "rti_template_id": "ka_khata_rti"
+  },
+  {
+    "procedure_id": "ka_pension_transfer",
+    "name_en": "Family Pension Transfer to Legal Heir",
+    "name_kn": "ಕುಟುಂಬ ಪಿಂಚಣಿ ವರ್ಗಾವಣೆ",
+    "issuing_authority": "Karnataka Government Treasury Department / Accountant General Karnataka",
+    "jurisdiction": "ka",
+    "applicable_when": "Karnataka government employee or pensioner dies — family pension transferred to spouse or dependent",
+    "dependencies": ["ka_death_certificate", "ka_legal_heir_cert"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate (original)", "mandatory": true},
+      {"name": "Legal Heir Certificate", "mandatory": true},
+      {"name": "PPO (Pension Payment Order) of the deceased", "mandatory": true},
+      {"name": "Aadhaar card of the claimant", "mandatory": true},
+      {"name": "Bank passbook of the claimant", "mandatory": true},
+      {"name": "Life certificate of the claimant", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 30, "max": 60},
+    "fee_inr": 0,
+    "form_template_id": "ka_pension_transfer_form",
+    "office_type": "treasury",
+    "online_option_url": "https://kgid.kar.nic.in/",
+    "common_rejection_reasons": [
+      "PPO not surrendered to the treasury",
+      "Claimant income exceeds family pension eligibility threshold",
+      "Bank account not in single name of claimant"
+    ],
+    "legal_basis": "Karnataka Civil Service Rules, 1958; Karnataka Government Servants (Family Pension) Rules, 1964",
+    "rti_template_id": "ka_pension_rti"
+  },
+  {
+    "procedure_id": "ka_caste_income_certificate",
+    "name_en": "Caste and Income Certificate",
+    "name_kn": "ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ",
+    "issuing_authority": "Tahsildar (Revenue Department, Government of Karnataka)",
+    "jurisdiction": "ka",
+    "applicable_when": "Required for OBC/SC/ST reservation benefits, scholarships, welfare scheme eligibility, and fee waivers in Karnataka",
+    "dependencies": [],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Aadhaar card", "mandatory": true},
+      {"name": "Ration card", "mandatory": true},
+      {"name": "School transfer certificate mentioning caste", "mandatory": false},
+      {"name": "Father's caste certificate (if available)", "mandatory": false},
+      {"name": "Income declaration form with supporting bank statements", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 21},
+    "fee_inr": 50,
+    "form_template_id": "ka_caste_income_form",
+    "office_type": "tahsildar",
+    "online_option_url": "https://sevasindhu.karnataka.gov.in/",
+    "common_rejection_reasons": [
+      "Caste not listed in Karnataka OBC/SC/ST schedule",
+      "School certificate does not mention caste",
+      "Declared income does not match bank statement"
+    ],
+    "legal_basis": "Karnataka Scheduled Castes, Scheduled Tribes and Other Backward Classes (Reservation) Act, 1990",
+    "rti_template_id": null
+  },
+  {
+    "procedure_id": "ka_ration_card_update",
+    "name_en": "Ration Card Update — Remove Deceased Member",
+    "name_kn": "ರೇಷನ್ ಕಾರ್ಡ್ ನವೀಕರಣ",
+    "issuing_authority": "Taluk Food and Civil Supplies Office (Department of Food and Civil Supplies, Karnataka)",
+    "jurisdiction": "ka",
+    "applicable_when": "To remove a deceased family member from the ration card in Karnataka",
+    "dependencies": ["ka_death_certificate"],
+    "blocks": [],
+    "documents_required": [
+      {"name": "Death Certificate", "mandatory": true},
+      {"name": "Original ration card", "mandatory": true},
+      {"name": "Aadhaar card of remaining family members", "mandatory": true},
+      {"name": "Application form for deletion of member", "mandatory": true}
+    ],
+    "estimated_duration_days": {"min": 7, "max": 21},
+    "fee_inr": 0,
+    "form_template_id": "ka_ration_card_deletion_form",
+    "office_type": "supply_office",
+    "online_option_url": "https://ahara.kar.nic.in/",
+    "common_rejection_reasons": [
+      "Aadhaar seeding not completed for remaining family members",
+      "Original ration card not produced for endorsement"
+    ],
+    "legal_basis": "National Food Security Act, 2013; Karnataka Public Distribution System (Control) Order, 2014",
+    "rti_template_id": null
   }
 ]

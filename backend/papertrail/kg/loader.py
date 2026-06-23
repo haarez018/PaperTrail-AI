@@ -73,6 +73,7 @@ def get_procedures_for_event(event_type: str) -> list[Procedure]:
 
     event_procedure_map: dict[str, list[str]] = {
         "death": [
+            # Tamil Nadu
             "tn_death_certificate",
             "tn_legal_heir_cert",
             "tn_succession_cert",
@@ -84,16 +85,40 @@ def get_procedures_for_event(event_type: str) -> list[Procedure]:
             "tn_ration_card_update",
             "tn_insurance_claim",
             "tn_it_final_return",
+            # Karnataka
+            "ka_death_certificate",
+            "ka_legal_heir_cert",
+            "ka_pension_transfer",
+            "ka_khata_transfer",
+            "ka_ration_card_update",
         ],
         "marriage": [
+            # Tamil Nadu
             "tn_marriage_registration",
             "tn_name_change_aadhaar",
             "tn_name_change_pan",
+            "tn_ration_card_new",
+            # Karnataka
+            "ka_marriage_registration",
+        ],
+        "birth": [
+            # Tamil Nadu
+            "tn_birth_certificate",
+            # Karnataka
+            "ka_birth_certificate",
+        ],
+        "property_purchase": [
+            # Tamil Nadu
+            "tn_land_patta_transfer",
+            "tn_property_mutation",
+            # Karnataka
+            "ka_khata_transfer",
         ],
         "pension_claim": [
             "tn_widow_pension_application",
             "tn_widow_pension_renewal",
             "tn_widow_pension_grievance",
+            "tn_income_certificate",
         ],
         "grievance": [
             "rti_filing",
@@ -103,6 +128,14 @@ def get_procedures_for_event(event_type: str) -> list[Procedure]:
         "name_change": [
             "tn_name_change_aadhaar",
             "tn_name_change_pan",
+        ],
+        "other": [
+            "tn_community_certificate",
+            "tn_income_certificate",
+            "tn_voter_id_registration",
+            "tn_driving_license_renewal",
+            "ka_caste_income_certificate",
+            "rti_filing",
         ],
     }
 

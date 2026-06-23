@@ -29,19 +29,24 @@ def query_procedure_kg(
     """
     base_procedures = get_procedures_for_event(life_event)
 
+    _pension_procs = {"tn_pension_transfer", "ka_pension_transfer"}
+    _property_procs = {"tn_property_mutation", "tn_land_patta_transfer", "ka_khata_transfer"}
+    _bank_procs = {"tn_bank_kyc_update"}
+    _insurance_procs = {"tn_insurance_claim"}
+
     results = []
     for proc in base_procedures:
-        # Filter based on case context
-        if proc.procedure_id == "tn_pension_transfer" and not has_pension:
+        # Filter optional procedures by case context
+        if proc.procedure_id in _pension_procs and not has_pension:
             continue
-        if proc.procedure_id == "tn_property_mutation" and not has_property:
+        if proc.procedure_id in _property_procs and not has_property:
             continue
-        if proc.procedure_id == "tn_bank_kyc_update" and has_bank_accounts == 0:
+        if proc.procedure_id in _bank_procs and has_bank_accounts == 0:
             continue
-        if proc.procedure_id == "tn_insurance_claim" and not has_insurance:
+        if proc.procedure_id in _insurance_procs and not has_insurance:
             continue
 
-        # Filter by jurisdiction
+        # Filter by jurisdiction — central procedures always included
         if proc.jurisdiction not in (state, "central"):
             continue
 

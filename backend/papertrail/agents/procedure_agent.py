@@ -98,6 +98,66 @@ _WHY_NEEDED: dict[str, str] = {
         "If a government official demanded a bribe or caused deliberate delays, the "
         "Lokayukta can investigate and take disciplinary action."
     ),
+    "tn_birth_certificate": (
+        "The birth certificate is the first identity document — needed for school admission, "
+        "passport, voter ID, and Aadhaar. Register within 21 days to avoid a magistrate order."
+    ),
+    "tn_community_certificate": (
+        "The community certificate from the Tahsildar proves your caste for government jobs, "
+        "reserved seats, and welfare schemes. Photocopies and old certificates are not accepted."
+    ),
+    "tn_income_certificate": (
+        "The income certificate is a prerequisite for widow pension and most fee-waiver schemes. "
+        "Get it from the Tahsildar before applying for any welfare benefit."
+    ),
+    "tn_land_patta_transfer": (
+        "Even after a registered sale deed, the patta stays in the previous owner's name. Banks "
+        "and courts rely on the patta — update it before selling or mortgaging the land."
+    ),
+    "tn_voter_id_registration": (
+        "Registering as a voter is your constitutional right. Apply online via voters.eci.gov.in "
+        "to save a trip; the EPIC card arrives in 2-4 weeks."
+    ),
+    "tn_ration_card_new": (
+        "A new ration card is needed to access subsidized PDS food grains for your household. "
+        "Start by getting a deletion certificate from your previous ration card office."
+    ),
+    "tn_driving_license_renewal": (
+        "Driving with an expired licence attracts a heavy fine. Renew online via Sarathi Parivahan "
+        "— the original licence must be produced at the RTO."
+    ),
+    "ka_death_certificate": (
+        "In Karnataka, the BBMP or Gram Panchayat death certificate is foundational — all other "
+        "procedures (legal heir, Khata, pension) depend on it. Register within 21 days."
+    ),
+    "ka_legal_heir_cert": (
+        "The Legal Heir Certificate from the Karnataka Tahsildar is required for pension transfer, "
+        "bank settlement, and Khata transfer. The notarized stamp-paper affidavit is mandatory."
+    ),
+    "ka_marriage_registration": (
+        "Marriage registration under the Karnataka Act creates the legal record needed for visa "
+        "applications, joint bank accounts, and jointly held property."
+    ),
+    "ka_birth_certificate": (
+        "Register the birth at your BBMP ward office within 21 days. The birth certificate is "
+        "required for school admission and Aadhaar enrolment."
+    ),
+    "ka_khata_transfer": (
+        "The Khata is Karnataka's municipal property tax record. Banks require an updated Khata "
+        "for home loans. Clear all property tax arrears first — the system checks automatically."
+    ),
+    "ka_pension_transfer": (
+        "If the deceased was a Karnataka government employee, surrender the old PPO and submit "
+        "a fresh claim at the treasury. Pension stops after death — act quickly."
+    ),
+    "ka_caste_income_certificate": (
+        "Karnataka's combined Caste and Income Certificate from the Tahsildar is used for "
+        "reservation benefits and Seva Sindhu scheme eligibility. Apply online to track status."
+    ),
+    "ka_ration_card_update": (
+        "After a death in a Karnataka household, remove the deceased from the ration card to "
+        "avoid complications with Aadhaar-seeded PDS entitlements for the remaining family."
+    ),
 }
 
 

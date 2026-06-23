@@ -158,5 +158,53 @@
     "average_wait_minutes": 45,
     "known_issues": ["May insist on succession certificate even for small amounts", "Branch manager approval needed for claims >Rs.1 lakh"],
     "tips": ["If deceased had a nomination registered, the process is faster — check passbook for nomination details"]
+  },
+  {
+    "office_id": "ka_tahsildar_bengaluru_south",
+    "name": "Tahsildar Office, Bengaluru South Taluk",
+    "department": "Revenue Department, Government of Karnataka",
+    "office_type": "tahsildar",
+    "address": "Bannerghatta Road, JP Nagar 3rd Phase, Bengaluru - 560078",
+    "lat_lng": [12.9079, 77.5931],
+    "counter": "Counter 2 — Legal Heir / Caste / Income Certificates",
+    "hours": "Mon-Fri 10:00-17:30",
+    "phone": "080-2658-1234",
+    "pincode": "560078",
+    "best_time_to_visit": "Tuesday or Wednesday 10:30 AM — before token queue fills",
+    "average_wait_minutes": 120,
+    "known_issues": ["Long queues on Mondays and last week of month", "System downtime common around month-end"],
+    "tips": ["Bring 4 passport-size photos", "Photocopy all documents before entering — no photocopier inside"]
+  },
+  {
+    "office_id": "ka_bbmp_khata_east",
+    "name": "BBMP East Zone Office — Khata Section",
+    "department": "Bruhat Bengaluru Mahanagara Palike",
+    "office_type": "municipal_corporation",
+    "address": "CMC Road, Indiranagar, Bengaluru - 560038",
+    "lat_lng": [12.9784, 77.6408],
+    "counter": "Revenue Section — Khata Transfer Counter",
+    "hours": "Mon-Fri 10:00-17:00",
+    "phone": "080-2286-5432",
+    "pincode": "560038",
+    "best_time_to_visit": "Wednesday or Thursday morning",
+    "average_wait_minutes": 90,
+    "known_issues": ["Khata transfers held up pending ward officer approval (adds 2-4 weeks)", "Property tax clearance must be obtained from BBMP online first"],
+    "tips": ["Check your ward number on bbmponline.karnataka.gov.in before visiting", "Pay outstanding property tax online and carry the receipt printout"]
+  },
+  {
+    "office_id": "ka_social_welfare_bengaluru",
+    "name": "District Social Security and Pensions Office, Bengaluru Urban",
+    "department": "Department of Social Security and Pensions, Karnataka",
+    "office_type": "social_welfare",
+    "address": "4th Floor, Cauvery Bhavan, Kempe Gowda Road, Bengaluru - 560009",
+    "lat_lng": [12.9769, 77.5713],
+    "counter": "Pension Claims Counter",
+    "hours": "Mon-Fri 10:30-17:00",
+    "phone": "080-2286-7890",
+    "pincode": "560009",
+    "best_time_to_visit": "Tuesday morning",
+    "average_wait_minutes": 60,
+    "known_issues": ["Family pension files need Deputy Commissioner approval — adds 2-3 weeks", "PPO surrender must be done at treasury office first"],
+    "tips": ["Carry original PPO plus 3 notary-attested copies", "Get legal heir certificate attested by notary before visiting"]
   }
 ]

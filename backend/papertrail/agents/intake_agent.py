@@ -76,7 +76,15 @@ _EVENT_KEYWORDS: dict[str, LifeEventType] = {
     "ration card": LifeEventType.GRIEVANCE,
     "name change": LifeEventType.NAME_CHANGE,
     "property": LifeEventType.PROPERTY_PURCHASE,
+    "bought land": LifeEventType.PROPERTY_PURCHASE,
+    "purchased house": LifeEventType.PROPERTY_PURCHASE,
+    "patta": LifeEventType.PROPERTY_PURCHASE,
+    "khata": LifeEventType.PROPERTY_PURCHASE,
     "birth": LifeEventType.BIRTH,
+    "born": LifeEventType.BIRTH,
+    "newborn": LifeEventType.BIRTH,
+    "baby": LifeEventType.BIRTH,
+    "child born": LifeEventType.BIRTH,
 }
 
 _RELATIONSHIP_KEYWORDS: dict[str, Relationship] = {
@@ -167,15 +175,46 @@ def _count_banks(text: str) -> int:
     return 0
 
 
-def extract_location(text: str) -> str | None:
-    """Extract location from text."""
-    cities = [
-        "chennai", "madurai", "coimbatore", "tiruchirappalli", "trichy",
-        "salem", "tirunelveli", "erode", "vellore", "thoothukudi",
-        "thanjavur", "dindigul", "saidapet", "tambaram", "adyar",
-    ]
+_TN_CITIES = [
+    "chennai", "madurai", "coimbatore", "tiruchirappalli", "trichy",
+    "salem", "tirunelveli", "erode", "vellore", "thoothukudi",
+    "thanjavur", "dindigul", "saidapet", "tambaram", "adyar",
+    "kancheepuram", "tiruppur", "nagercoil", "cuddalore", "hosur",
+]
+
+_KA_CITIES = [
+    "bengaluru", "bangalore", "mysuru", "mysore", "mangaluru", "mangalore",
+    "hubli", "dharwad", "belagavi", "belgaum", "tumakuru", "tumkur",
+    "shivamogga", "shimoga", "davanagere", "davangere", "bellary", "ballari",
+    "kolar", "udupi", "hassan", "mandya",
+]
+
+
+def detect_state(text: str) -> str:
+    """Return state code from text — 'ka' for Karnataka, 'tn' for Tamil Nadu (default)."""
     lower = text.lower()
-    for city in cities:
+    for city in _KA_CITIES:
+        if city in lower:
+            return "ka"
+    if "karnataka" in lower:
+        return "ka"
+    for city in _TN_CITIES:
+        if city in lower:
+            return "tn"
+    if "tamil nadu" in lower or "tamilnadu" in lower:
+        return "tn"
+    return "tn"  # default
+
+
+def extract_location(text: str) -> str | None:
+    """Extract location display string from text."""
+    lower = text.lower()
+    for city in _KA_CITIES:
+        if city in lower:
+            return city.title() + ", Karnataka"
+    if "karnataka" in lower:
+        return "Karnataka"
+    for city in _TN_CITIES:
         if city in lower:
             return city.title() + ", Tamil Nadu"
     if "tamil nadu" in lower or "tamilnadu" in lower:
@@ -291,7 +330,7 @@ class DeterministicIntake:
             loc = extract_location(message)
             if loc:
                 self.case.life_event.location = loc
-                self.case.user.state = "tn"
+                self.case.user.state = detect_state(message)
 
         # Context flags — smart field-aware extraction.
         # Priority: explicit keyword + optional negation > bare yes/no.
@@ -389,7 +428,7 @@ class DeterministicIntake:
 
         if self.case.life_event.location is None:
             self.case.user.state = "tn"
-            self.case.life_event.location = "Tamil Nadu"
+            self.case.life_event.location = "India"
 
         if self.case.context.had_pension is None:
             q = _Q["death_pension"].get(lang, _Q["death_pension"]["en"])
@@ -410,13 +449,13 @@ class DeterministicIntake:
     def _marriage_questions(self) -> str | None:
         if self.case.life_event.location is None:
             self.case.user.state = "tn"
-            self.case.life_event.location = "Tamil Nadu"
+            self.case.life_event.location = "India"
         return None
 
     def _pension_questions(self) -> str | None:
         if self.case.life_event.location is None:
             self.case.user.state = "tn"
-            self.case.life_event.location = "Tamil Nadu"
+            self.case.life_event.location = "India"
         return None
 
     def is_complete(self) -> bool:
@@ -549,7 +588,7 @@ class IntakeAgent:
         location = result.get("location")
         if location and not self._case.life_event.location:
             self._case.life_event.location = location
-            self._case.user.state = "tn"
+            self._case.user.state = detect_state(location)
 
         # Context flags
         if result.get("had_pension") is True:
